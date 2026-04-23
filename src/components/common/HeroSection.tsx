@@ -14,14 +14,19 @@ const HeroSection = () => {
 
   useEffect(() => {
     // Attempt autoplay (might be blocked by browser)
-    if (audioRef.current) {
-        audioRef.current.play().then(() => {
-            setIsPlaying(true);
-        }).catch(() => {
-            console.log("Autoplay blocked. User interaction required.");
-            setIsPlaying(false);
-        });
-    }
+    const playAudio = async () => {
+      if (audioRef.current) {
+        try {
+          await audioRef.current.play();
+          setIsPlaying(true);
+        } catch (error) {
+          console.log("Autoplay blocked or load failed:", error);
+          setIsPlaying(false);
+        }
+      }
+    };
+
+    playAudio();
     
     // Fixed start time: around mid-April 2026 (or earlier) to simulate a running server.
     const START_TIME = new Date('2026-04-07T08:30:00Z').getTime();
@@ -54,7 +59,13 @@ const HeroSection = () => {
 
   return (
     <div className="relative w-full overflow-hidden bg-white min-h-[85vh] flex items-center pt-24 pb-16">
-      <audio ref={audioRef} loop src="http://rahmad-elaina.my.id/file/cd38fe1d6b.mp3" preload="auto" />
+      <audio 
+        ref={audioRef} 
+        loop 
+        src="https://rahmad-elaina.my.id/file/cd38fe1d6b.mp3" 
+        preload="auto" 
+        onError={() => console.warn("Audio failed to load via HTTPS. Mixed content might be blocked or resource missing.")}
+      />
       
       {/* Abstract Background Design / Lightweight Gradients */}
       <div className="absolute top-0 right-0 w-[50vw] h-[50vw] bg-blue-50/60 rounded-full blur-[100px] -z-10 translate-x-1/3 -translate-y-1/3" />
