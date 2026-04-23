@@ -171,12 +171,14 @@ export default function App() {
     isSavingRef.current = true;
     setIsSaving(true);
     
-    // 1. Optimistic Update
+    // Backup for rollback
+    const previousCategories = [...localCategories];
+    
+    // 1. Optimistic Update (Functional for latest state)
     setLocalCategories(data); 
 
     console.group(`[PERSIST] Saving Data - ${new Date().toLocaleTimeString()}`);
-    console.log("Payload:", data);
-
+    
     try {
       const res = await fetch('/api/categories', {
          method: 'POST',
@@ -184,19 +186,18 @@ export default function App() {
          body: JSON.stringify(data)
       });
       
-      if (!res.ok) {
-        throw new Error(`Server returned error ${res.status}`);
-      }
+      if (!res.ok) throw new Error(`Server returned error ${res.status}`);
       
       const result = await res.json();
       console.log("Success: Data saved to server", result);
       
-      // 2. Immediate Re-fetch to confirm server state
+      // 2. Immediate Re-fetch to confirm server state and force sync
       await fetchAPI(true);
       
     } catch (e) {
-      console.error('Critical: Failed to save to server. Changes may be lost on refresh.', e);
-      alert('Gagal menyimpan ke server. Pastikan koneksi stabil.');
+      console.error('Critical: Failed to save to server. Rolling back UI.', e);
+      setLocalCategories(previousCategories);
+      alert('Gagal menyimpan ke server. Perubahan dibatalkan demi keamanan data.');
     } finally {
       setIsSaving(false);
       isSavingRef.current = false;
@@ -226,38 +227,54 @@ export default function App() {
 
   // CRUD modified to use saveToAPI
   const updateProduct = (catId: string, updatedProduct: Product) => {
-    // Basic numerical validation for price
-    const rawPrice = updatedProduct.price.replace(/[^0-9.]/g, '');
-    if (!rawPrice || isNaN(Number(rawPrice))) {
+    // FIX: Strip ALL non-digits to handle Indonesian formatting (1.000 -> 1000)
+    const rawPriceDigits = updatedProduct.price.replace(/\D/g, '');
+    
+    if (!rawPriceDigits || isNaN(Number(rawPriceDigits))) {
       alert("Harga harus berupa angka valid!");
       return;
     }
 
-    const cleanProduct = { ...updatedProduct, price: Number(rawPrice).toLocaleString('id-ID') };
+    const cleanProduct = { 
+      ...updatedProduct, 
+      price: Number(rawPriceDigits).toLocaleString('id-ID') 
+    };
     
-    console.log(`[DEBUG] Updating Product ID: ${updatedProduct.id} in Category: ${catId}`);
-    console.log(`[DEBUG] Price Conversion: ${updatedProduct.price} -> ${cleanProduct.price}`);
+    console.log(`[DEBUG] Updating Product: ${updatedProduct.name}, New Price: ${cleanProduct.price}`);
 
-    const newData = localCategories.map(cat => 
+    setLocalCategories(prev => {
+      const newData = prev.map(cat => 
         cat.id === catId 
         ? { ...cat, products: cat.products.map(p => p.id === updatedProduct.id ? cleanProduct : p) } 
         : cat
-    );
+      );
+      saveToAPI(newData);
+      return newData;
+    });
     
-    saveToAPI(newData);
     setEditingProduct(null);
     setOwnerMode('dashboard');
   };
 
   const deleteProduct = (catId: string, productId: string) => {
     if (!confirm('Hapus produk?')) return;
-    const newData = localCategories.map(cat => cat.id === catId ? { ...cat, products: cat.products.filter(p => p.id !== productId) } : cat);
-    saveToAPI(newData);
+    setLocalCategories(prev => {
+      const newData = prev.map(cat => cat.id === catId ? { ...cat, products: cat.products.filter(p => p.id !== productId) } : cat);
+      saveToAPI(newData);
+      return newData;
+    });
   };
 
   const addProduct = (catId: string, newProduct: Product) => {
-    const newData = localCategories.map(cat => cat.id === catId ? { ...cat, products: [...cat.products, { ...newProduct, id: `p-${Date.now()}` }] } : cat);
-    saveToAPI(newData);
+    // FIX: Strip dots for new products too
+    const rawPriceDigits = newProduct.price.replace(/\D/g, '');
+    const cleanPrice = rawPriceDigits ? Number(rawPriceDigits).toLocaleString('id-ID') : '0';
+    
+    setLocalCategories(prev => {
+      const newData = prev.map(cat => cat.id === catId ? { ...cat, products: [...cat.products, { ...newProduct, price: cleanPrice, id: `p-${Date.now()}` }] } : cat);
+      saveToAPI(newData);
+      return newData;
+    });
     setOwnerMode('dashboard');
   };
 
@@ -356,6 +373,8 @@ export default function App() {
                           .filter(p => {
                             if (selectedCategory === 'Semua') return true;
                             if (selectedCategory === 'Reseller') return p.category.includes('Reseller');
+                            // Fix for 'Panel' mismatch with 'Panel Server'
+                            if (selectedCategory === 'Panel') return p.category.includes('Panel');
                             return p.category === selectedCategory;
                           })
                           .map(product => <ProductCard key={product.id} product={product} onDetail={setSelectedProduct} />)}
