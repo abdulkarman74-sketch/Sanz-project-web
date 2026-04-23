@@ -21,6 +21,16 @@ import {
 } from 'lucide-react';
 import { CATEGORIES, WHATSAPP_NUMBER, Category, Product, VIDEO_DATA } from './constants';
 
+import { db, auth } from './lib/firebase';
+import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
+import { 
+  onAuthStateChanged, 
+  signInWithPopup, 
+  GoogleAuthProvider, 
+  signOut,
+  User
+} from 'firebase/auth';
+
 const GameView = lazy(() => import('./components/views/GameView'));
 const VideoView = lazy(() => import('./components/views/VideoView'));
 const ScriptBotView = lazy(() => import('./components/views/ScriptBotView'));
@@ -123,103 +133,121 @@ export default function App() {
   const [localCategories, setLocalCategories] = useState<Category[]>(CATEGORIES);
   const [editingProduct, setEditingProduct] = useState<{catId: string, product: Product} | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
 
-  // Unified Data Fetching (Fixing the DB sync issue)
-  const isSavingRef = useRef(false);
-
-  const fetchAPI = async (isManual = false) => {
-    if (isSavingRef.current && !isManual) return;
-    
-    console.group(`[SYNC] Fetching Data - ${new Date().toLocaleTimeString()}`);
-    try {
-      const res = await fetch('/api/categories?t=' + Date.now(), { 
-        cache: 'no-store',
-        headers: { 'Pragma': 'no-cache', 'Cache-Control': 'no-cache' }
-      });
-      if (res.ok) {
-        const data = await res.json();
-        // Critical: Only update if we actually got an array
-        if (Array.isArray(data) && data.length > 0) {
-          setLocalCategories(data);
-          console.log("Success: Received latest data from server", data);
-        } else {
-          console.warn("Warning: Server returned empty/invalid categories. Keeping current state.");
-        }
-      } else {
-        console.error("Error: Server responded with status", res.status);
-      }
-    } catch (e) {
-      console.error("Critical: API load failed. Check server connection.", e);
-    } finally {
-      console.groupEnd();
-    }
-  };
+  // --- Firebase Sync Logic ---
+  const STORE_DOC_ID = 'main_store_data';
 
   useEffect(() => {
-    const loggedIn = localStorage.getItem('sanz_owner_logged_in');
-    if (loggedIn === 'true') setIsOwnerLoggedIn(true);
-    
-    // Initial Load
-    fetchAPI(true);
+    // 1. Auth Sync
+    const authUnsubscribe = onAuthStateChanged(auth, (user) => {
+      setFirebaseUser(user);
+      if (user) {
+        console.log(`[FIREBASE AUTH] User logged in: ${user.email} (Verified: ${user.emailVerified})`);
+        if (user.email === 'abdulkarman74@gmail.com') {
+          setIsOwnerLoggedIn(true);
+          localStorage.setItem('sanz_owner_logged_in', 'true');
+        }
+      } else {
+        console.log("[FIREBASE AUTH] No user logged in.");
+      }
+    });
 
-    // Poll data periodically to keep devices in sync
-    const interval = setInterval(() => fetchAPI(false), 8000);
-    return () => clearInterval(interval);
+    // 2. Real-time Data Sync
+    console.log(`[FIREBASE] Initializing real-time listener for: store/${STORE_DOC_ID}`);
+    const unsubscribe = onSnapshot(doc(db, 'store', STORE_DOC_ID), (snap) => {
+      console.log(`[FIREBASE] Snapshot received. Exists: ${snap.exists()}`);
+      if (snap.exists()) {
+        const data = snap.data().categories as Category[];
+        setLocalCategories(data || CATEGORIES);
+        console.log("[FIREBASE] Categories updated from cloud:", data);
+      } else {
+        console.warn("[FIREBASE] No data in cloud. Using local defaults.");
+        // We keep localCategories at its initial state (CATEGORIES)
+      }
+    }, (err) => {
+      console.error("[FIREBASE] Sync error (Permissions or Connection):", err.code, err.message);
+      if (err.code === 'permission-denied') {
+        console.error("DEBUG: Current Rules might be blocking read. Check firestore.rules.");
+      }
+    });
+
+    return () => {
+      authUnsubscribe();
+      unsubscribe();
+    };
   }, []);
 
-  const saveToAPI = async (data: Category[]) => {
-    isSavingRef.current = true;
-    setIsSaving(true);
-    
-    // Backup for rollback
-    const previousCategories = [...localCategories];
-    
-    // 1. Optimistic Update (Functional for latest state)
-    setLocalCategories(data); 
+  const saveToFirebase = async (data: Category[]) => {
+    // Debug info
+    const currentUser = auth.currentUser;
+    console.log(`[FIREBASE WRITE] Attempting save. Current User: ${currentUser?.email || 'Guest'}`);
 
-    console.group(`[PERSIST] Saving Data - ${new Date().toLocaleTimeString()}`);
+    // Check if user has permission (email matches)
+    if (!currentUser || currentUser.email !== 'abdulkarman74@gmail.com') {
+      console.error("[FIREBASE WRITE] Permission Denied: User is not the authorized admin.");
+      alert("Akses ditolak: Anda harus login sebagai admin untuk menyimpan.");
+      return;
+    }
+
+    setIsSaving(true);
+    console.group(`[FIREBASE] Persisting Data - ${new Date().toLocaleTimeString()}`);
+    console.log("Payload Categories Count:", data.length);
+    console.log("Payload Size (approx):", JSON.stringify(data).length, "bytes");
     
     try {
-      const res = await fetch('/api/categories', {
-         method: 'POST',
-         headers: { 'Content-Type': 'application/json' },
-         body: JSON.stringify(data)
+      const docRef = doc(db, 'store', STORE_DOC_ID);
+      await setDoc(docRef, {
+        categories: data,
+        updatedAt: new Date().toISOString(),
+        updatedBy: currentUser.email
       });
-      
-      if (!res.ok) throw new Error(`Server returned error ${res.status}`);
-      
-      const result = await res.json();
-      console.log("Success: Data saved to server", result);
-      
-      // 2. Immediate Re-fetch to confirm server state and force sync
-      await fetchAPI(true);
-      
-    } catch (e) {
-      console.error('Critical: Failed to save to server. Rolling back UI.', e);
-      setLocalCategories(previousCategories);
-      alert('Gagal menyimpan ke server. Perubahan dibatalkan demi keamanan data.');
+      console.log("[FIREBASE] Success: Data written to Firestore");
+    } catch (e: any) {
+      console.error('[FIREBASE] Write failed with error code:', e.code);
+      console.error('[FIREBASE] Full error:', e);
+      alert(`Gagal menyimpan ke cloud: ${e.message}`);
     } finally {
       setIsSaving(false);
-      isSavingRef.current = false;
       console.groupEnd();
     }
   };
 
   // Auth Handlers
-  const handleOwnerLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (ownerPassword === '8381309827') {
-      setIsOwnerLoggedIn(true);
-      localStorage.setItem('sanz_owner_logged_in', 'true');
-      setShowOwnerLogin(false);
-      setOwnerPassword('');
-      setOwnerMode('dashboard');
-    } else {
-      alert('Akses ditolak');
+  const handleOwnerLogin = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    
+    // Legacy support for password or direct Google Login
+    if (ownerPassword && ownerPassword !== '8381309827') {
+       alert('Akses ditolak');
+       return;
+    }
+
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      if (result.user.email === 'abdulkarman74@gmail.com') {
+        setIsOwnerLoggedIn(true);
+        localStorage.setItem('sanz_owner_logged_in', 'true');
+        setShowOwnerLogin(false);
+        setOwnerPassword('');
+        setOwnerMode('dashboard');
+      } else {
+        await signOut(auth);
+        alert('Akses ditolak: Email tidak terdaftar sebagai admin.');
+      }
+    } catch (err: any) {
+      console.error("Login Error:", err);
+      if (err.code === 'auth/popup-blocked') {
+        alert("Pop-up diblokir. Harap izinkan pop-up untuk login.");
+      } else {
+        alert("Gagal melakukan autentikasi Google.");
+      }
     }
   };
 
-  const handleOwnerLogout = () => {
+  const handleOwnerLogout = async () => {
+    await signOut(auth);
     setIsOwnerLoggedIn(false);
     localStorage.removeItem('sanz_owner_logged_in');
     setOwnerMode(null);
@@ -248,7 +276,7 @@ export default function App() {
         ? { ...cat, products: cat.products.map(p => p.id === updatedProduct.id ? cleanProduct : p) } 
         : cat
       );
-      saveToAPI(newData);
+      saveToFirebase(newData);
       return newData;
     });
     
@@ -260,7 +288,7 @@ export default function App() {
     if (!confirm('Hapus produk?')) return;
     setLocalCategories(prev => {
       const newData = prev.map(cat => cat.id === catId ? { ...cat, products: cat.products.filter(p => p.id !== productId) } : cat);
-      saveToAPI(newData);
+      saveToFirebase(newData);
       return newData;
     });
   };
@@ -272,7 +300,7 @@ export default function App() {
     
     setLocalCategories(prev => {
       const newData = prev.map(cat => cat.id === catId ? { ...cat, products: [...cat.products, { ...newProduct, price: cleanPrice, id: `p-${Date.now()}` }] } : cat);
-      saveToAPI(newData);
+      saveToFirebase(newData);
       return newData;
     });
     setOwnerMode('dashboard');
