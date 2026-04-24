@@ -54,26 +54,27 @@ const OwnerMenu: React.FC<OwnerMenuProps> = ({
             <div className="max-w-xs mx-auto space-y-6 py-12 text-center">
               <div className="mb-8">
                 <p className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-2">Secure Access</p>
-                <p className="text-[10px] text-slate-400">Gunakan email admin untuk mengelola store</p>
+                <p className="text-[10px] text-slate-400">Masukkan PIN Admin untuk mengakses Store.</p>
               </div>
               
-              <button 
-                type="button"
-                onClick={() => handleOwnerLogin()}
-                className="w-full h-14 bg-white border border-slate-200 hover:border-slate-300 text-slate-900 font-bold px-6 rounded-xl transition-all shadow-sm flex items-center justify-center gap-3 active:scale-95"
-              >
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" className="w-5 h-5" alt="" />
-                <span>Login with Google</span>
-              </button>
-
-              <div className="relative my-8">
-                <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-100" /></div>
-                <div className="relative flex justify-center text-[10px] uppercase tracking-widest font-bold"><span className="bg-white px-4 text-slate-300">Or with Password</span></div>
-              </div>
-
               <form onSubmit={handleOwnerLogin} className="space-y-4">
-                <input type="password" value={ownerPassword} onChange={(e) => setOwnerPassword(e.target.value)} placeholder="•••••••••" title="Access Password" className="w-full h-14 bg-slate-50 border border-slate-200 rounded-xl px-6 text-center text-xl tracking-[0.5em] focus:border-blue-500 transition-all outline-none text-slate-900 placeholder:text-slate-300" />
-                <button type="submit" className="w-full h-14 bg-slate-900 hover:bg-black text-white font-black uppercase tracking-widest rounded-xl transition-all shadow-md">Login with Password</button>
+                <div className="space-y-1 text-left">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-2">PIN ADMIN</label>
+                  <input 
+                    type="password" 
+                    value={ownerPassword} 
+                    onChange={(e) => setOwnerPassword(e.target.value)} 
+                    placeholder="•••••••••" 
+                    className="w-full h-14 bg-slate-50 border border-slate-200 rounded-xl px-6 text-center text-2xl tracking-[0.3em] font-mono focus:border-blue-500 transition-all outline-none text-slate-900" 
+                  />
+                </div>
+
+                <button 
+                  type="submit" 
+                  className="w-full h-14 bg-slate-900 hover:bg-black text-white font-black uppercase tracking-widest rounded-xl transition-all shadow-md mt-4 active:scale-95"
+                >
+                  Buka Dashboard
+                </button>
               </form>
             </div>
           ) : ownerMode === 'dashboard' ? (

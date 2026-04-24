@@ -21,15 +21,8 @@ import {
 } from 'lucide-react';
 import { CATEGORIES, WHATSAPP_NUMBER, Category, Product, VIDEO_DATA } from './constants';
 
-import { db, auth } from './lib/firebase';
-import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
-import { 
-  onAuthStateChanged, 
-  signInWithPopup, 
-  GoogleAuthProvider, 
-  signOut,
-  User
-} from 'firebase/auth';
+import { db } from './lib/firebase';
+import { doc, setDoc, onSnapshot } from 'firebase/firestore';
 
 const GameView = lazy(() => import('./components/views/GameView'));
 const VideoView = lazy(() => import('./components/views/VideoView'));
@@ -125,7 +118,7 @@ export default function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
-  // --- Owner Menu States ---
+  // --- Owner Menu States (Pure PIN Login) ---
   const [isOwnerLoggedIn, setIsOwnerLoggedIn] = useState(false);
   const [showOwnerLogin, setShowOwnerLogin] = useState(false);
   const [ownerPassword, setOwnerPassword] = useState('');
@@ -133,124 +126,81 @@ export default function App() {
   const [localCategories, setLocalCategories] = useState<Category[]>(CATEGORIES);
   const [editingProduct, setEditingProduct] = useState<{catId: string, product: Product} | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
 
   // --- Firebase Sync Logic ---
   const STORE_DOC_ID = 'main_store_data';
 
   useEffect(() => {
-    // 1. Auth Sync
-    const authUnsubscribe = onAuthStateChanged(auth, (user) => {
-      setFirebaseUser(user);
-      if (user) {
-        console.log(`[FIREBASE AUTH] User logged in: ${user.email} (Verified: ${user.emailVerified})`);
-        if (user.email === 'abdulkarman74@gmail.com') {
-          setIsOwnerLoggedIn(true);
-          localStorage.setItem('sanz_owner_logged_in', 'true');
-        }
-      } else {
-        console.log("[FIREBASE AUTH] No user logged in.");
-      }
-    });
+    // 1. PIN-based Session Sync
+    const adminSession = localStorage.getItem('sanz_admin_unlocked');
+    if (adminSession === 'true') {
+      setIsOwnerLoggedIn(true);
+    }
 
     // 2. Real-time Data Sync
-    console.log(`[FIREBASE] Initializing real-time listener for: store/${STORE_DOC_ID}`);
+    console.log(`[SYNC] Connecting to Firestore: store/${STORE_DOC_ID}`);
     const unsubscribe = onSnapshot(doc(db, 'store', STORE_DOC_ID), (snap) => {
-      console.log(`[FIREBASE] Snapshot received. Exists: ${snap.exists()}`);
       if (snap.exists()) {
         const data = snap.data().categories as Category[];
         setLocalCategories(data || CATEGORIES);
-        console.log("[FIREBASE] Categories updated from cloud:", data);
+        console.log("[SYNC] Data matched with cloud storage");
       } else {
-        console.warn("[FIREBASE] No data in cloud. Using local defaults.");
-        // We keep localCategories at its initial state (CATEGORIES)
+        console.warn("[SYNC] Cloud doc not found. Ready for first write.");
       }
     }, (err) => {
-      console.error("[FIREBASE] Sync error (Permissions or Connection):", err.code, err.message);
-      if (err.code === 'permission-denied') {
-        console.error("DEBUG: Current Rules might be blocking read. Check firestore.rules.");
-      }
+      console.error("[SYNC] Firestore Error:", err.code, err.message);
     });
 
-    return () => {
-      authUnsubscribe();
-      unsubscribe();
-    };
+    return () => unsubscribe();
   }, []);
 
   const saveToFirebase = async (data: Category[]) => {
-    // Debug info
-    const currentUser = auth.currentUser;
-    console.log(`[FIREBASE WRITE] Attempting save. Current User: ${currentUser?.email || 'Guest'}`);
-
-    // Check if user has permission (email matches)
-    if (!currentUser || currentUser.email !== 'abdulkarman74@gmail.com') {
-      console.error("[FIREBASE WRITE] Permission Denied: User is not the authorized admin.");
-      alert("Akses ditolak: Anda harus login sebagai admin untuk menyimpan.");
+    // Permission check against local PIN state
+    if (localStorage.getItem('sanz_admin_unlocked') !== 'true') {
+      alert("Akses ditolak: PIN belum divalidasi.");
       return;
     }
 
     setIsSaving(true);
-    console.group(`[FIREBASE] Persisting Data - ${new Date().toLocaleTimeString()}`);
-    console.log("Payload Categories Count:", data.length);
-    console.log("Payload Size (approx):", JSON.stringify(data).length, "bytes");
+    console.log("[SYNC] Attempting to save categories to Firestore...");
     
     try {
-      const docRef = doc(db, 'store', STORE_DOC_ID);
-      await setDoc(docRef, {
+      await setDoc(doc(db, 'store', STORE_DOC_ID), {
         categories: data,
         updatedAt: new Date().toISOString(),
-        updatedBy: currentUser.email
+        updatedBy: 'admin_panel_pin'
       });
-      console.log("[FIREBASE] Success: Data written to Firestore");
+      console.log("[SYNC] Success: All data persisted to Cloud");
     } catch (e: any) {
-      console.error('[FIREBASE] Write failed with error code:', e.code);
-      console.error('[FIREBASE] Full error:', e);
-      alert(`Gagal menyimpan ke cloud: ${e.message}`);
+      console.error('[SYNC] Save Critical Error:', e);
+      alert(`Gagal menyimpan data: ${e.message}`);
     } finally {
       setIsSaving(false);
-      console.groupEnd();
     }
   };
 
-  // Auth Handlers
-  const handleOwnerLogin = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
+  // Auth Handlers (PIN PIN PIN)
+  const handleOwnerLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    const PIN_ADMIN = '8381309827';
     
-    // Legacy support for password or direct Google Login
-    if (ownerPassword && ownerPassword !== '8381309827') {
-       alert('Akses ditolak');
-       return;
-    }
-
-    try {
-      const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
-      if (result.user.email === 'abdulkarman74@gmail.com') {
-        setIsOwnerLoggedIn(true);
-        localStorage.setItem('sanz_owner_logged_in', 'true');
-        setShowOwnerLogin(false);
-        setOwnerPassword('');
-        setOwnerMode('dashboard');
-      } else {
-        await signOut(auth);
-        alert('Akses ditolak: Email tidak terdaftar sebagai admin.');
-      }
-    } catch (err: any) {
-      console.error("Login Error:", err);
-      if (err.code === 'auth/popup-blocked') {
-        alert("Pop-up diblokir. Harap izinkan pop-up untuk login.");
-      } else {
-        alert("Gagal melakukan autentikasi Google.");
-      }
+    if (ownerPassword === PIN_ADMIN) {
+      setIsOwnerLoggedIn(true);
+      localStorage.setItem('sanz_admin_unlocked', 'true');
+      setShowOwnerLogin(false);
+      setOwnerPassword('');
+      setOwnerMode('dashboard');
+      console.log("[ADMIN] PIN Correct. Access Granted.");
+    } else {
+      alert('PIN Salah! Akses Ditolak.');
     }
   };
 
-  const handleOwnerLogout = async () => {
-    await signOut(auth);
+  const handleOwnerLogout = () => {
     setIsOwnerLoggedIn(false);
-    localStorage.removeItem('sanz_owner_logged_in');
+    localStorage.removeItem('sanz_admin_unlocked');
     setOwnerMode(null);
+    console.log("[ADMIN] Logged out.");
   };
 
   // CRUD modified to use saveToAPI
