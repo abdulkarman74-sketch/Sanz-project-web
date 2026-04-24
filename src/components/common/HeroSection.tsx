@@ -91,7 +91,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ settings }) => {
   if (!hasSlides) return null;
 
   return (
-    <div className="relative w-full bg-slate-900 pt-[60px] sm:pt-[72px]">
+    <div className="relative w-full">
       <audio 
         ref={audioRef} 
         loop={settings.audio.loop} 
@@ -122,22 +122,34 @@ const HeroSection: React.FC<HeroSectionProps> = ({ settings }) => {
               loading={index === 0 ? "eager" : "lazy"}
             />
             {/* Dark Gradient Overlay for text readability */}
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent" />
-            <div className="absolute inset-0 bg-slate-900/20" /> {/* Extra global darkening */}
-
+            <div className="absolute inset-0 bg-gradient-to-t from-[#050816] via-[#050816]/70 to-[#050816]/10" />
+            
             {/* Content Overlay */}
             <div className="absolute inset-0 z-20 flex flex-col justify-end pb-10 sm:pb-16 md:pb-24 px-4 sm:px-12 md:px-20 max-w-7xl mx-auto w-full">
-              <h2 className="text-xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tight uppercase leading-[1.1] mb-1 sm:mb-2 md:mb-4 drop-shadow-md line-clamp-2">
-                {slide.title}
+              <h2 
+                className="text-xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight uppercase leading-[1.1] mb-1 sm:mb-2 md:mb-4 line-clamp-2 text-[#f8fafc]"
+                style={{ textShadow: '0 2px 12px rgba(0,0,0,0.6)' }}
+              >
+                {slide.title.split(' ').length > 1 ? (
+                  <>
+                    {slide.title.split(' ').slice(0, -1).join(' ')}{' '}
+                    <span className="text-[#22d3ee]">{slide.title.split(' ').slice(-1)[0]}</span>
+                  </>
+                ) : (
+                  slide.title
+                )}
               </h2>
-              <p className="text-[10px] sm:text-sm md:text-lg text-slate-300 font-medium max-w-2xl leading-snug md:leading-relaxed mb-3 sm:mb-6 drop-shadow line-clamp-2">
+              <p 
+                className="text-[10px] sm:text-sm md:text-lg text-[#cbd5e1] font-medium max-w-2xl leading-snug md:leading-relaxed mb-3 sm:mb-6 line-clamp-2"
+                style={{ textShadow: '0 1px 8px rgba(0,0,0,0.5)' }}
+              >
                 {slide.desc}
               </p>
               
               {slide.buttonText && (
                 <button 
                   onClick={() => scrollToServices(slide.buttonTarget)}
-                  className="w-max h-8 sm:h-12 px-4 sm:px-6 bg-blue-600 hover:bg-blue-500 text-white rounded-lg sm:rounded-xl font-bold uppercase tracking-widest text-[9px] sm:text-xs shadow-lg transition-transform active:scale-95 flex items-center gap-1.5 sm:gap-2"
+                  className="w-max h-8 sm:h-12 px-4 sm:px-6 bg-gradient-to-br from-[#0891b2] to-[#22d3ee] hover:from-[#0e7490] hover:to-[#06b6d4] text-white rounded-lg sm:rounded-xl font-bold uppercase tracking-widest text-[9px] sm:text-xs shadow-[0_4px_15px_rgba(34,211,238,0.3)] hover:shadow-[0_6px_20px_rgba(34,211,238,0.5)] transition-all active:scale-95 flex items-center gap-1.5 sm:gap-2"
                 >
                   <LayoutGrid className="w-3 h-3 sm:w-4 sm:h-4" /> {slide.buttonText}
                 </button>
@@ -185,13 +197,13 @@ const HeroSection: React.FC<HeroSectionProps> = ({ settings }) => {
 
       {/* Audio Button Strip Below Slider */}
       {settings.audio.showButton && (
-        <div className="w-full bg-slate-950 border-b border-slate-900 py-3 px-4 sm:px-6 flex justify-end">
+        <div className="w-full bg-[var(--site-card)] border-b border-[var(--site-bg)] py-3 px-4 sm:px-6 flex justify-end">
           <div className="max-w-7xl mx-auto w-full flex justify-end">
             <button 
               onClick={toggleAudio}
-              className="h-10 px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg font-bold uppercase tracking-widest text-[10px] sm:text-xs transition-colors flex items-center gap-2"
+              className="h-10 px-4 bg-[#111827] border border-[#1f2937] hover:bg-[#1f2937] text-slate-300 rounded-lg font-bold uppercase tracking-widest text-[10px] sm:text-xs transition-colors flex items-center gap-2"
             >
-              {isPlaying ? <Volume2 className="w-4 h-4 text-emerald-400" /> : <Play className="w-4 h-4" />}
+              {isPlaying ? <Volume2 className="w-4 h-4 text-[#22d3ee]" /> : <Play className="w-4 h-4 text-slate-400" />}
               <span>{isPlaying ? 'Matikan Musik' : 'Nyalakan Musik'}</span>
             </button>
           </div>

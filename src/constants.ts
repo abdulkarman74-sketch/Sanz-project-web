@@ -88,9 +88,9 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
     }
   ],
   theme: {
-    primaryColor: "#2563eb",
-    backgroundColor: "#0f172a",
-    cardColor: "#1e293b",
+    primaryColor: "#22d3ee",
+    backgroundColor: "#050816",
+    cardColor: "#0b1220",
     textColor: "#f8fafc",
   },
   audio: {

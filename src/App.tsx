@@ -43,7 +43,7 @@ const ViewFallback = () => (
 const ProductCard = memo(({ product, onDetail }: { product: Product; onDetail?: (p: Product) => void }) => {
   // Generate a dynamic badge if none exists
   const getDynamicBadge = () => {
-    if (product.badge) return { text: product.badge, color: 'bg-slate-900', textCol: 'text-white' };
+    if (product.badge) return { text: product.badge, color: 'bg-[#1e293b]', textCol: 'text-[#f8fafc]' };
     if (product.category.includes('Panel') || product.category.includes('VPS')) return { text: 'Best Performance', color: 'bg-blue-600', textCol: 'text-white' };
     if (product.category.includes('Bot')) return { text: 'Smart Auto', color: 'bg-emerald-500', textCol: 'text-white' };
     if (product.category.includes('Reseller')) return { text: 'Best Seller', color: 'bg-amber-500', textCol: 'text-white' };
@@ -57,53 +57,53 @@ const ProductCard = memo(({ product, onDetail }: { product: Product; onDetail?: 
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
       onClick={() => onDetail?.(product)}
-      className="group relative bg-white border border-slate-100 rounded-[24px] p-2.5 flex flex-col h-full cursor-pointer hover:border-slate-300 transition-all duration-500 overflow-hidden"
-      style={{ boxShadow: '0 8px 30px -4px rgba(0,0,0,0.03), inset 0 0 0 1px rgba(255,255,255,0.5)' }}
+      className="group relative bg-[#0b1220] border border-[#1f2937] rounded-[24px] p-2.5 flex flex-col h-full cursor-pointer hover:border-[#334155] transition-all duration-500 overflow-hidden"
+      style={{ boxShadow: '0 8px 30px -4px rgba(0,0,0,0.4), inset 0 0 0 1px rgba(255,255,255,0.05)' }}
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-50/80 to-white opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <div className="absolute inset-0 bg-gradient-to-br from-[#111827]/80 to-[#0b1220] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       
-      <div className="relative aspect-[4/3] rounded-[18px] overflow-hidden bg-slate-100 mb-4 isolate shadow-inner">
+      <div className="relative aspect-[4/3] rounded-[18px] overflow-hidden bg-[#050816] mb-4 isolate shadow-inner">
         <img src={product.image} alt={product.name} className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110" loading="lazy" decoding="async" />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#050816] via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
         
         <div className={`absolute top-2 left-2 md:top-3 md:left-3 px-2.5 py-1 ${badgeInfo.color} ${badgeInfo.textCol} text-[8px] font-black uppercase tracking-widest rounded-md shadow-md z-10 block`}>
           {badgeInfo.text}
         </div>
 
         <div className="absolute bottom-3 left-3 right-3 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 z-10 hidden md:flex justify-center">
-          <span className="bg-white/95 backdrop-blur-sm text-slate-900 border border-slate-200 text-xs font-bold px-4 py-2 rounded-xl shadow-lg flex items-center gap-2 w-full justify-center transform active:scale-95 transition-transform">
-            <ShoppingCart className="w-4 h-4" /> Pesan
+          <span className="bg-[#111827]/95 backdrop-blur-sm text-[#f8fafc] border border-[#1f2937] text-xs font-bold px-4 py-2 rounded-xl shadow-lg flex items-center gap-2 w-full justify-center transform active:scale-95 transition-transform">
+            <ShoppingCart className="w-4 h-4 text-[#22d3ee]" /> Pesan
           </span>
         </div>
       </div>
       
       <div className="px-2 pb-2 flex flex-col flex-1 relative z-10">
         <div className="flex justify-between items-center gap-2 mb-2">
-           <p className="text-[9px] font-mono font-bold uppercase tracking-wider text-blue-600 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded flex items-center gap-1">
+           <p className="text-[9px] font-mono font-bold uppercase tracking-wider text-[#22d3ee] bg-[#22d3ee]/10 border border-[#22d3ee]/20 px-2 py-0.5 rounded flex items-center gap-1">
              <Package className="w-2.5 h-2.5" />
              {product.category}
            </p>
-           <div className="flex items-center gap-1 text-slate-400">
+           <div className="flex items-center gap-1 text-[#94a3b8]">
              <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400" />
-             <span className="text-[9px] font-bold text-slate-600">{product.rating}</span>
+             <span className="text-[9px] font-bold text-[#f8fafc]">{product.rating}</span>
            </div>
         </div>
 
-        <h3 className="text-sm font-bold text-slate-800 leading-snug line-clamp-2 md:line-clamp-1 mb-1.5 group-hover:text-blue-600 transition-colors">
+        <h3 className="text-sm font-bold text-[#f8fafc] leading-snug line-clamp-2 md:line-clamp-1 mb-1.5 group-hover:text-[#22d3ee] transition-colors">
           {product.name}
         </h3>
         
-        <p className="text-[10px] md:text-[11px] text-slate-500 line-clamp-2 leading-relaxed mb-4 flex-1">
+        <p className="text-[10px] md:text-[11px] text-[#94a3b8] line-clamp-2 leading-relaxed mb-4 flex-1">
           {product.description || "Layanan digital premium dan bergaransi resmi."}
         </p>
 
-        <div className="pt-3 border-t border-slate-100 border-dashed mt-auto flex items-end justify-between">
+        <div className="pt-3 border-t border-[#1f2937] border-dashed mt-auto flex items-end justify-between">
           <div className="flex flex-col">
-            <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Total Harga</span>
-            <span className="text-lg font-display font-black text-slate-900 tracking-tight leading-none bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600">Rp {product.price}</span>
+            <span className="text-[8px] font-bold text-[#94a3b8] uppercase tracking-widest leading-none mb-1">Total Harga</span>
+            <span className="text-lg font-display font-black text-[#f8fafc] tracking-tight leading-none bg-clip-text text-transparent bg-gradient-to-r from-[#22d3ee] to-[#2dd4bf]">Rp {product.price}</span>
           </div>
-          <div className="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center group-hover:bg-blue-600 transition-all border border-slate-200 group-hover:border-blue-600 shadow-sm group-hover:shadow-md transform group-hover:rotate-[-5deg]">
-             <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-white transition-colors" />
+          <div className="w-8 h-8 rounded-xl bg-[#111827] flex items-center justify-center group-hover:bg-[#22d3ee] transition-all border border-[#1f2937] group-hover:border-[#22d3ee] shadow-sm group-hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] transform group-hover:rotate-[-5deg]">
+             <ChevronRight className="w-4 h-4 text-[#94a3b8] group-hover:text-[#0b1220] transition-colors" />
           </div>
         </div>
       </div>
@@ -302,7 +302,7 @@ export default function App() {
   }, [loading, activeCategory, selectedProduct]);
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 selection:bg-blue-500/20 font-sans overflow-x-hidden">
+    <div className="min-h-screen bg-[#050816] text-[#f8fafc] selection:bg-[#22d3ee]/20 font-sans overflow-x-hidden">
       <Suspense fallback={null}>
         <AnimatePresence>
           {loading && <LoadingScreen onComplete={() => setLoading(false)} />}
@@ -312,20 +312,20 @@ export default function App() {
       {!loading && (
         <main className="relative z-10 flex flex-col min-h-screen">
           {/* Optimal Clean Navbar */}
-          <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-xl border-b border-slate-100 transition-all shadow-sm">
+          <nav className="fixed top-0 left-0 right-0 z-50 bg-[#050816]/90 backdrop-blur-xl border-b border-[#1f2937] transition-all shadow-sm">
             <div className="max-w-7xl mx-auto px-6 h-16 md:h-20 flex items-center justify-between">
               <div 
                 className="flex items-center gap-3 cursor-pointer" 
                 onClick={() => { setCurrentTab('home'); setSelectedCategory('Semua'); }}
               >
-                <div className="w-10 h-10 bg-slate-900 rounded-2xl flex items-center justify-center shadow-md shadow-slate-900/10">
+                <div className="w-10 h-10 bg-[#111827] border border-[#1f2937] rounded-2xl flex items-center justify-center shadow-[0_0_15px_rgba(34,211,238,0.2)]">
                   {siteSettings.branding.logoUrl ? (
                     <img src={siteSettings.branding.logoUrl} alt="Logo" className="w-6 h-6 object-contain" />
                   ) : (
-                    <Bot className="w-5 h-5 text-white" />
+                    <Bot className="w-5 h-5 text-[#22d3ee]" />
                   )}
                 </div>
-                <div className="hidden sm:block"><h1 className="text-xl font-display font-black tracking-tighter text-slate-900">{siteSettings.branding.siteName}</h1></div>
+                <div className="hidden sm:block"><h1 className="text-xl font-display font-black tracking-tighter text-[#f8fafc]">{siteSettings.branding.siteName}</h1></div>
               </div>
 
               <div className="hidden lg:flex items-center gap-8">
@@ -344,7 +344,7 @@ export default function App() {
                         if (tab.id === 'app') setSelectedCategory('App Premium');
                         else setSelectedCategory('Semua');
                     }}
-                    className={`text-[11px] font-bold uppercase tracking-widest transition-all ${currentTab === tab.id ? 'text-slate-900' : 'text-slate-400 hover:text-slate-900'}`}
+                    className={`text-[11px] font-bold uppercase tracking-widest transition-all ${currentTab === tab.id ? 'text-[#22d3ee]' : 'text-[#94a3b8] hover:text-[#f8fafc]'}`}
                   >
                     {tab.label}
                   </button>
@@ -352,10 +352,10 @@ export default function App() {
               </div>
 
               <div className="flex items-center gap-3">
-                <button onClick={() => isOwnerLoggedIn ? setOwnerMode('dashboard') : setShowOwnerLogin(true)} className="p-2.5 bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-blue-200 rounded-full transition-all group">
-                  <Settings className={`w-4 h-4 ${isOwnerLoggedIn ? 'text-blue-600' : 'text-slate-400'} group-hover:rotate-90 transition-transform`} />
+                <button onClick={() => isOwnerLoggedIn ? setOwnerMode('dashboard') : setShowOwnerLogin(true)} className="p-2.5 bg-[#111827] hover:bg-[#1f2937] border border-[#1f2937] hover:border-[#22d3ee]/50 rounded-full transition-all group">
+                  <Settings className={`w-4 h-4 ${isOwnerLoggedIn ? 'text-[#22d3ee]' : 'text-[#94a3b8]'} group-hover:rotate-90 transition-transform`} />
                 </button>
-                <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="lg:hidden p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-slate-800">
+                <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="lg:hidden p-2.5 bg-[#111827] rounded-xl border border-[#1f2937] text-[#94a3b8]">
                   {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
                 </button>
               </div>
@@ -364,10 +364,10 @@ export default function App() {
             {/* Mobile Nav */}
             <AnimatePresence>
               {isMenuOpen && (
-                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="lg:hidden bg-white border-b border-slate-100 overflow-hidden shadow-lg">
+                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="lg:hidden bg-[#0b1220] border-b border-[#1f2937] overflow-hidden shadow-lg">
                   <div className="p-6 flex flex-col gap-6">
                     {['home', 'produk', 'app', 'game', 'video', 'script'].map((tab) => (
-                      <button key={tab} onClick={() => { setCurrentTab(tab as any); setSelectedCategory(tab === 'app' ? 'App Premium' : 'Semua'); setIsMenuOpen(false); }} className={`text-xl font-display font-black uppercase tracking-widest text-left ${currentTab === tab ? 'text-slate-900' : 'text-slate-400'}`}>{tab}</button>
+                      <button key={tab} onClick={() => { setCurrentTab(tab as any); setSelectedCategory(tab === 'app' ? 'App Premium' : 'Semua'); setIsMenuOpen(false); }} className={`text-xl font-display font-black uppercase tracking-widest text-left ${currentTab === tab ? 'text-[#22d3ee]' : 'text-[#94a3b8]'}`}>{tab}</button>
                     ))}
                   </div>
                 </motion.div>
@@ -376,7 +376,7 @@ export default function App() {
           </nav>
 
           {/* Main Content Area */}
-          <div className="flex-1 mt-16 md:mt-20">
+          <div className="flex-1 pt-16 md:pt-20">
             <Suspense fallback={<ViewFallback />}>
               <AnimatePresence mode="wait">
                 {(currentTab === 'home' || currentTab === 'produk' || currentTab === 'app') ? (
@@ -392,7 +392,7 @@ export default function App() {
                       {/* Marketplace Filter */}
                       <div className="flex items-center gap-3 overflow-x-auto pb-6 -mx-4 px-4 md:mx-0 md:px-0 no-scrollbar">
                         {['Semua', 'Panel', 'Sewa Bot', 'Source Code', 'Reseller', 'App Premium'].map((cat) => (
-                          <button key={cat} onClick={() => setSelectedCategory(cat)} className={`whitespace-nowrap px-6 py-3 rounded-full text-[11px] font-bold uppercase tracking-widest transition-all ${selectedCategory === cat ? 'bg-slate-900 text-white shadow-md shadow-slate-900/10' : 'bg-white text-slate-500 border border-slate-200 hover:border-slate-400 hover:text-slate-800'}`}>{cat}</button>
+                          <button key={cat} onClick={() => setSelectedCategory(cat)} className={`whitespace-nowrap px-6 py-3 rounded-full text-[11px] font-bold uppercase tracking-widest transition-all ${selectedCategory === cat ? 'bg-[#111827] text-[#f8fafc] shadow-[0_0_15px_rgba(34,211,238,0.2)] border border-[#22d3ee]/30' : 'bg-[#0b1220] text-[#94a3b8] border border-[#1f2937] hover:border-[#334155] hover:text-[#f8fafc]'}`}>{cat}</button>
                         ))}
                       </div>
 
@@ -422,20 +422,20 @@ export default function App() {
           </div>
 
           {/* Persistent Clean Footer */}
-          <footer className="bg-white border-t border-slate-100 py-16 px-6 relative z-10">
+          <footer className="bg-[#0b1220] border-t border-[#1f2937] py-16 px-6 relative z-10">
             <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
               <div className="text-center md:text-left flex flex-col gap-2">
-                <h4 className="font-display font-black text-slate-900 tracking-tight text-xl">{siteSettings.branding.siteName}</h4>
-                <p className="text-slate-400 text-xs font-mono uppercase tracking-widest">{siteSettings.branding.slogan}</p>
+                <h4 className="font-display font-black text-[#f8fafc] tracking-tight text-xl">{siteSettings.branding.siteName}</h4>
+                <p className="text-[#94a3b8] text-xs font-mono uppercase tracking-widest">{siteSettings.branding.slogan}</p>
               </div>
               <div className="flex gap-6">
                 {siteSettings.branding.whatsapp && (
-                  <a href={`https://wa.me/${siteSettings.branding.whatsapp}`} target="_blank" rel="noreferrer" className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors"><MessageSquare className="w-5 h-5" /></a>
+                  <a href={`https://wa.me/${siteSettings.branding.whatsapp}`} target="_blank" rel="noreferrer" className="w-12 h-12 bg-[#111827] border border-[#1f2937] rounded-full flex items-center justify-center text-[#94a3b8] hover:text-[#22d3ee] hover:bg-[#1f2937] transition-colors"><MessageSquare className="w-5 h-5" /></a>
                 )}
                 {siteSettings.branding.telegram && (
-                  <a href={siteSettings.branding.telegram} target="_blank" rel="noreferrer" className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors"><MessageSquare className="w-5 h-5" /></a>
+                  <a href={siteSettings.branding.telegram} target="_blank" rel="noreferrer" className="w-12 h-12 bg-[#111827] border border-[#1f2937] rounded-full flex items-center justify-center text-[#94a3b8] hover:text-[#22d3ee] hover:bg-[#1f2937] transition-colors"><MessageSquare className="w-5 h-5" /></a>
                 )}
-                <a href="#" className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors"><Video className="w-5 h-5" /></a>
+                <a href="#" className="w-12 h-12 bg-[#111827] border border-[#1f2937] rounded-full flex items-center justify-center text-[#94a3b8] hover:text-[#22d3ee] hover:bg-[#1f2937] transition-colors"><Video className="w-5 h-5" /></a>
               </div>
             </div>
           </footer>
