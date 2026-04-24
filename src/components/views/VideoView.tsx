@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect, useRef, memo, FormEvent } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Play, Rocket as RocketIcon, Download, Search, CheckCircle } from 'lucide-react';
+import { Play, Rocket as RocketIcon, Download, Search, CheckCircle, X } from 'lucide-react';
 
 const VideoShort = memo(({ url, title }: { url: string; title: string }) => {
   const videoRef = useRef<HTMLVideoElement>(null);

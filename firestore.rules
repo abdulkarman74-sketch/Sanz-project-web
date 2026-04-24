@@ -5,8 +5,8 @@ service cloud.firestore {
     // PUBLIC READ/WRITE for this specific document 
     // This allows our PIN-based frontend to mutation data from Vercel
     // WARNING: For private store projects only.
-    match /store/main_store_data {
-      allow read, write: if true;
+    match /store/{docId} {
+      allow read, write: if docId == 'main_store_data' || docId == 'main_site_settings';
     }
 
     // Default deny for everything else

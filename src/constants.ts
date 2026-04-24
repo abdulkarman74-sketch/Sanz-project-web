@@ -1,3 +1,115 @@
+export interface HeroSlide {
+  id: string;
+  image: string;
+  title: string;
+  desc: string;
+  buttonText: string;
+  buttonTarget: string;
+  enabled: boolean;
+}
+
+export interface ThemeSettings {
+  primaryColor: string;
+  backgroundColor: string;
+  cardColor: string;
+  textColor: string;
+}
+
+export interface AudioSettings {
+  url: string;
+  autoplay: boolean;
+  loop: boolean;
+  showButton: boolean;
+}
+
+export interface BrandingSettings {
+  siteName: string;
+  slogan: string;
+  logoUrl: string;
+  faviconUrl: string;
+  whatsapp: string;
+  telegram: string;
+  instagram: string;
+}
+
+export interface SiteSettings {
+  heroSlides: HeroSlide[];
+  theme: ThemeSettings;
+  audio: AudioSettings;
+  branding: BrandingSettings;
+}
+
+export const DEFAULT_SITE_SETTINGS: SiteSettings = {
+  heroSlides: [
+    {
+      id: "slide1",
+      image: "https://c.termai.cc/i146/BpC9uET.jpg",
+      title: "Sanz Store Premium",
+      desc: "Layanan digital cepat, aman, dan terpercaya untuk kebutuhan server, bot, dan aplikasi premium.",
+      buttonText: "Lihat Layanan",
+      buttonTarget: "products",
+      enabled: true
+    },
+    {
+      id: "slide2",
+      image: "https://c.termai.cc/i140/Chh8r.jpg",
+      title: "Cloud VPS Berkualitas",
+      desc: "Performa stabil untuk panel, website, bot WhatsApp, dan sistem digital Anda.",
+      buttonText: "Lihat Layanan",
+      buttonTarget: "products",
+      enabled: true
+    },
+    {
+      id: "slide3",
+      image: "https://c.termai.cc/i147/9rxld4I.jpg",
+      title: "Bot WhatsApp Otomatis",
+      desc: "Solusi otomatisasi WhatsApp yang praktis, modern, dan siap membantu bisnis digital.",
+      buttonText: "Lihat Layanan",
+      buttonTarget: "products",
+      enabled: true
+    },
+    {
+      id: "slide4",
+      image: "https://c.termai.cc/i122/eO18Zyc.jpg",
+      title: "Aplikasi Premium",
+      desc: "Akses aplikasi premium dengan harga terjangkau dan proses aktivasi mudah.",
+      buttonText: "Lihat Layanan",
+      buttonTarget: "products",
+      enabled: true
+    },
+    {
+      id: "slide5",
+      image: "https://c.termai.cc/i142/uwSV.jpg",
+      title: "Support Cepat",
+      desc: "Bantuan order, aktivasi, dan kendala layanan dengan respons yang cepat.",
+      buttonText: "Lihat Layanan",
+      buttonTarget: "products",
+      enabled: true
+    }
+  ],
+  theme: {
+    primaryColor: "#2563eb",
+    backgroundColor: "#0f172a",
+    cardColor: "#1e293b",
+    textColor: "#f8fafc",
+  },
+  audio: {
+    url: "https://rahmad-elaina.my.id/file/cd38fe1d6b.mp3",
+    autoplay: true,
+    loop: true,
+    showButton: true
+  },
+  branding: {
+    siteName: "SANZ STORE",
+    slogan: "Infrastruktur Terpadu & Modern",
+    logoUrl: "",
+    faviconUrl: "",
+    whatsapp: "6283813098270",
+    telegram: "",
+    instagram: ""
+  }
+};
+
 export interface Product {
   id: string;
   name: string;

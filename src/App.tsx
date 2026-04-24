@@ -19,7 +19,7 @@ import {
   ShoppingCart,
   Star
 } from 'lucide-react';
-import { CATEGORIES, WHATSAPP_NUMBER, Category, Product, VIDEO_DATA } from './constants';
+import { CATEGORIES, WHATSAPP_NUMBER, Category, Product, VIDEO_DATA, SiteSettings, DEFAULT_SITE_SETTINGS } from './constants';
 
 import { db } from './lib/firebase';
 import { doc, setDoc, onSnapshot } from 'firebase/firestore';
@@ -32,6 +32,7 @@ const OwnerMenu = lazy(() => import('./components/views/OwnerMenu'));
 const HeroSection = lazy(() => import('./components/common/HeroSection'));
 const LoadingScreen = lazy(() => import('./components/common/LoadingScreen'));
 const ProductDetailModal = lazy(() => import('./components/views/ProductDetailModal'));
+const VpsStatusShowcase = lazy(() => import('./components/common/VpsStatusShowcase'));
 
 const ViewFallback = () => (
   <div className="flex-1 flex items-center justify-center min-h-[400px]">
@@ -129,6 +130,9 @@ export default function App() {
 
   // --- Firebase Sync Logic ---
   const STORE_DOC_ID = 'main_store_data';
+  const SETTINGS_DOC_ID = 'main_site_settings';
+
+  const [siteSettings, setSiteSettings] = useState<SiteSettings>(DEFAULT_SITE_SETTINGS);
 
   useEffect(() => {
     // 1. PIN-based Session Sync
@@ -137,7 +141,7 @@ export default function App() {
       setIsOwnerLoggedIn(true);
     }
 
-    // 2. Real-time Data Sync
+    // 2. Real-time Data Sync for Products
     console.log(`[SYNC] Connecting to Firestore: store/${STORE_DOC_ID}`);
     const unsubscribe = onSnapshot(doc(db, 'store', STORE_DOC_ID), (snap) => {
       if (snap.exists()) {
@@ -151,8 +155,44 @@ export default function App() {
       console.error("[SYNC] Firestore Error:", err.code, err.message);
     });
 
-    return () => unsubscribe();
+    // 3. Real-time Sync for Site Settings
+    const unsubscribeSettings = onSnapshot(doc(db, 'store', SETTINGS_DOC_ID), (snap) => {
+      if (snap.exists()) {
+        setSiteSettings(snap.data() as SiteSettings);
+      }
+    }, (err) => {
+      console.error("[SYNC] Firestore Settings Error:", err.code, err.message);
+    });
+
+    return () => {
+      unsubscribe();
+      unsubscribeSettings();
+    };
   }, []);
+
+  const updateSiteSettings = async (newSettings: SiteSettings) => {
+    if (localStorage.getItem('sanz_admin_unlocked') !== 'true') return;
+    setIsSaving(true);
+    try {
+      await setDoc(doc(db, 'store', SETTINGS_DOC_ID), newSettings);
+      setSiteSettings(newSettings);
+      alert('Pengaturan berhasil disimpan!');
+    } catch (e: any) {
+      alert(`Gagal menyimpan pengaturan: ${e.message}`);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (siteSettings.theme) {
+      root.style.setProperty('--site-primary', siteSettings.theme.primaryColor);
+      root.style.setProperty('--site-bg', siteSettings.theme.backgroundColor);
+      root.style.setProperty('--site-card', siteSettings.theme.cardColor);
+      root.style.setProperty('--site-text', siteSettings.theme.textColor);
+    }
+  }, [siteSettings.theme]);
 
   const saveToFirebase = async (data: Category[]) => {
     // Permission check against local PIN state
@@ -278,8 +318,14 @@ export default function App() {
                 className="flex items-center gap-3 cursor-pointer" 
                 onClick={() => { setCurrentTab('home'); setSelectedCategory('Semua'); }}
               >
-                <div className="w-10 h-10 bg-slate-900 rounded-2xl flex items-center justify-center shadow-md shadow-slate-900/10"><Bot className="w-5 h-5 text-white" /></div>
-                <div className="hidden sm:block"><h1 className="text-xl font-display font-black tracking-tighter text-slate-900">SANZ</h1></div>
+                <div className="w-10 h-10 bg-slate-900 rounded-2xl flex items-center justify-center shadow-md shadow-slate-900/10">
+                  {siteSettings.branding.logoUrl ? (
+                    <img src={siteSettings.branding.logoUrl} alt="Logo" className="w-6 h-6 object-contain" />
+                  ) : (
+                    <Bot className="w-5 h-5 text-white" />
+                  )}
+                </div>
+                <div className="hidden sm:block"><h1 className="text-xl font-display font-black tracking-tighter text-slate-900">{siteSettings.branding.siteName}</h1></div>
               </div>
 
               <div className="hidden lg:flex items-center gap-8">
@@ -335,7 +381,12 @@ export default function App() {
               <AnimatePresence mode="wait">
                 {(currentTab === 'home' || currentTab === 'produk' || currentTab === 'app') ? (
                   <motion.div key="market" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="pb-24">
-                    {currentTab === 'home' && <HeroSection />}
+                    {currentTab === 'home' && (
+                      <>
+                        <HeroSection settings={siteSettings} />
+                        <VpsStatusShowcase />
+                      </>
+                    )}
                     
                     <div id="products" className="max-w-7xl mx-auto px-4 md:px-6 mt-12 md:mt-16">
                       {/* Marketplace Filter */}
@@ -374,11 +425,16 @@ export default function App() {
           <footer className="bg-white border-t border-slate-100 py-16 px-6 relative z-10">
             <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
               <div className="text-center md:text-left flex flex-col gap-2">
-                <h4 className="font-display font-black text-slate-900 tracking-tight text-xl">SANZ OFFICIAL</h4>
-                <p className="text-slate-400 text-xs font-mono uppercase tracking-widest">Premium Digital Solutions © 2026</p>
+                <h4 className="font-display font-black text-slate-900 tracking-tight text-xl">{siteSettings.branding.siteName}</h4>
+                <p className="text-slate-400 text-xs font-mono uppercase tracking-widest">{siteSettings.branding.slogan}</p>
               </div>
               <div className="flex gap-6">
-                <a href="#" className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors"><MessageSquare className="w-5 h-5" /></a>
+                {siteSettings.branding.whatsapp && (
+                  <a href={`https://wa.me/${siteSettings.branding.whatsapp}`} target="_blank" rel="noreferrer" className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors"><MessageSquare className="w-5 h-5" /></a>
+                )}
+                {siteSettings.branding.telegram && (
+                  <a href={siteSettings.branding.telegram} target="_blank" rel="noreferrer" className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors"><MessageSquare className="w-5 h-5" /></a>
+                )}
                 <a href="#" className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors"><Video className="w-5 h-5" /></a>
               </div>
             </div>
@@ -407,6 +463,8 @@ export default function App() {
           addProduct={addProduct}
           isSaving={isSaving}
           handleOwnerLogout={handleOwnerLogout}
+          siteSettings={siteSettings}
+          updateSiteSettings={updateSiteSettings}
         />
       </Suspense>
     </div>

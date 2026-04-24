@@ -1,21 +1,26 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import React, { useState, useRef, useEffect, memo } from 'react';
-import { motion } from 'motion/react';
-import { Server, MessageCircle, LayoutGrid, ShieldCheck, Play, Volume2, Cpu, Clock, Activity, Cloud, Terminal } from 'lucide-react';
+import { Play, Volume2, LayoutGrid, ChevronLeft, ChevronRight } from 'lucide-react';
+import { SiteSettings } from '../../constants';
 
-const HeroSection = () => {
+interface HeroSectionProps {
+  settings: SiteSettings;
+}
+
+const HeroSection: React.FC<HeroSectionProps> = ({ settings }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
-  const [uptime, setUptime] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
+
+  const slides = settings.heroSlides.filter(s => s.enabled);
+  const hasSlides = slides.length > 0;
 
   useEffect(() => {
     // Attempt autoplay (might be blocked by browser)
     const playAudio = async () => {
-      if (audioRef.current) {
+      if (audioRef.current && settings.audio.autoplay) {
         try {
           await audioRef.current.play();
           setIsPlaying(true);
@@ -25,27 +30,8 @@ const HeroSection = () => {
         }
       }
     };
-
     playAudio();
-    
-    // Fixed start time: around mid-April 2026 (or earlier) to simulate a running server.
-    const START_TIME = new Date('2026-04-07T08:30:00Z').getTime();
-    
-    const updateTimer = () => {
-        const now = Date.now();
-        const diffInSeconds = Math.max(0, Math.floor((now - START_TIME) / 1000));
-        setUptime({
-            days: Math.floor(diffInSeconds / 86400),
-            hours: Math.floor((diffInSeconds % 86400) / 3600),
-            minutes: Math.floor((diffInSeconds % 3600) / 60),
-            seconds: diffInSeconds % 60
-        });
-    };
-    
-    updateTimer(); // Initialize immediately
-    const interval = setInterval(updateTimer, 1000);
-    return () => clearInterval(interval);
-  }, []);
+  }, [settings.audio]);
 
   const toggleAudio = () => {
     if (!audioRef.current) return;
@@ -57,192 +43,160 @@ const HeroSection = () => {
     setIsPlaying(!isPlaying);
   };
 
+  useEffect(() => {
+    if (!hasSlides) return;
+    const timer = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % slides.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [slides.length, hasSlides]);
+
+  const nextSlide = () => {
+    if (!hasSlides) return;
+    setCurrentIndex((prev) => (prev + 1) % slides.length);
+  };
+
+  const prevSlide = () => {
+    if (!hasSlides) return;
+    setCurrentIndex((prev) => (prev - 1 + slides.length) % slides.length);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50;
+    const isRightSwipe = distance < -50;
+    
+    if (isLeftSwipe) {
+      nextSlide();
+    } else if (isRightSwipe) {
+      prevSlide();
+    }
+    setTouchStart(0);
+    setTouchEnd(0);
+  };
+
+  const scrollToServices = (targetId: string) => {
+    document.getElementById(targetId)?.scrollIntoView({behavior: 'smooth'});
+  };
+
+  if (!hasSlides) return null;
+
   return (
-    <div className="relative w-full overflow-hidden bg-white min-h-[85vh] flex items-center pt-24 pb-16">
+    <div className="relative w-full bg-slate-900 pt-[60px] sm:pt-[72px]">
       <audio 
         ref={audioRef} 
-        loop 
-        src="https://rahmad-elaina.my.id/file/cd38fe1d6b.mp3" 
+        loop={settings.audio.loop} 
+        src={settings.audio.url} 
         preload="auto" 
-        onError={() => console.warn("Audio failed to load via HTTPS. Mixed content might be blocked or resource missing.")}
       />
       
-      {/* Abstract Background Design / Lightweight Gradients */}
-      <div className="absolute top-0 right-0 w-[50vw] h-[50vw] bg-blue-50/60 rounded-full blur-[100px] -z-10 translate-x-1/3 -translate-y-1/3" />
-      <div className="absolute bottom-0 left-0 w-[40vw] h-[40vw] bg-emerald-50/40 rounded-full blur-[80px] -z-10 -translate-x-1/3 translate-y-1/3" />
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-        
-        {/* Left Content (Text & CTA) */}
-        <div className="flex flex-col items-start text-left space-y-5 lg:space-y-6">
-          <motion.div 
-            initial={{ opacity: 0, y: 10 }} 
-            animate={{ opacity: 1, y: 0 }} 
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-white border border-slate-200 shadow-sm"
+      {/* Slider Container */}
+      <div 
+        className="relative w-full overflow-hidden bg-slate-900"
+        style={{ aspectRatio: '16/9' }}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
+        {slides.map((slide, index) => (
+          <div 
+            key={slide.id || index}
+            className={`absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out ${
+              index === currentIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'
+            }`}
           >
-            <Activity className="w-3 h-3 text-emerald-500 animate-pulse" />
-            <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-slate-700">Digital Store Premium</span>
-          </motion.div>
+            {/* Image Cover */}
+            <img 
+              src={slide.image} 
+              alt={slide.title} 
+              className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none"
+              loading={index === 0 ? "eager" : "lazy"}
+            />
+            {/* Dark Gradient Overlay for text readability */}
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent" />
+            <div className="absolute inset-0 bg-slate-900/20" /> {/* Extra global darkening */}
 
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }} 
-            animate={{ opacity: 1, y: 0 }} 
-            transition={{ delay: 0.1 }}
-            className="text-4xl sm:text-5xl lg:text-7xl font-display font-black text-slate-900 tracking-tighter uppercase leading-[1.1]"
-          >
-            Infrastruktur <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Terpadu &amp;</span> Modern
-          </motion.h1>
+            {/* Content Overlay */}
+            <div className="absolute inset-0 z-20 flex flex-col justify-end pb-10 sm:pb-16 md:pb-24 px-4 sm:px-12 md:px-20 max-w-7xl mx-auto w-full">
+              <h2 className="text-xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tight uppercase leading-[1.1] mb-1 sm:mb-2 md:mb-4 drop-shadow-md line-clamp-2">
+                {slide.title}
+              </h2>
+              <p className="text-[10px] sm:text-sm md:text-lg text-slate-300 font-medium max-w-2xl leading-snug md:leading-relaxed mb-3 sm:mb-6 drop-shadow line-clamp-2">
+                {slide.desc}
+              </p>
+              
+              {slide.buttonText && (
+                <button 
+                  onClick={() => scrollToServices(slide.buttonTarget)}
+                  className="w-max h-8 sm:h-12 px-4 sm:px-6 bg-blue-600 hover:bg-blue-500 text-white rounded-lg sm:rounded-xl font-bold uppercase tracking-widest text-[9px] sm:text-xs shadow-lg transition-transform active:scale-95 flex items-center gap-1.5 sm:gap-2"
+                >
+                  <LayoutGrid className="w-3 h-3 sm:w-4 sm:h-4" /> {slide.buttonText}
+                </button>
+              )}
+            </div>
+          </div>
+        ))}
 
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }} 
-            animate={{ opacity: 1, y: 0 }} 
-            transition={{ delay: 0.2 }}
-            className="text-slate-500 text-sm sm:text-base lg:text-lg font-medium leading-relaxed max-w-xl"
-          >
-            Pusat layanan digital eksklusif. Tingkatkan performa dan otomasi bisnis Anda dengan Cloud VPS kelas enterprise, sistem cerdas Bot WhatsApp, dan lisensi Aplikasi Premium siap pakai.
-          </motion.p>
-
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }} 
-            animate={{ opacity: 1, y: 0 }} 
-            transition={{ delay: 0.3 }}
-            className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto pt-2"
-          >
+        {/* Navigation Arrows (Hidden on mobile) */}
+        {slides.length > 1 && (
+          <>
             <button 
-              onClick={() => document.getElementById('products')?.scrollIntoView({behavior: 'smooth'})}
-              className="h-14 px-8 bg-slate-900 hover:bg-black text-white rounded-xl font-bold uppercase tracking-widest text-[11px] sm:text-xs shadow-lg shadow-slate-900/10 transition-transform active:scale-95 flex items-center justify-center gap-2"
+              onClick={prevSlide}
+              className="absolute left-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/20 hover:bg-black/50 border border-white/10 flex items-center justify-center text-white backdrop-blur-md transition-all hidden sm:flex"
             >
-              <LayoutGrid className="w-4 h-4" /> Lihat Layanan
+              <ChevronLeft className="w-6 h-6" />
             </button>
+            <button 
+              onClick={nextSlide}
+              className="absolute right-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/20 hover:bg-black/50 border border-white/10 flex items-center justify-center text-white backdrop-blur-md transition-all hidden sm:flex"
+            >
+              <ChevronRight className="w-6 h-6" />
+            </button>
+          </>
+        )}
+
+        {/* Dots Indicator */}
+        {slides.length > 1 && (
+          <div className="absolute bottom-2 sm:bottom-6 left-0 right-0 z-30 flex justify-center gap-1.5 sm:gap-2">
+            {slides.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrentIndex(i)}
+                className={`transition-all rounded-full ${
+                  i === currentIndex 
+                    ? 'bg-blue-500 w-6 sm:w-8 h-1.5 sm:h-2' 
+                    : 'bg-white/40 hover:bg-white/70 w-1.5 h-1.5 sm:w-2 sm:h-2'
+                }`}
+                aria-label={`Go to slide ${i + 1}`}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Audio Button Strip Below Slider */}
+      {settings.audio.showButton && (
+        <div className="w-full bg-slate-950 border-b border-slate-900 py-3 px-4 sm:px-6 flex justify-end">
+          <div className="max-w-7xl mx-auto w-full flex justify-end">
             <button 
               onClick={toggleAudio}
-              className="h-14 px-8 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl font-bold uppercase tracking-widest text-[11px] sm:text-xs shadow-sm transition-all flex items-center justify-center gap-2 z-20 group"
+              className="h-10 px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg font-bold uppercase tracking-widest text-[10px] sm:text-xs transition-colors flex items-center gap-2"
             >
-              {isPlaying ? <Volume2 className="w-4 h-4 text-blue-500" /> : <Play className="w-4 h-4 text-slate-500" />}
-              <span>{isPlaying ? 'Matikan Musik' : 'Putar Musik'}</span>
+              {isPlaying ? <Volume2 className="w-4 h-4 text-emerald-400" /> : <Play className="w-4 h-4" />}
+              <span>{isPlaying ? 'Matikan Musik' : 'Nyalakan Musik'}</span>
             </button>
-          </motion.div>
-          
-          {/* Subtle Trust Indicators */}
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="pt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
-              <div className="flex items-center gap-2">
-                 <ShieldCheck className="w-4 h-4 text-emerald-500" />
-                 <span className="text-[10px] sm:text-xs font-bold text-slate-600 uppercase tracking-widest">Aman &amp; Terpercaya</span>
-              </div>
-              <div className="flex items-center gap-2">
-                 <Cloud className="w-4 h-4 text-blue-500" />
-                 <span className="text-[10px] sm:text-xs font-bold text-slate-600 uppercase tracking-widest">Cepat &amp; Stabil</span>
-              </div>
-          </motion.div>
-        </div>
-
-        {/* Right Content - Realistic SaaS / Dashboard Monitor (Mobile First Layout) */}
-        <motion.div 
-          initial={{ opacity: 0, x: 20 }} 
-          animate={{ opacity: 1, x: 0 }} 
-          transition={{ delay: 0.2, duration: 0.6 }}
-          className="relative w-full max-w-[500px] lg:max-w-none mx-auto mt-8 lg:mt-0 px-2 sm:px-0"
-        >
-          {/* Central Dashboard Panel */}
-          <div className="relative z-10 w-full bg-white/95 backdrop-blur-2xl border border-slate-200 rounded-3xl shadow-2xl overflow-hidden flex flex-col">
-             
-             {/* Fake Header Controls */}
-             <div className="w-full h-10 border-b border-slate-100 flex items-center px-4 gap-2 bg-slate-50/50">
-                 <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
-                 <div className="w-2.5 h-2.5 rounded-full bg-amber-400" />
-                 <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
-                 <div className="mx-auto px-3 py-1 rounded-md bg-white border border-slate-100 flex items-center gap-1.5 shadow-sm">
-                    <Terminal className="w-3 h-3 text-slate-400" />
-                    <span className="text-[9px] font-mono font-bold text-slate-500 uppercase tracking-wider">sanz-cloud-dashboard</span>
-                 </div>
-             </div>
-             
-             <div className="flex-1 w-full flex flex-col p-4 sm:p-6 gap-4 sm:gap-5 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-50/30 to-white">
-                 
-                 {/* AMD EPYC Spec Panel */}
-                 <div className="w-full bg-white border border-slate-200 rounded-2xl p-4 flex items-center gap-4 shadow-sm relative overflow-hidden">
-                     <div className="absolute top-0 right-0 p-2 opacity-10 pointer-events-none">
-                        <Cpu className="w-16 h-16 text-blue-900" />
-                     </div>
-                     <div className="w-12 h-12 shrink-0 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 rounded-xl flex items-center justify-center">
-                         <Cpu className="w-6 h-6 text-blue-600" />
-                     </div>
-                     <div className="relative z-10 flex flex-col justify-center">
-                         <h3 className="text-sm sm:text-base font-black text-slate-900 tracking-tight leading-tight">Powered by AMD EPYC</h3>
-                         <p className="text-[10px] sm:text-xs text-slate-500 font-mono tracking-wide mt-0.5">R26 • C6 High Performance</p>
-                     </div>
-                 </div>
-                 
-                 {/* LIVE UPTIME COUNTER CARD */}
-                 <div className="w-full bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-lg flex flex-col justify-center relative overflow-hidden group">
-                     {/* Decorative subtle grid inside dark card */}
-                     <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:1rem_1rem] opacity-50" />
-                     
-                     <div className="relative z-10 flex items-center justify-between mb-3">
-                         <span className="text-[10px] sm:text-xs text-slate-300 font-bold uppercase tracking-widest flex items-center gap-1.5">
-                             <Clock className="w-3.5 h-3.5 text-blue-400" /> SERVER UPTIME
-                         </span>
-                         <span className="flex items-center gap-1.5 text-[9px] sm:text-[10px] font-bold text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/20 uppercase tracking-widest">
-                             <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse shadow-[0_0_5px_rgba(52,211,153,0.5)]" /> LIVE
-                         </span>
-                     </div>
-                     
-                     {/* Dynamic Uptime Reading */}
-                     <div className="relative z-10 font-mono text-sm sm:text-lg md:text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-100 to-white tracking-widest mb-2 flex flex-wrap gap-1">
-                         <span>{uptime.days} <span className="text-[10px] sm:text-xs text-slate-400 uppercase tracking-widest font-sans font-medium mr-1.5">hari</span></span>
-                         <span>{uptime.hours.toString().padStart(2, '0')} <span className="text-[10px] sm:text-xs text-slate-400 uppercase tracking-widest font-sans font-medium mr-1.5">jam</span></span>
-                         <span>{uptime.minutes.toString().padStart(2, '0')} <span className="text-[10px] sm:text-xs text-slate-400 uppercase tracking-widest font-sans font-medium mr-1.5">menit</span></span>
-                         <span>{uptime.seconds.toString().padStart(2, '0')} <span className="text-[10px] sm:text-xs text-slate-400 uppercase tracking-widest font-sans font-medium">detik</span></span>
-                     </div>
-                     
-                     <div className="relative z-10 flex items-center gap-2 text-[9px] sm:text-[10px] text-slate-400 mt-1 pb-1">
-                         <span className="w-1.5 h-1.5 rounded-full bg-slate-500" />
-                         <p>Uptime Sejak: 07 Apr 2026 • Terus aktif tanpa gangguan</p>
-                     </div>
-                     
-                     {/* Bottom progress bar illusion */}
-                     <div className="absolute bottom-0 left-0 w-full h-[3px] bg-slate-800">
-                         <motion.div className="h-full bg-emerald-400" animate={{ width: ["0%", "100%"] }} transition={{ duration: 10, repeat: Infinity, ease: "linear" }} />
-                     </div>
-                 </div>
-
-             </div>
           </div>
-
-          {/* Floating Cards (Responsive positioned specifically so they don't block the UI in mobile mode) */}
-          
-          <motion.div 
-            animate={{ y: [-5, 5, -5] }} transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-            className="absolute -top-4 -right-1 sm:-top-6 sm:-right-6 z-20 scale-90 sm:scale-100"
-          >
-            <div className="bg-white p-2.5 sm:p-3 rounded-2xl shadow-xl border border-slate-100 flex items-center gap-3 backdrop-blur-md">
-               <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-50 border border-blue-100 rounded-xl flex items-center justify-center">
-                 <Server className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
-               </div>
-               <div className="pr-2 hidden sm:block">
-                 <p className="text-[11px] font-bold text-slate-900 leading-tight">Secure Cloud</p>
-                 <p className="text-[9px] text-blue-500 font-bold uppercase tracking-widest">Deployed Ready</p>
-               </div>
-            </div>
-          </motion.div>
-
-          <motion.div 
-            animate={{ y: [5, -5, 5] }} transition={{ repeat: Infinity, duration: 5, ease: "easeInOut", delay: 1 }}
-            className="absolute -bottom-3 -left-2 sm:-bottom-8 sm:-left-8 z-20 scale-90 sm:scale-100"
-          >
-            <div className="bg-white p-2.5 sm:p-3 rounded-2xl shadow-xl border border-slate-100 flex items-center gap-3 backdrop-blur-md">
-               <div className="w-8 h-8 sm:w-10 sm:h-10 bg-emerald-50 border border-emerald-100 rounded-xl flex items-center justify-center">
-                 <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />
-               </div>
-               <div className="pr-2">
-                 <p className="text-[10px] sm:text-[11px] font-bold text-slate-900 leading-tight">Bot Otomatis</p>
-                 <p className="text-[8px] sm:text-[9px] text-slate-500 uppercase tracking-widest">Auto Reply System</p>
-               </div>
-            </div>
-          </motion.div>
-
-        </motion.div>
-      </div>
+        </div>
+      )}
     </div>
   );
 };
