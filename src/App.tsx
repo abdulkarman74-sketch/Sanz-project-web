@@ -62,7 +62,7 @@ const ProductCard = memo(({ product, onDetail }: { product: Product; onDetail?: 
     >
       <div className="absolute inset-0 bg-gradient-to-br from-[#111827]/80 to-[#0b1220] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       
-      <div className="relative aspect-[4/3] rounded-[18px] overflow-hidden bg-[#050816] mb-4 isolate shadow-inner">
+      <div className="relative aspect-[16/9] w-full rounded-[18px] overflow-hidden bg-[#050816] mb-4 isolate shadow-inner">
         <img src={product.image} alt={product.name} className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110" loading="lazy" decoding="async" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#050816] via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
         
@@ -89,20 +89,20 @@ const ProductCard = memo(({ product, onDetail }: { product: Product; onDetail?: 
            </div>
         </div>
 
-        <h3 className="text-sm font-bold text-[#f8fafc] leading-snug line-clamp-2 md:line-clamp-1 mb-1.5 group-hover:text-[#22d3ee] transition-colors">
+        <h3 className="text-sm font-bold text-[#f8fafc] leading-snug line-clamp-2 mb-1.5 group-hover:text-[#22d3ee] transition-colors">
           {product.name}
         </h3>
         
-        <p className="text-[10px] md:text-[11px] text-[#94a3b8] line-clamp-2 leading-relaxed mb-4 flex-1">
+        <p className="text-[10px] md:text-[11px] text-[#94a3b8] line-clamp-3 leading-relaxed mb-4 flex-1">
           {product.description || "Layanan digital premium dan bergaransi resmi."}
         </p>
 
-        <div className="pt-3 border-t border-[#1f2937] border-dashed mt-auto flex items-end justify-between">
+        <div className="pt-3 border-t border-[#1f2937] border-dashed mt-auto shrink-0 flex items-end justify-between">
           <div className="flex flex-col">
             <span className="text-[8px] font-bold text-[#94a3b8] uppercase tracking-widest leading-none mb-1">Total Harga</span>
             <span className="text-lg font-display font-black text-[#f8fafc] tracking-tight leading-none bg-clip-text text-transparent bg-gradient-to-r from-[#22d3ee] to-[#2dd4bf]">Rp {product.price}</span>
           </div>
-          <div className="w-8 h-8 rounded-xl bg-[#111827] flex items-center justify-center group-hover:bg-[#22d3ee] transition-all border border-[#1f2937] group-hover:border-[#22d3ee] shadow-sm group-hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] transform group-hover:rotate-[-5deg]">
+          <div className="w-8 h-8 rounded-xl bg-[#111827] flex items-center justify-center group-hover:bg-[#22d3ee] transition-all border border-[#1f2937] group-hover:border-[#22d3ee] shadow-sm group-hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] transform group-hover:rotate-[-5deg] shrink-0">
              <ChevronRight className="w-4 h-4 text-[#94a3b8] group-hover:text-[#0b1220] transition-colors" />
           </div>
         </div>
