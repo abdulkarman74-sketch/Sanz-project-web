@@ -59,6 +59,14 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
   const [updateError, setUpdateError] = useState<string | null>(null);
   const [formData, setFormData] = useState<any>(null);
   const [isSavingLocal, setIsSavingLocal] = useState(false);
+  const [selectedInfoMode, setSelectedInfoMode] = useState<string>(siteSettings.general?.infoDisplayMode || 'runtime');
+
+  // Update selectedInfoMode when siteSettings changes
+  React.useEffect(() => {
+    if (siteSettings.general?.infoDisplayMode) {
+      setSelectedInfoMode(siteSettings.general?.infoDisplayMode);
+    }
+  }, [siteSettings.general?.infoDisplayMode]);
 
   // Category State for UI
   const [isAddingCategory, setIsAddingCategory] = useState(false);
@@ -96,6 +104,39 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
       ...siteSettings,
       audio: { ...siteSettings.audio, [field]: value }
     });
+  };
+
+  const handleSaveInfoMode = async () => {
+    if (!ensureFirebaseReady()) return;
+    setIsSavingLocal(true);
+    console.log("Saving info mode:", selectedInfoMode);
+    
+    try {
+      const newSettings = {
+        ...siteSettings,
+        general: { 
+          ...(siteSettings.general || DEFAULT_SITE_SETTINGS.general), 
+          infoDisplayMode: selectedInfoMode as any 
+        }
+      };
+      
+      // Update local state first for immediate UI feedback
+      updateSiteSettings(newSettings);
+      
+      // Persist to Firestore
+      const settingsRef = doc(db, 'settings', 'general');
+      await setDoc(settingsRef, {
+        infoDisplayMode: selectedInfoMode,
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+      
+      console.log("Info mode saved successfully");
+    } catch (error) {
+      console.error("Error saving info mode:", error);
+      alert("Gagal menyimpan pengaturan.");
+    } finally {
+      setIsSavingLocal(false);
+    }
   };
 
   const handleUpdateContact = (field: keyof SiteSettings['contact'], value: string) => {
@@ -1507,7 +1548,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                       </div>
                    </div>
 
-                   <div className="bg-theme-card border border-theme-border p-8 rounded-[2.5rem] shadow-2xl mt-8">
+                   <div className="bg-theme-card border border-theme-border p-8 rounded-[2.5rem] shadow-2xl mt-8 relative z-20">
                       <div className="flex items-center gap-3 mb-8">
                          <LayoutGrid className="w-6 h-6 text-theme-accent" />
                          <h3 className="text-xl font-bold text-theme-text uppercase tracking-[0.2em] italic">Tampilan Informasi Homepage</h3>
@@ -1521,15 +1562,20 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                          ].map((mode) => (
                            <button
                              key={mode.id}
-                             onClick={() => handleUpdateGeneral?.('infoDisplayMode', mode.id)}
-                             className={`flex items-center gap-4 p-5 rounded-[2rem] border transition-all text-left group ${siteSettings.general?.infoDisplayMode === mode.id || (!siteSettings.general?.infoDisplayMode && mode.id === 'runtime') ? 'bg-theme-accent border-theme-accent text-slate-900' : 'bg-theme-surface/50 border-theme-border/30 text-theme-text hover:border-theme-accent/50'}`}
+                             type="button"
+                             onClick={(e) => {
+                               e.stopPropagation();
+                               console.log("info mode clicked:", mode.id);
+                               setSelectedInfoMode(mode.id);
+                             }}
+                             className={`flex items-center gap-4 p-5 rounded-[2rem] border transition-all text-left relative z-10 cursor-pointer pointer-events-auto ${selectedInfoMode === mode.id ? 'bg-theme-accent border-theme-accent text-slate-900 shadow-lg scale-[1.02]' : 'bg-theme-surface/50 border-theme-border/30 text-theme-text hover:border-theme-accent/50'}`}
                            >
-                             <div className={`p-3 rounded-2xl ${siteSettings.general?.infoDisplayMode === mode.id || (!siteSettings.general?.infoDisplayMode && mode.id === 'runtime') ? 'bg-slate-900/10' : 'bg-theme-surface'}`}>
+                             <div className={`p-3 rounded-2xl ${selectedInfoMode === mode.id ? 'bg-slate-900/10' : 'bg-theme-surface'}`}>
                                <mode.icon className="w-6 h-6" />
                              </div>
                              <div>
                                <p className="font-black text-sm uppercase tracking-widest">{mode.label}</p>
-                               <p className={`text-[9px] uppercase tracking-widest font-black mt-1 opacity-60 ${siteSettings.general?.infoDisplayMode === mode.id || (!siteSettings.general?.infoDisplayMode && mode.id === 'runtime') ? 'text-slate-900' : 'text-theme-muted'}`}>
+                               <p className={`text-[9px] uppercase tracking-widest font-black mt-1 opacity-60 ${selectedInfoMode === mode.id ? 'text-slate-900' : 'text-theme-muted'}`}>
                                  {mode.id === 'runtime' ? 'Hanya tampilkan masa aktif server' : 
                                   mode.id === 'datetime' ? 'Hanya tampilkan Jam WIB & Kalender' :
                                   mode.id === 'both' ? 'Tampilkan keduanya sekaligus' : 'Sembunyikan semua informasi'}
@@ -1537,6 +1583,21 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                              </div>
                            </button>
                          ))}
+                      </div>
+
+                      <div className="mt-8 pt-6 border-t border-theme-border flex justify-end">
+                         <button
+                           onClick={handleSaveInfoMode}
+                           disabled={isSavingLocal}
+                           className="flex items-center gap-3 px-10 py-5 bg-theme-accent text-slate-900 font-extrabold uppercase text-sm tracking-[0.2em] rounded-3xl shadow-xl hover:shadow-theme-accent/20 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer pointer-events-auto disabled:opacity-50"
+                         >
+                           {isSavingLocal ? (
+                             <Loader className="w-5 h-5 animate-spin" />
+                           ) : (
+                             <Save className="w-5 h-5" />
+                           )}
+                           Simpan Pengaturan
+                         </button>
                       </div>
                    </div>
                 </motion.div>
