@@ -355,64 +355,71 @@ export default function App() {
 
   const handleLogout = handleLogoutInit;
 
-  const updateProduct = async (catId: string, updatedProduct: Product) => {
+  const ensureFirebaseReady = () => {
     if (!firebaseReady || !db) {
-      alert("Firebase belum disetting di setting.js. Akses simpan ditolak.");
-      return;
+      alert("⚠️ FIREBASE BELUM TERHUBUNG\n\nSilakan isi Firebase Config di src/setting.js agar fitur simpan berfungsi.");
+      return false;
     }
+    return true;
+  };
+
+  const updateProduct = async (catId: string, updatedProduct: Product) => {
+    if (!isAdminLoggedIn) return;
+    if (!ensureFirebaseReady()) return;
+
     const rawPriceDigits = updatedProduct.price.replace(/\D/g, "");
     if (!rawPriceDigits || isNaN(Number(rawPriceDigits))) {
       alert("Harga harus berupa angka valid!");
       return;
     }
-    const cleanProduct = removeUndefinedDeep({
-      ...updatedProduct,
-      price: Number(rawPriceDigits).toLocaleString("id-ID"),
-      updatedAt: Date.now(),
-    });
 
-    if (!isAdminLoggedIn) return;
     setIsSaving(true);
     try {
+      const cleanProduct = removeUndefinedDeep({
+        ...updatedProduct,
+        price: Number(rawPriceDigits).toLocaleString("id-ID"),
+        updatedAt: Date.now(),
+      });
+
       await setDoc(doc(db, "products", cleanProduct.id), cleanProduct, {
         merge: true,
       });
+      setEditingProduct(null);
+      setAdminMode("dashboard");
     } catch (e: any) {
-      alert("Gagal: " + e.message);
+      console.error("Update Product Error:", e);
+      alert("Gagal memperbarui produk: " + e.message);
+    } finally {
+      setIsSaving(false);
     }
-    setIsSaving(false);
-    setEditingProduct(null);
-    setAdminMode("dashboard");
   };
 
   const deleteProduct = async (catId: string, productId: string) => {
     if (!isAdminLoggedIn) return;
-    if (!firebaseReady || !db) {
-      alert("Firebase belum disetting di setting.js. Akses simpan ditolak.");
-      return;
-    }
+    if (!ensureFirebaseReady()) return;
+
     if (confirm("Yakin ngilangin produk ini bang?")) {
       setIsSaving(true);
       try {
         await deleteDoc(doc(db, "products", productId));
       } catch (e: any) {
-        alert("Gagal: " + e.message);
+        console.error("Delete Product Error:", e);
+        alert("Gagal menghapus produk: " + e.message);
+      } finally {
+        setIsSaving(false);
       }
-      setIsSaving(false);
     }
   };
 
   const addProduct = async (catId: string, newProduct: Omit<Product, "id">) => {
-    if (!firebaseReady || !db) {
-      alert("Firebase belum disetting di setting.js. Akses simpan ditolak.");
-      return;
-    }
+    if (!isAdminLoggedIn) return;
+    if (!ensureFirebaseReady()) return;
+
     const rawPriceDigits = newProduct.price.replace(/\D/g, "");
     const cleanPrice = rawPriceDigits
       ? Number(rawPriceDigits).toLocaleString("id-ID")
       : "0";
 
-    if (!isAdminLoggedIn) return;
     setIsSaving(true);
     try {
       const newId = Math.random().toString(36).substring(2, 11);
@@ -425,11 +432,13 @@ export default function App() {
       });
       await setDoc(doc(db, "products", newId), payload);
       alert("Berhasil ditambahin bg!");
+      setAdminMode("dashboard");
     } catch (e: any) {
-      alert("Gagal: " + e.message);
+      console.error("Add Product Error:", e);
+      alert("Gagal menambah produk: " + e.message);
+    } finally {
+      setIsSaving(false);
     }
-    setIsSaving(false);
-    setAdminMode("dashboard");
   };
 
   useEffect(() => {
@@ -442,50 +451,47 @@ export default function App() {
 
   const addCategory = async (cat: Omit<Category, 'products'>) => {
     if (!isAdminLoggedIn) return;
-    if (!firebaseReady || !db) {
-      alert("Firebase belum disetting di setting.js. Akses simpan ditolak.");
-      return;
-    }
+    if (!ensureFirebaseReady()) return;
     setIsSaving(true);
     try {
       await setDoc(doc(db, "categories", cat.id), removeUndefinedDeep(cat));
       alert("Kategori berhasil ditambahkan!");
     } catch (e: any) {
-      alert("Gagal: " + e.message);
+      console.error("Add Category Error:", e);
+      alert("Gagal menambah kategori: " + e.message);
+    } finally {
+      setIsSaving(false);
     }
-    setIsSaving(false);
   };
 
   const updateCategory = async (cat: Omit<Category, 'products'>) => {
     if (!isAdminLoggedIn) return;
-    if (!firebaseReady || !db) {
-      alert("Firebase belum disetting di setting.js. Akses simpan ditolak.");
-      return;
-    }
+    if (!ensureFirebaseReady()) return;
     setIsSaving(true);
     try {
       await setDoc(doc(db, "categories", cat.id), removeUndefinedDeep(cat), { merge: true });
       alert("Kategori berhasil diperbarui!");
     } catch (e: any) {
-      alert("Gagal: " + e.message);
+      console.error("Update Category Error:", e);
+      alert("Gagal memperbarui kategori: " + e.message);
+    } finally {
+      setIsSaving(false);
     }
-    setIsSaving(false);
   };
 
   const deleteCategory = async (id: string) => {
     if (!isAdminLoggedIn) return;
-    if (!firebaseReady || !db) {
-      alert("Firebase belum disetting di setting.js. Akses simpan ditolak.");
-      return;
-    }
+    if (!ensureFirebaseReady()) return;
     setIsSaving(true);
     try {
       await deleteDoc(doc(db, "categories", id));
       alert("Kategori berhasil dihapus!");
     } catch (e: any) {
-      alert("Gagal: " + e.message);
+      console.error("Delete Category Error:", e);
+      alert("Gagal menghapus kategori: " + e.message);
+    } finally {
+      setIsSaving(false);
     }
-    setIsSaving(false);
   };
 
   const updateSiteSettings = async (newSettings: SiteSettings) => {
@@ -540,7 +546,7 @@ export default function App() {
       // Handle Hero Slides separately if they are part of the object
       if (newSettings.heroSlides && newSettings.heroSlides.length > 0) {
         const slidePromises = newSettings.heroSlides.map((slide) =>
-          setDoc(doc(db, "slides", slide.id), slide, { merge: true }),
+          setDoc(doc(db, "slides", slide.id), removeUndefinedDeep(slide), { merge: true }),
         );
         await Promise.all(slidePromises);
       }

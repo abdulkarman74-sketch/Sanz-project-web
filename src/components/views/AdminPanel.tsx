@@ -76,7 +76,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
 
   const ensureFirebaseReady = () => {
     if (!firebaseReady || !db) {
-      alert("Firebase belum disetting di setting.js. Akses simpan ditolak.");
+      alert("⚠️ FIREBASE BELUM TERHUBUNG\n\nSilakan isi Firebase Config di src/setting.js agar fitur simpan berfungsi.");
       return false;
     }
     return true;
@@ -125,10 +125,11 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
       
       // Persist to Firestore
       const settingsRef = doc(db, 'settings', 'general');
-      await setDoc(settingsRef, {
+      const payload = removeUndefinedDeep({
         infoDisplayMode: selectedInfoMode,
         updatedAt: serverTimestamp()
-      }, { merge: true });
+      });
+      await setDoc(settingsRef, payload, { merge: true });
       
       console.log("Info mode saved successfully");
     } catch (error) {
@@ -337,11 +338,12 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
       setUpdateProgress(60);
       setUpdateLogs(prev => [...prev, "📝 Mencatat riwayat update ke Firebase..."]);
       
+      const cleanRecord = removeUndefinedDeep(updateRecord);
       const updateRef = doc(db, 'system', 'last_update');
-      await setDoc(updateRef, updateRecord, { merge: true });
+      await setDoc(updateRef, cleanRecord, { merge: true });
       
       const historyRef = doc(db, 'update_history', `${Date.now()}`);
-      await setDoc(historyRef, updateRecord);
+      await setDoc(historyRef, cleanRecord);
 
       // 3. Finalisasi
       setUpdateProgress(90);

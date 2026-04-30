@@ -1,6 +1,6 @@
 export const removeUndefinedDeep = (obj: any): any => {
   if (Array.isArray(obj)) {
-    return obj.map(removeUndefinedDeep);
+    return obj.map(removeUndefinedDeep).filter(v => v !== undefined);
   }
   if (obj !== null && typeof obj === 'object') {
     return Object.fromEntries(
