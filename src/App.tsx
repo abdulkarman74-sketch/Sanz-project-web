@@ -491,38 +491,53 @@ export default function App() {
   const updateSiteSettings = async (newSettings: SiteSettings) => {
     if (!isAdminLoggedIn) return;
     if (!firebaseReady || !db) {
-      alert("Firebase belum disetting di setting.js. Akses simpan ditolak.");
+      alert("⚠️ FIREBASE BELUM TERHUBUNG\n\nSilakan isi Firebase Config di src/setting.js dan deploy ulang ke Netlify agar fitur simpan berfungsi.");
       return;
     }
+    
     setIsSaving(true);
+    console.log("Saving site settings to Firebase...", newSettings);
+    
     try {
-      await setDoc(doc(db, "settings", "main"), newSettings, { merge: true });
+      // 1. Save core branding/main settings
+      const mainData = {
+        storeName: newSettings.branding.siteName,
+        slogan: newSettings.branding.slogan,
+        contact: newSettings.contact,
+        updatedAt: Date.now()
+      };
+      await setDoc(doc(db, "settings", "main"), removeUndefinedDeep(mainData), { merge: true });
+
+      // 2. Save individual modules if they changed (targeted updates)
+      const tasks = [];
+      
       if (newSettings.theme) {
-        await setDoc(doc(db, "settings", "theme"), newSettings.theme, {
-          merge: true,
-        });
+        tasks.push(setDoc(doc(db, "settings", "theme"), removeUndefinedDeep(newSettings.theme), { merge: true }));
       }
       if (newSettings.audio) {
-        await setDoc(doc(db, "settings", "audio"), newSettings.audio, {
-          merge: true,
-        });
+        tasks.push(setDoc(doc(db, "settings", "audio"), removeUndefinedDeep(newSettings.audio), { merge: true }));
       }
       if (newSettings.branding) {
-        await setDoc(doc(db, "settings", "branding"), newSettings.branding, {
-          merge: true,
-        });
+        tasks.push(setDoc(doc(db, "settings", "branding"), removeUndefinedDeep(newSettings.branding), { merge: true }));
       }
       if (newSettings.contact) {
-        await setDoc(doc(db, "settings", "contact"), newSettings.contact, {
-          merge: true,
-        });
+        tasks.push(setDoc(doc(db, "settings", "contact"), removeUndefinedDeep(newSettings.contact), { merge: true }));
       }
       if (newSettings.loading) {
-        await setDoc(doc(db, "settings", "loading"), newSettings.loading, {
-          merge: true,
-        });
+        tasks.push(setDoc(doc(db, "settings", "loading"), removeUndefinedDeep(newSettings.loading), { merge: true }));
+      }
+      if (newSettings.footer) {
+        tasks.push(setDoc(doc(db, "settings", "footer"), removeUndefinedDeep(newSettings.footer), { merge: true }));
+      }
+      if (newSettings.general) {
+        tasks.push(setDoc(doc(db, "settings", "general"), removeUndefinedDeep(newSettings.general), { merge: true }));
       }
 
+      if (tasks.length > 0) {
+        await Promise.all(tasks);
+      }
+
+      // Handle Hero Slides separately if they are part of the object
       if (newSettings.heroSlides && newSettings.heroSlides.length > 0) {
         const slidePromises = newSettings.heroSlides.map((slide) =>
           setDoc(doc(db, "slides", slide.id), slide, { merge: true }),
@@ -530,9 +545,10 @@ export default function App() {
         await Promise.all(slidePromises);
       }
 
-      console.log("Pengaturan berhasil disimpan!");
+      console.log("✅ Semua pengaturan berhasil disinkronkan ke Firebase.");
     } catch (e: any) {
-      alert(`Gagal menyimpan pengaturan: ${e.message}`);
+      console.error("❌ Firebase Write Error:", e);
+      alert(`Gagal menyimpan ke Firebase: ${e.message}\n\nPastikan Firestore Rules Anda mengizinkan akses tulis.`);
     } finally {
       setIsSaving(false);
     }

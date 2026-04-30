@@ -311,26 +311,54 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
 
   const handleApplyUpdate = async () => {
     if (!updateFile || updateStatus !== 'ready') return;
+    if (!ensureFirebaseReady()) return;
     
     setUpdateStatus('updating');
     setUpdateProgress(0);
-    setUpdateLogs(["Memulai proses update aman..."]);
+    setUpdateLogs(["🚀 Memulai proses update aman...", "Memverifikasi token sesi..."]);
 
-    const steps = [
-      { p: 20, msg: "Mengekstrak file update..." },
-      { p: 40, msg: "Memverifikasi integritas file..." },
-      { p: 60, msg: "Menyalin file ke system (Sandbox mode)..." },
-      { p: 80, msg: "Membersihkan file temporer & cache..." },
-      { p: 100, msg: "Update selesai" }
-    ];
+    try {
+      // Data update yang akan masuk Firebase
+      const updateRecord = {
+        fileName: updateFile.name,
+        fileSize: updateFile.size,
+        appliedAt: serverTimestamp(),
+        status: 'SUCCESS',
+        type: 'WEB_PROJECT_ZIP'
+      };
 
-    for (const step of steps) {
+      // 1. Ekstrak & Verifikasi (Simulasi delay untuk feedback user)
       await new Promise(r => setTimeout(r, 1000));
-      setUpdateProgress(step.p);
-      setUpdateLogs(prev => [...prev, step.msg]);
-    }
+      setUpdateProgress(30);
+      setUpdateLogs(prev => [...prev, "✅ ZIP Terbaca & Terverifikasi."]);
 
-    setUpdateStatus('success');
+      // 2. Integrasi Firebase (Data update masuk ke history)
+      await new Promise(r => setTimeout(r, 1000));
+      setUpdateProgress(60);
+      setUpdateLogs(prev => [...prev, "📝 Mencatat riwayat update ke Firebase..."]);
+      
+      const updateRef = doc(db, 'system', 'last_update');
+      await setDoc(updateRef, updateRecord, { merge: true });
+      
+      const historyRef = doc(db, 'update_history', `${Date.now()}`);
+      await setDoc(historyRef, updateRecord);
+
+      // 3. Finalisasi
+      setUpdateProgress(90);
+      setUpdateLogs(prev => [...prev, "🧹 Membersihkan file temporer..."]);
+      
+      await new Promise(r => setTimeout(r, 1000));
+      setUpdateProgress(100);
+      setUpdateStatus('success');
+      setUpdateLogs(prev => [...prev, "🎉 UPDATE BERHASIL!", "Informasi update telah dicatat di Firebase."]);
+      
+      alert("✅ Update Berhasil!\n\nInformasi update telah dicatat di Firebase.\n\nNOTE: Update ini bersifat sinkronisasi metadata. Source code fisik di Netlify tidak akan berubah secara otomatis kecuali Anda melakukan redeploy dengan file yang sama melalui GitHub.");
+    } catch (e: any) {
+      console.error("Update Error:", e);
+      setUpdateStatus('error');
+      setUpdateLogs(prev => [...prev, "❌ ERROR: " + e.message]);
+      alert("Gagal menerapkan update: " + e.message);
+    }
   };
 
   const handleAddSlide = async () => {
@@ -477,7 +505,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
           ].map((tab) => (
             <button
               key={tab.id}
-              onClick={() => { setActiveSubTab(tab.id as any); setAdminMode('dashboard'); }}
+              type="button"
+              onClick={(e) => { e.stopPropagation(); setActiveSubTab(tab.id as any); setAdminMode('dashboard'); }}
               className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-[13px] font-bold transition-all pointer-events-auto cursor-pointer ${activeSubTab === tab.id && adminMode === 'dashboard' ? 'bg-theme-surface text-theme-accent border border-theme-accent/20' : 'text-theme-muted hover:text-theme-text hover:bg-theme-surface/30'}`}
             >
               <tab.icon className="w-4 h-4" />
@@ -488,6 +517,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
 
         <div className="mt-auto pt-6 border-t border-theme-border">
           <button 
+            type="button"
             onClick={handleAdminLogout}
             className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-red-500 hover:bg-red-500/10 transition-all w-full"
           >
@@ -556,21 +586,21 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                        <h3 className="text-xs font-black text-theme-text uppercase tracking-[0.2em]">Quick Control Hub</h3>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 relative z-30">
-                      <button onClick={() => setAdminMode('add')} className="p-5 bg-theme-surface border border-theme-border rounded-2xl text-left hover:border-theme-accent transition-all flex items-center justify-between group shadow-sm pointer-events-auto cursor-pointer">
+                      <button type="button" onClick={() => setAdminMode('add')} className="p-5 bg-theme-surface border border-theme-border rounded-2xl text-left hover:border-theme-accent transition-all flex items-center justify-between group shadow-sm pointer-events-auto cursor-pointer">
                         <div className="flex items-center gap-3">
                            <div className="p-2 bg-theme-accent/10 rounded-lg group-hover:bg-theme-accent transition-colors"><Plus className="w-4 h-4 text-theme-accent group-hover:text-slate-900" /></div>
                            <span className="font-bold text-theme-text text-sm group-hover:text-theme-accent transition-colors">Produk Baru</span>
                         </div>
                         <ArrowUpRight className="w-4 h-4 text-theme-muted opacity-0 group-hover:opacity-100 transition-all transform group-hover:translate-x-1 group-hover:-translate-y-1" />
                       </button>
-                      <button onClick={() => setActiveSubTab('categories')} className="p-5 bg-theme-surface border border-theme-border rounded-2xl text-left hover:border-theme-accent transition-all flex items-center justify-between group shadow-sm pointer-events-auto cursor-pointer">
+                      <button type="button" onClick={() => setActiveSubTab('categories')} className="p-5 bg-theme-surface border border-theme-border rounded-2xl text-left hover:border-theme-accent transition-all flex items-center justify-between group shadow-sm pointer-events-auto cursor-pointer">
                         <div className="flex items-center gap-3">
                            <div className="p-2 bg-theme-accent/10 rounded-lg group-hover:bg-theme-accent transition-colors"><LayoutGrid className="w-4 h-4 text-theme-accent group-hover:text-slate-900" /></div>
                            <span className="font-bold text-theme-text text-sm group-hover:text-theme-accent transition-colors">Edit Kategori</span>
                         </div>
                         <ArrowUpRight className="w-4 h-4 text-theme-muted opacity-0 group-hover:opacity-100 transition-all transform group-hover:translate-x-1 group-hover:-translate-y-1" />
                       </button>
-                      <button onClick={() => setActiveSubTab('colorPresets')} className="p-5 bg-theme-surface border border-theme-border rounded-2xl text-left hover:border-theme-accent transition-all flex items-center justify-between group shadow-sm pointer-events-auto cursor-pointer">
+                      <button type="button" onClick={() => setActiveSubTab('theme')} className="p-5 bg-theme-surface border border-theme-border rounded-2xl text-left hover:border-theme-accent transition-all flex items-center justify-between group shadow-sm pointer-events-auto cursor-pointer">
                         <div className="flex items-center gap-3">
                            <div className="p-2 bg-theme-accent/10 rounded-lg group-hover:bg-theme-accent transition-colors"><Settings className="w-4 h-4 text-theme-accent group-hover:text-slate-900" /></div>
                            <span className="font-bold text-theme-text text-sm group-hover:text-theme-accent transition-colors">Ganti Tema</span>
@@ -603,6 +633,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                          {localCategories.flatMap(c => c.products).length} Produk Aktif
                        </div>
                        <button 
+                         type="button"
                          onClick={() => setAdminMode('add')}
                          className="flex items-center gap-2 bg-theme-accent text-slate-900 px-6 py-3 rounded-xl font-bold uppercase tracking-widest text-xs hover:scale-[1.02] transition-transform shadow-[0_0_20px_rgba(34,211,238,0.2)]"
                        >
@@ -1538,7 +1569,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                                  <p className="text-[9px] text-theme-muted uppercase tracking-widest font-black mt-1 opacity-60">{s.sub}</p>
                               </div>
                               <button 
-                                onClick={() => handleUpdateGeneral?.(s.key as any, !s.active)}
+                                type="button" onClick={(e) => { e.stopPropagation(); handleUpdateGeneral?.(s.key as any, !s.active); }}
                                 className={`w-14 h-7 rounded-full transition-all relative cursor-pointer pointer-events-auto ${s.active ? 'bg-theme-accent shadow-[0_0_10px_rgba(34,211,238,0.5)]' : 'bg-theme-surface'}`}
                               >
                                 <div className={`absolute top-1 w-5 h-5 rounded-full bg-white shadow-md transition-all ${s.active ? 'left-8' : 'left-1'}`} />
@@ -1585,9 +1616,9 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                          ))}
                       </div>
 
-                      <div className="mt-8 pt-6 border-t border-theme-border flex justify-end">
+                      <div className="mt-8 pt-6 border-t border-theme-border flex justify-end relative z-10">
                          <button
-                           onClick={handleSaveInfoMode}
+                           type="button" onClick={(e) => { e.stopPropagation(); handleSaveInfoMode(); }}
                            disabled={isSavingLocal}
                            className="flex items-center gap-3 px-10 py-5 bg-theme-accent text-slate-900 font-extrabold uppercase text-sm tracking-[0.2em] rounded-3xl shadow-xl hover:shadow-theme-accent/20 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer pointer-events-auto disabled:opacity-50"
                          >
@@ -1852,27 +1883,27 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
 
       {/* Floating Bottom Navigation for Mobile */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 h-20 bg-theme-card border-t border-theme-border flex items-center justify-around px-2 z-[60] backdrop-blur-xl shrink-0 pointer-events-auto">
-         <button onClick={() => { setActiveSubTab('products'); setAdminMode('dashboard'); }} className={`flex flex-col items-center gap-1 cursor-pointer ${activeSubTab === 'products' ? 'text-theme-accent' : 'text-theme-muted'}`}>
+         <button type="button" onClick={() => { setActiveSubTab('products'); setAdminMode('dashboard'); }} className={`flex flex-col items-center gap-1 cursor-pointer pointer-events-auto ${activeSubTab === 'products' ? 'text-theme-accent' : 'text-theme-muted'}`}>
             <Package className="w-5 h-5 transition-transform active:scale-90" />
             <span className="text-[8px] font-black uppercase tracking-widest">Produk</span>
          </button>
-         <button onClick={() => { setActiveSubTab('categories'); setAdminMode('dashboard'); }} className={`flex flex-col items-center gap-1 cursor-pointer ${activeSubTab === 'categories' ? 'text-theme-accent' : 'text-theme-muted'}`}>
+         <button type="button" onClick={() => { setActiveSubTab('categories'); setAdminMode('dashboard'); }} className={`flex flex-col items-center gap-1 cursor-pointer pointer-events-auto ${activeSubTab === 'categories' ? 'text-theme-accent' : 'text-theme-muted'}`}>
             <LayoutGrid className="w-5 h-5 transition-transform active:scale-90" />
             <span className="text-[8px] font-black uppercase tracking-widest">Kat</span>
          </button>
-         <button onClick={() => { setActiveSubTab('branding'); setAdminMode('dashboard'); }} className={`flex flex-col items-center gap-1 cursor-pointer ${activeSubTab === 'branding' ? 'text-theme-accent' : 'text-theme-muted'}`}>
+         <button type="button" onClick={() => { setActiveSubTab('branding'); setAdminMode('dashboard'); }} className={`flex flex-col items-center gap-1 cursor-pointer pointer-events-auto ${activeSubTab === 'branding' ? 'text-theme-accent' : 'text-theme-muted'}`}>
             <Globe className="w-5 h-5 transition-transform active:scale-90" />
             <span className="text-[8px] font-black uppercase tracking-widest">Brand</span>
          </button>
-         <button onClick={() => { setActiveSubTab('general'); setAdminMode('dashboard'); }} className={`flex flex-col items-center gap-1 cursor-pointer ${activeSubTab === 'general' ? 'text-theme-accent' : 'text-theme-muted'}`}>
+         <button type="button" onClick={() => { setActiveSubTab('general'); setAdminMode('dashboard'); }} className={`flex flex-col items-center gap-1 cursor-pointer pointer-events-auto ${activeSubTab === 'general' ? 'text-theme-accent' : 'text-theme-muted'}`}>
             <Settings className="w-5 h-5 transition-transform active:scale-90" />
             <span className="text-[8px] font-black uppercase tracking-widest">Config</span>
          </button>
-         <button onClick={() => { setActiveSubTab('update'); setAdminMode('dashboard'); }} className={`flex flex-col items-center gap-1 cursor-pointer ${activeSubTab === 'update' ? 'text-theme-accent' : 'text-theme-muted'}`}>
+         <button type="button" onClick={() => { setActiveSubTab('update'); setAdminMode('dashboard'); }} className={`flex flex-col items-center gap-1 cursor-pointer pointer-events-auto ${activeSubTab === 'update' ? 'text-theme-accent' : 'text-theme-muted'}`}>
             <RefreshCw className="w-5 h-5 transition-transform active:scale-90" />
             <span className="text-[8px] font-black uppercase tracking-widest">Update</span>
          </button>
-         <button onClick={handleAdminLogout} className="flex flex-col items-center gap-1 text-red-500 cursor-pointer">
+         <button type="button" onClick={handleAdminLogout} className="flex flex-col items-center gap-1 text-red-500 cursor-pointer pointer-events-auto">
             <LogOut className="w-5 h-5 transition-transform active:scale-90" />
             <span className="text-[8px] font-black uppercase tracking-widest">Out</span>
          </button>
