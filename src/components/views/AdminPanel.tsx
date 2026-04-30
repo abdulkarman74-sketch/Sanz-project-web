@@ -1482,6 +1482,39 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                          ))}
                       </div>
                    </div>
+
+                   <div className="bg-theme-card border border-theme-border p-8 rounded-[2.5rem] shadow-2xl mt-8">
+                      <div className="flex items-center gap-3 mb-8">
+                         <LayoutGrid className="w-6 h-6 text-theme-accent" />
+                         <h3 className="text-xl font-bold text-theme-text uppercase tracking-[0.2em] italic">Tampilan Informasi Homepage</h3>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                         {[
+                           { id: 'runtime', label: 'Runtime VPS', icon: Cloud },
+                           { id: 'datetime', label: 'Jam & Tanggal', icon: History },
+                           { id: 'both', label: 'Runtime + Jam & Tanggal', icon: LayoutGrid },
+                           { id: 'hidden', label: 'Sembunyikan', icon: EyeOff }
+                         ].map((mode) => (
+                           <button
+                             key={mode.id}
+                             onClick={() => handleUpdateGeneral?.('infoDisplayMode', mode.id)}
+                             className={`flex items-center gap-4 p-5 rounded-[2rem] border transition-all text-left group ${siteSettings.general?.infoDisplayMode === mode.id || (!siteSettings.general?.infoDisplayMode && mode.id === 'runtime') ? 'bg-theme-accent border-theme-accent text-slate-900' : 'bg-theme-surface/50 border-theme-border/30 text-theme-text hover:border-theme-accent/50'}`}
+                           >
+                             <div className={`p-3 rounded-2xl ${siteSettings.general?.infoDisplayMode === mode.id || (!siteSettings.general?.infoDisplayMode && mode.id === 'runtime') ? 'bg-slate-900/10' : 'bg-theme-surface'}`}>
+                               <mode.icon className="w-6 h-6" />
+                             </div>
+                             <div>
+                               <p className="font-black text-sm uppercase tracking-widest">{mode.label}</p>
+                               <p className={`text-[9px] uppercase tracking-widest font-black mt-1 opacity-60 ${siteSettings.general?.infoDisplayMode === mode.id || (!siteSettings.general?.infoDisplayMode && mode.id === 'runtime') ? 'text-slate-900' : 'text-theme-muted'}`}>
+                                 {mode.id === 'runtime' ? 'Hanya tampilkan masa aktif server' : 
+                                  mode.id === 'datetime' ? 'Hanya tampilkan Jam WIB & Kalender' :
+                                  mode.id === 'both' ? 'Tampilkan keduanya sekaligus' : 'Sembunyikan semua informasi'}
+                               </p>
+                             </div>
+                           </button>
+                         ))}
+                      </div>
+                   </div>
                 </motion.div>
               ) : adminMode === 'dashboard' && activeSubTab === 'update' ? (
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col gap-8 pb-10">

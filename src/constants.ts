@@ -93,6 +93,7 @@ export interface GeneralSettings {
   systemRecovery?: boolean;
   analytics?: boolean;
   devMode?: boolean;
+  infoDisplayMode?: 'runtime' | 'datetime' | 'both' | 'hidden';
 }
 
 export interface LayoutSettings {
@@ -241,7 +242,8 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
     floatingCart: true,
     systemRecovery: false,
     analytics: true,
-    devMode: false
+    devMode: false,
+    infoDisplayMode: 'runtime'
   }
 };
 

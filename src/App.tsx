@@ -58,6 +58,9 @@ const ProductDetailModal = lazy(
 const VpsStatusShowcase = lazy(
   () => import("./components/common/VpsStatusShowcase"),
 );
+const TimeDateCard = lazy(
+  () => import("./components/common/TimeDateCard"),
+);
 
 
 const ViewFallback = () => (
@@ -698,7 +701,19 @@ export default function App() {
                     {currentTab === "home" && (
                       <div className="mb-8 md:mb-12 px-4">
                         <HeroSection settings={siteSettings} />
-                        {siteSettings.layout?.showRuntimeVps !== false && (
+                        
+                        {siteSettings.general?.infoDisplayMode === "hidden" ? null : 
+                         siteSettings.general?.infoDisplayMode === "datetime" ? (
+                          <TimeDateCard siteSettings={siteSettings} />
+                        ) : siteSettings.general?.infoDisplayMode === "both" ? (
+                          <div className="flex flex-col gap-0 overflow-hidden">
+                            <VpsStatusShowcase siteSettings={siteSettings} />
+                            <div className="-mt-8 md:-mt-12">
+                              <TimeDateCard siteSettings={siteSettings} />
+                            </div>
+                          </div>
+                        ) : (
+                          /* "runtime" or default */
                           <VpsStatusShowcase siteSettings={siteSettings} />
                         )}
                       </div>
