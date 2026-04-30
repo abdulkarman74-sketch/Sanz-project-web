@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
 @import "tailwindcss";
 
 :root {
@@ -6,6 +6,18 @@
   --site-bg: #f8fafc;
   --site-card: #ffffff;
   --site-text: #0f172a;
+
+  /* Default Cyan Theme */
+  --bg-main: #050816;
+  --bg-card: #0b1220;
+  --bg-surface: #111827;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --accent: #22d3ee;
+  --accent-sec: #2dd4bf;
+  --accent-glow: rgba(34, 211, 238, 0.2);
+  --border-refined: #1f2937;
+  --footer-bg: #03050c;
 }
 
 @theme {
@@ -18,8 +30,19 @@
   --color-card: var(--site-card);
   --color-foreground: var(--site-text);
 
+  --color-theme-bg: var(--bg-main);
+  --color-theme-card: var(--bg-card);
+  --color-theme-surface: var(--bg-surface);
+  --color-theme-text: var(--text-main);
+  --color-theme-muted: var(--text-muted);
+  --color-theme-accent: var(--accent);
+  --color-theme-border: var(--border-refined);
+  --color-theme-accent-sec: var(--accent-sec);
+  --color-theme-footer: var(--footer-bg);
+
   /* Apply the theme variables over the explicitly used colored classes */
   --color-blue-600: var(--site-primary);
+
   --color-blue-500: var(--site-primary);
   --color-blue-700: var(--site-primary);
   --color-slate-50: var(--site-bg);
@@ -58,7 +81,81 @@ body {
   scrollbar-width: none;
 }
 
-h1, h2, h3, .font-display {
+h1,
+h2,
+h3,
+.font-display {
   font-family: var(--font-display);
 }
+
+.login-input {
+  width: 100%;
+  background: rgba(15, 23, 42, 0.9) !important;
+  color: #f8fafc !important;
+  caret-color: #22d3ee !important;
+  border: 1px solid rgba(34, 211, 238, 0.25) !important;
+  border-radius: 12px;
+  outline: none;
+}
+
+.login-input::placeholder {
+  color: #94a3b8 !important;
+  opacity: 1 !important;
+}
+
+.login-input:focus {
+  border-color: #22d3ee !important;
+  box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.18) !important;
+}
+
+input.login-input:-webkit-autofill,
+input.login-input:-webkit-autofill:hover,
+input.login-input:-webkit-autofill:focus,
+input.login-input:-webkit-autofill:active {
+  -webkit-text-fill-color: #f8fafc !important;
+  transition: background-color 9999s ease-in-out 0s;
+  caret-color: #22d3ee !important;
+}
+
+.admin-input {
+  width: 100%;
+  background: var(--bg-surface) !important;
+  color: var(--text-main) !important;
+  caret-color: var(--accent) !important;
+  border: 1px solid var(--border-refined) !important;
+  border-radius: 14px;
+  padding: 14px 16px;
+  outline: none;
+  pointer-events: auto !important;
+  opacity: 1 !important;
+  z-index: 10;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.admin-input::placeholder {
+  color: var(--text-muted) !important;
+  opacity: 0.5;
+}
+
+.admin-input:focus {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 2px var(--accent-glow) !important;
+}
+
+.admin-input:disabled,
+.admin-input[readonly] {
+  opacity: 0.75;
+  color: var(--text-muted) !important;
+}
+
+input.admin-input:-webkit-autofill,
+input.admin-input:-webkit-autofill:hover,
+input.admin-input:-webkit-autofill:focus,
+input.admin-input:-webkit-autofill:active {
+  -webkit-text-fill-color: var(--text-main) !important;
+  caret-color: var(--accent) !important;
+  transition: background-color 9999s ease-in-out 0s;
+}
+
 

@@ -6,13 +6,14 @@
 import React, { memo } from 'react';
 import { motion } from 'motion/react';
 import { ShoppingCart, Smartphone, Check } from 'lucide-react';
-import { Product, WHATSAPP_NUMBER } from '../../constants';
+import { Product, SiteSettings, WHATSAPP_NUMBER } from '../../constants';
 
 interface ScriptBotProps {
   product?: Product;
+  settings?: SiteSettings;
 }
 
-const ScriptBotView: React.FC<ScriptBotProps> = ({ product }) => {
+const ScriptBotView: React.FC<ScriptBotProps> = ({ product, settings }) => {
   const data = product || {
     name: "Cyrene MD v10.5.0",
     price: "150.000",
@@ -21,8 +22,17 @@ const ScriptBotView: React.FC<ScriptBotProps> = ({ product }) => {
   };
 
   const handleBuy = () => {
-    const text = encodeURIComponent(`Halo Sanz, saya ingin membeli script bot: ${data.name}`);
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${text}`, '_blank');
+    const name = settings?.branding?.siteName || "Admin";
+    const phone = settings?.contact?.whatsapp || settings?.branding?.whatsapp || WHATSAPP_NUMBER;
+    
+    let defaultMsg = settings?.contact?.botMessage || settings?.contact?.orderMessage || `Halo ${name}, saya ingin membeli script bot: {product_name}`;
+    
+    const message = defaultMsg
+       .replace(/{product_name}/g, data.name)
+       .replace(/{product_price}/g, data.price.toString());
+       
+    const text = encodeURIComponent(message);
+    window.open(`https://wa.me/${phone}?text=${text}`, '_blank');
   };
 
   return (

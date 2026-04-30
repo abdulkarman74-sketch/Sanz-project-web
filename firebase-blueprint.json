@@ -2,60 +2,37 @@
   "entities": {
     "Product": {
       "title": "Product",
-      "description": "A digital product in the store",
+      "description": "A digital product",
       "type": "object",
       "properties": {
         "id": { "type": "string" },
         "name": { "type": "string" },
         "price": { "type": "string" },
-        "duration": { "type": "string" },
         "description": { "type": "string" },
-        "details": { "type": "array" },
-        "benefits": { "type": "array" },
-        "badge": { "type": "string" },
-        "category": { "type": "string" },
+        "categoryId": { "type": "string" },
         "rating": { "type": "number" },
-        "stock": { "type": "string" },
         "image": { "type": "string" }
-      },
-      "required": ["id", "name", "price", "category", "benefits", "rating", "stock", "image"]
+      }
     },
-    "Category": {
-      "title": "Category",
-      "description": "A category containing multiple products",
+    "Settings": {
+      "title": "Settings",
+      "description": "Config for the store",
       "type": "object",
       "properties": {
-        "id": { "type": "string" },
-        "title": { "type": "string" },
-        "description": { "type": "string" },
-        "subtext": { "type": "string" },
-        "status": { "type": "string" },
-        "products": {
-          "type": "array",
-          "items": { "$ref": "#/entities/Product" }
-        }
-      },
-      "required": ["id", "title", "description", "subtext", "status", "products"]
-    },
-    "StoreData": {
-      "title": "StoreData",
-      "description": "Main store data container",
-      "type": "object",
-      "properties": {
-        "categories": {
-          "type": "array",
-          "items": { "$ref": "#/entities/Category" }
-        },
-        "updatedAt": { "type": "string" },
-        "updatedBy": { "type": "string" }
-      },
-      "required": ["categories"]
+        "storeName": { "type": "string" },
+        "whatsapp": { "type": "string" },
+        "slogan": { "type": "string" }
+      }
     }
   },
   "firestore": {
-    "store/main_store_data": {
-      "schema": "StoreData",
-      "description": "The main document containing all store categories and products"
+    "products/{productId}": {
+      "schema": "Product",
+      "description": "Product catalog"
+    },
+    "settings/main": {
+      "schema": "Settings",
+      "description": "Main branding config"
     }
   }
 }

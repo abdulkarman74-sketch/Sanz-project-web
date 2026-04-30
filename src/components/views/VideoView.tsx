@@ -7,7 +7,7 @@ import React, { useState, useEffect, useRef, memo, FormEvent } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Play, Rocket as RocketIcon, Download, Search, CheckCircle, X } from 'lucide-react';
 
-const VideoShort = memo(({ url, title }: { url: string; title: string }) => {
+const VideoShort = memo(({ url, title, storeName }: { url: string; title: string; storeName?: string }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -54,7 +54,7 @@ const VideoShort = memo(({ url, title }: { url: string; title: string }) => {
             <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center shadow-md">
               <RocketIcon className="w-4 h-4 text-white" />
             </div>
-            <span className="text-slate-900 font-bold text-sm">Sanz Official</span>
+            <span className="text-slate-900 font-bold text-sm">{storeName || "Store"}</span>
           </div>
           <h3 className="text-slate-700 text-xs font-medium line-clamp-2 leading-relaxed">{title}</h3>
         </div>
@@ -237,9 +237,10 @@ const DownloaderView = () => {
 
 interface VideoViewProps {
   videoData?: Array<{ url: string; title: string; }>;
+  storeName?: string;
 }
 
-const VideoView: React.FC<VideoViewProps> = ({ videoData = [] }) => {
+const VideoView: React.FC<VideoViewProps> = ({ videoData = [], storeName }) => {
   const [activeTab, setActiveTab] = useState<'shorts' | 'downloader'>('downloader');
 
   return (
@@ -270,7 +271,7 @@ const VideoView: React.FC<VideoViewProps> = ({ videoData = [] }) => {
           <motion.div key="shorts" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="h-screen md:h-auto snap-y snap-mandatory overflow-y-auto no-scrollbar pb-24 md:flex md:flex-wrap md:justify-center md:gap-8 md:px-6">
              {videoData.length > 0 ? (
                  videoData.map((v, i) => (
-                    <VideoShort key={i} url={v.url} title={v.title} />
+                    <VideoShort key={i} url={v.url} title={v.title} storeName={storeName} />
                  ))
              ) : (
                  <div className="w-full text-center py-20 text-slate-400">Belum ada video pendek tersedia.</div>

@@ -2,16 +2,16 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // PUBLIC READ/WRITE for this specific document 
-    // This allows our PIN-based frontend to mutation data from Vercel
-    // WARNING: For private store projects only.
-    match /store/{docId} {
-      allow read, write: if docId == 'main_store_data' || docId == 'main_site_settings';
+    // Global Read
+    match /{document=**} {
+      allow read: if true;
     }
 
-    // Default deny for everything else
-    match /{document=**} {
-      allow read, write: if false;
-    }
+    // Admin Write Access (PIN matching logic should ideally be here if possible, 
+    // but typically we'd use Auth. Since we use PIN in frontend, we'll keep it simple for now)
+    match /products/{id} { allow write: if true; }
+    match /slides/{id} { allow write: if true; }
+    match /settings/{id} { allow write: if true; }
+    match /categories/{id} { allow write: if true; }
   }
 }
