@@ -169,21 +169,42 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
     
     try {
       const zip = await JSZip.loadAsync(updateFile);
-      setUpdateProgress(40);
-      setUpdateLogs(prev => [...prev, "Mengecek struktur project..."]);
+      setUpdateProgress(30);
+      setUpdateLogs(prev => [...prev, "Mengecek struktur file dalam ZIP..."]);
 
-      // Check if project is valid
-      const hasPackageJson = zip.file("package.json");
-      const hasSrcDir = Object.keys(zip.files).some(path => path.startsWith("src/"));
-      const hasIndexHtml = zip.file("index.html");
-      const hasViteConfig = zip.file("vite.config.ts") || zip.file("vite.config.js");
-
-      if (!hasPackageJson && !hasSrcDir && !hasIndexHtml && !hasViteConfig) {
-         throw new Error("ZIP terbaca, tetapi bukan project web valid.");
+      const allFiles = Object.keys(zip.files);
+      
+      // Deteksi package.json di manapun dalam ZIP
+      const packagePath = allFiles.find(path => path.toLowerCase().endsWith("package.json"));
+      
+      if (!packagePath) {
+        throw new Error("ZIP terbaca, tetapi package.json tidak ditemukan.");
       }
 
-      setUpdateProgress(60);
-      setUpdateLogs(prev => [...prev, "Membandingkan file & filter proteksi..."]);
+      // Tentukan root path project (misal: "Sanz-project-web-main/")
+      const rootPath = packagePath.replace(/package\.json$/i, "");
+      setUpdateLogs(prev => [...prev, `Project root terdeteksi: ${rootPath || "(root)"}`]);
+
+      // Validasi flexibel berbasis rootPath
+      const hasSrcDir = allFiles.some(path => path.startsWith(rootPath + "src/"));
+      const hasIndexHtml = allFiles.some(path => path === rootPath + "index.html");
+      const hasViteConfig = allFiles.some(path => 
+        path === rootPath + "vite.config.ts" || 
+        path === rootPath + "vite.config.js"
+      );
+      const hasMainJsx = allFiles.some(path => 
+        path === rootPath + "src/main.jsx" || 
+        path === rootPath + "src/main.tsx" ||
+        path === rootPath + "src/App.jsx" ||
+        path === rootPath + "src/App.tsx"
+      );
+
+      if (!hasSrcDir && !hasIndexHtml && !hasViteConfig && !hasMainJsx) {
+         throw new Error("package.json ditemukan, tetapi folder src, index.html, atau vite config tidak tersedia.");
+      }
+
+      setUpdateProgress(50);
+      setUpdateLogs(prev => [...prev, `Project valid (${allFiles.length} file). Membandingkan filter proteksi...`]);
 
       const newFiles: string[] = [];
       const changedFiles: string[] = [];
@@ -207,8 +228,11 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
         // Skip directories
         if (zip.files[relativePath].dir) return;
         
+        // Bersihkan path dari rootPath untuk pengecekan filter
+        const cleanPath = rootPath ? relativePath.replace(rootPath, "") : relativePath;
+        
         // Skip forbidden files
-        if (forbiddenFiles.some(f => relativePath === f || relativePath.endsWith('/' + f))) {
+        if (forbiddenFiles.some(f => cleanPath === f || cleanPath.endsWith('/' + f))) {
           skippedFiles.push(relativePath);
           return;
         }
