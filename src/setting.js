@@ -8,17 +8,18 @@
  */
 
 export const APP_SETTINGS = {
-  // Sandi/PIN Toko (Default: 8381309827)
-  adminPassword: "8381309827",
+  // Sandi/PIN Toko (Default: 6285814369350)
+  adminPassword: "6285814369350",
 
   // Konfigurasi Firebase (Ambil dari Firebase Console)
   firebaseConfig: {
-    apiKey: "",
-    authDomain: "",
-    projectId: "",
-    storageBucket: "",
-    messagingSenderId: "",
-    appId: "",
+    apiKey: "AIzaSyBkWHSFmJEJHVdyU1-s9n7NU6NoMMaYnSU",
+    authDomain: "sanzstore-b8048.firebaseapp.com",
+    projectId: "sanzstore-b8048",
+    storageBucket: "sanzstore-b8048.firebasestorage.app",
+    messagingSenderId: "1053913103182",
+    appId: "1:1053913103182:web:5423d380ad07f06dfdfc1f",
     measurementId: ""
   }
 };
+

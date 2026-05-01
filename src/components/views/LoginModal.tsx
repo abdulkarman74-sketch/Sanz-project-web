@@ -28,24 +28,12 @@ const LoginModal: React.FC<LoginModalProps> = ({ onClose, onLoginSuccess }) => {
 
     setLoading(true);
     try {
-      // 1. Cek terhadap setting.js (Primary)
       if (input === correctPassword) {
         onLoginSuccess();
-      } 
-      // 2. Cek terhadap Firebase (Secondary/Legacy) - Hanya jika Firebase Ready
-      else if (firebaseReady && db) {
-        const adminDoc = await getDoc(doc(db, 'settings', 'admin'));
-        if (adminDoc.exists() && (adminDoc.data().pin === input || adminDoc.data().password === input)) {
-          onLoginSuccess();
-        } else {
-          setError('Password/PIN salah');
-        }
       } else {
         setError('Password/PIN salah');
       }
     } catch (e: any) {
-      // Jika error karena firebase (misal offline) tapi password setting.js benar, tetap izinkan?
-      // Logika di atas sudah menangani setting.js terlebih dahulu.
       setError('Gagal login: ' + e.message);
     }
     setLoading(false);
