@@ -11,17 +11,23 @@ export const ensureFirebaseReady = () => {
 
 export const removeUndefinedDeep = (obj: any): any => {
   if (Array.isArray(obj)) {
-    return obj.map(removeUndefinedDeep);
-  } else if (obj !== null && typeof obj === "object") {
-    return Object.keys(obj).reduce((acc: any, key) => {
-      const val = removeUndefinedDeep(obj[key]);
-      if (val !== undefined) {
-        acc[key] = val;
-      }
-      return acc;
-    }, {});
+    return obj.map(removeUndefinedDeep).filter((v: any) => v !== undefined);
+  }
+  if (obj && typeof obj === "object") {
+    return Object.fromEntries(
+      Object.entries(obj)
+        .filter(([_, v]) => v !== undefined && v !== null && v !== "")
+        .map(([k, v]) => [k, removeUndefinedDeep(v)])
+    );
   }
   return obj;
+};
+
+export const withTimeout = <T>(promise: Promise<T>, ms: number = 15000): Promise<T> => {
+  const timeout = new Promise<T>((_, reject) =>
+    setTimeout(() => reject(new Error("Timeout: simpan terlalu lama")), ms)
+  );
+  return Promise.race([promise, timeout]);
 };
 
 export const slugify = (text: string) => {
@@ -45,6 +51,8 @@ export const safeToastError = (err: any, fallbackMessage: string = "Terjadi kesa
     toast.error("Akses ditolak. Cek Firestore Rules.");
   } else if (err?.code === "unavailable") {
     toast.error("Koneksi ke Firebase gagal.");
+  } else if (err?.message?.includes("Timeout")) {
+    toast.error("Timeout. Periksa koneksi internet / rules.");
   } else {
     toast.error(err?.message || fallbackMessage);
   }

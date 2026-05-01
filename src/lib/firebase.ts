@@ -1,45 +1,48 @@
-import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
-import { APP_SETTINGS } from '../setting';
+import { initializeApp, getApps, getApp, FirebaseApp } from "firebase/app";
+import { getFirestore, Firestore, initializeFirestore } from "firebase/firestore";
+import { APP_SETTINGS } from "../setting";
 
-/**
- * Validasi apakah Firebase sudah dikonfigurasi dengan benar di setting.js
- */
+const firebaseConfig = APP_SETTINGS.firebaseConfig;
+
 export function isFirebaseConfigured(config: any) {
-  if (!config) return false;
-  
-  const requiredFields = [
-    'apiKey',
-    'authDomain',
-    'projectId',
-    'storageBucket',
-    'messagingSenderId',
-    'appId'
+  const required = [
+    "apiKey",
+    "authDomain",
+    "projectId",
+    "storageBucket",
+    "messagingSenderId",
+    "appId"
   ];
-  
-  return requiredFields.every(field => 
-    config[field] && 
-    typeof config[field] === 'string' && 
-    config[field].trim() !== ''
+
+  return required.every(
+    key => typeof config?.[key] === "string" && config[key].trim() !== ""
   );
 }
 
-const firebaseConfig = APP_SETTINGS.firebaseConfig;
 export const firebaseReady = isFirebaseConfigured(firebaseConfig);
 
-let app: any = null;
-let db: any = null;
+let app: FirebaseApp | null = null;
+let db: Firestore | null = null;
 
 if (firebaseReady) {
   try {
-    app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
-    db = getFirestore(app);
-    console.log("Firebase initialized successfully.");
+    app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+    try {
+      db = initializeFirestore(app, {
+        experimentalForceLongPolling: true
+      });
+    } catch (e: any) {
+      if (e.message?.includes('already initialized')) {
+        db = getFirestore(app);
+      } else {
+        throw e;
+      }
+    }
   } catch (error) {
     console.error("Firebase initialization failed:", error);
   }
 } else {
-  console.warn("Firebase belum disetting di setting.js. Aplikasi berjalan dalam Mode Lokal.");
+  console.warn("Firebase belum lengkap. Cek src/setting.js");
 }
 
 export { app, db };

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import { Category, Product, SiteSettings } from "../constants";
+import { doc, setDoc } from "firebase/firestore";
+import { db, firebaseReady } from "../lib/firebase";
 
 import { DashboardView } from "./views/DashboardView";
 import { ProductsView } from "./views/ProductsView";
@@ -50,6 +52,26 @@ export default function AdminPanel({
     setActiveMenu(menuId);
     setMobileMenuOpen(false);
   };
+
+  async function testFirebaseSave() {
+    try {
+      if (!firebaseReady || !db) {
+        alert("Firebase belum aktif. Cek src/setting.js");
+        return;
+      }
+
+      await setDoc(doc(db, "test", "connection"), {
+        ok: true,
+        projectId: "sanzstore-6398b",
+        time: new Date().toISOString()
+      });
+
+      alert("Firebase project baru berhasil tersambung");
+    } catch (error: any) {
+      console.error("TEST FIREBASE ERROR:", error);
+      alert("Firebase gagal: " + error.message);
+    }
+  }
 
   const renderContent = () => {
     switch (activeMenu) {
@@ -125,6 +147,13 @@ export default function AdminPanel({
 
          {/* Sidebar Footer */}
          <div className="p-4 border-t border-[#334155] shrink-0 flex flex-col gap-2">
+            <button
+               type="button"
+               onClick={testFirebaseSave}
+               className="w-full py-2.5 rounded-xl bg-orange-500/10 text-orange-400 border border-orange-500/20 hover:bg-orange-500/20 text-sm font-medium transition-colors mb-2"
+            >
+               TEST FIREBASE SAVE
+            </button>
             <button
                type="button"
                onClick={() => {

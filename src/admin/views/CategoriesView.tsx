@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { collection, doc, deleteDoc, updateDoc, setDoc } from "firebase/firestore";
-import { db } from "../../lib/firebase";
+import { db, firebaseReady } from "../../lib/firebase";
 import { toast } from "react-hot-toast";
-import { ensureFirebaseReady, slugify, safeToastError } from "../utils/helpers";
+import { ensureFirebaseReady, slugify, safeToastError, removeUndefinedDeep , withTimeout } from "../utils/helpers";
 import { Category } from "../../constants";
 import { AdminButton, AdminInput } from "../components/ui-elements";
 
@@ -34,27 +34,37 @@ export const CategoriesView = ({ categories }: { categories: Category[] }) => {
     
     try {
       setSaving(true);
-      if (!ensureFirebaseReady()) return;
+      
+      console.log("SAVE CLICKED");
+      console.log("firebaseReady:", firebaseReady);
+      console.log("db:", db);
+
+      if (!firebaseReady || !db) {
+        toast.error("Firebase belum aktif. Cek src/setting.js");
+        return;
+      }
 
       const slug = form.slug.trim() ? slugify(form.slug) : slugify(form.name);
-      const payload = {
+      const cleanPayload = removeUndefinedDeep({
         name: form.name.trim(),
         slug,
         order: Number(form.order) || 0,
         active: form.active
-      };
+      });
+      console.log("payload:", cleanPayload);
 
       if (editingId && editingId !== "new") {
-        await updateDoc(doc(db, "categories", editingId), payload);
+        await withTimeout(setDoc(doc(db, "categories", editingId), cleanPayload, { merge: true }));
         toast.success("Kategori diupdate");
       } else {
         const newRef = doc(collection(db, "categories"));
-        await setDoc(newRef, { ...payload, id: newRef.id });
+        await withTimeout(setDoc(newRef, { ...cleanPayload, id: newRef.id }));
         toast.success("Kategori ditambahkan");
       }
       setEditingId(null);
-    } catch (err) {
-      safeToastError(err, "Gagal save kategori");
+    } catch (error: any) {
+      console.error("SAVE ERROR:", error);
+      safeToastError(error, "Gagal menyimpan");
     } finally {
       setSaving(false);
     }
@@ -70,11 +80,15 @@ export const CategoriesView = ({ categories }: { categories: Category[] }) => {
     }
 
     try {
-      if (!ensureFirebaseReady()) return;
-      await deleteDoc(doc(db, "categories", id));
+      if (!firebaseReady || !db) {
+        toast.error("Firebase belum aktif. Cek setting.js");
+        return;
+      }
+      await withTimeout(deleteDoc(doc(db, "categories", id)));
       toast.success("Kategori dihapus");
-    } catch (err) {
-      safeToastError(err, "Gagal menghapus kategori");
+    } catch (error: any) {
+      console.error("DELETE ERROR:", error);
+      safeToastError(error, "Gagal menghapus");
     }
   };
 

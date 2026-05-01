@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { setDoc, doc } from "firebase/firestore";
-import { db } from "../../lib/firebase";
+import { db, firebaseReady } from "../../lib/firebase";
 import { toast } from "react-hot-toast";
-import { safeToastError, removeUndefinedDeep, ensureFirebaseReady } from "../utils/helpers";
+import { safeToastError, removeUndefinedDeep, ensureFirebaseReady , withTimeout } from "../utils/helpers";
 import { AdminInput, AdminButton, AdminSelect } from "../components/ui-elements";
 
 // --- BRANDING VIEW ---
@@ -35,17 +35,28 @@ export const BrandingView = ({ settings }: { settings: any }) => {
 
     try {
       setSaving(true);
-      if (!ensureFirebaseReady()) return;
+      
+      console.log("SAVE CLICKED");
+      console.log("firebaseReady:", firebaseReady);
+      console.log("db:", db);
 
-      const clean = removeUndefinedDeep(payload);
-      await setDoc(doc(db, "settings", "branding"), clean, { merge: true });
+      if (!firebaseReady || !db) {
+        toast.error("Firebase belum aktif. Cek src/setting.js");
+        return;
+      }
+
+      const cleanPayload = removeUndefinedDeep(payload);
+      console.log("payload:", cleanPayload);
+
+      await withTimeout(setDoc(doc(db, "settings", "branding"), cleanPayload, { merge: true }));
       
       // Also update settings/main for storeName
-      await setDoc(doc(db, "settings", "main"), { storeName: clean.siteName, slogan: clean.slogan }, { merge: true });
+      await withTimeout(setDoc(doc(db, "settings", "main"), { storeName: cleanPayload.siteName, slogan: cleanPayload.slogan }, { merge: true }));
 
       toast.success("Branding berhasil disimpan");
-    } catch (err) {
-      safeToastError(err, "Gagal menyimpan branding");
+    } catch (error: any) {
+      console.error("SAVE ERROR:", error);
+      safeToastError(error, "Gagal menyimpan");
     } finally {
       setSaving(false);
     }
@@ -96,16 +107,27 @@ export const LoadingView = ({ settings }: { settings: any }) => {
     if (saving) return;
     try {
       setSaving(true);
-      if (!ensureFirebaseReady()) return;
+      
+      console.log("SAVE CLICKED");
+      console.log("firebaseReady:", firebaseReady);
+      console.log("db:", db);
 
-      const clean = removeUndefinedDeep({
+      if (!firebaseReady || !db) {
+        toast.error("Firebase belum aktif. Cek setting.js");
+        return;
+      }
+
+      const cleanPayload = removeUndefinedDeep({
         ...payload,
         minDuration: Number(payload.minDuration) || 1500
       });
-      await setDoc(doc(db, "settings", "loading"), clean, { merge: true });
+      console.log("payload:", cleanPayload);
+
+      await withTimeout(setDoc(doc(db, "settings", "loading"), cleanPayload, { merge: true }));
       toast.success("Loading screen berhasil disimpan");
-    } catch (err) {
-      safeToastError(err, "Gagal menyimpan loading screen");
+    } catch (error: any) {
+      console.error("SAVE ERROR:", error);
+      safeToastError(error, "Gagal menyimpan");
     } finally {
       setSaving(false);
     }
@@ -166,12 +188,23 @@ export const ThemeView = ({ settings }: { settings: any }) => {
     if (saving) return;
     try {
       setSaving(true);
-      if (!ensureFirebaseReady()) return;
-      const clean = removeUndefinedDeep(payload);
-      await setDoc(doc(db, "settings", "theme"), clean, { merge: true });
+      
+      console.log("SAVE CLICKED");
+      console.log("firebaseReady:", firebaseReady);
+      console.log("db:", db);
+
+      if (!firebaseReady || !db) {
+        toast.error("Firebase belum aktif. Cek setting.js");
+        return;
+      }
+
+      const cleanPayload = removeUndefinedDeep(payload);
+      console.log("payload:", cleanPayload);
+      await setDoc(doc(db, "settings", "theme"), cleanPayload, { merge: true });
       toast.success("Tema berhasil disimpan");
-    } catch (err) {
-      safeToastError(err, "Gagal menyimpan tema");
+    } catch (error: any) {
+      console.error("SAVE ERROR:", error);
+      safeToastError(error, "Gagal menyimpan");
     } finally {
       setSaving(false);
     }
@@ -225,15 +258,26 @@ export const AudioView = ({ settings }: { settings: any }) => {
     if (saving) return;
     try {
       setSaving(true);
-      if (!ensureFirebaseReady()) return;
-      const clean = removeUndefinedDeep({
+      
+      console.log("SAVE CLICKED");
+      console.log("firebaseReady:", firebaseReady);
+      console.log("db:", db);
+
+      if (!firebaseReady || !db) {
+        toast.error("Firebase belum aktif. Cek setting.js");
+        return;
+      }
+
+      const cleanPayload = removeUndefinedDeep({
         ...payload,
         volume: Number(payload.volume) || 50
       });
-      await setDoc(doc(db, "settings", "audio"), clean, { merge: true });
+      console.log("payload:", cleanPayload);
+      await setDoc(doc(db, "settings", "audio"), cleanPayload, { merge: true });
       toast.success("Audio berhasil disimpan");
-    } catch (err) {
-      safeToastError(err, "Gagal menyimpan audio");
+    } catch (error: any) {
+      console.error("SAVE ERROR:", error);
+      safeToastError(error, "Gagal menyimpan");
     } finally {
       setSaving(false);
     }
@@ -297,17 +341,29 @@ export const ContactView = ({ settings }: { settings: any }) => {
     }
     try {
       setSaving(true);
-      if (!ensureFirebaseReady()) return;
-      const clean = removeUndefinedDeep(payload);
-      // clean mobile number structure
-      let cleanedWA = clean.whatsappNumber.replace(/[^0-9]/g, '');
-      if (cleanedWA.startsWith('0')) cleanedWA = '62' + cleanedWA.substring(1);
-      clean.whatsappNumber = cleanedWA;
+      
+      console.log("SAVE CLICKED");
+      console.log("firebaseReady:", firebaseReady);
+      console.log("db:", db);
 
-      await setDoc(doc(db, "settings", "contact"), clean, { merge: true });
+      if (!firebaseReady || !db) {
+        toast.error("Firebase belum aktif. Cek setting.js");
+        return;
+      }
+
+      const cleanPayload = removeUndefinedDeep(payload);
+      // clean mobile number structure
+      let cleanedWA = cleanPayload.whatsappNumber.replace(/[^0-9]/g, '');
+      if (cleanedWA.startsWith('0')) cleanedWA = '62' + cleanedWA.substring(1);
+      cleanPayload.whatsappNumber = cleanedWA;
+
+      console.log("payload:", cleanPayload);
+
+      await setDoc(doc(db, "settings", "contact"), cleanPayload, { merge: true });
       toast.success("Kontak berhasil disimpan");
-    } catch (err) {
-      safeToastError(err, "Gagal menyimpan kontak");
+    } catch (error: any) {
+      console.error("SAVE ERROR:", error);
+      safeToastError(error, "Gagal menyimpan");
     } finally {
       setSaving(false);
     }
@@ -362,19 +418,29 @@ export const FooterView = ({ settings }: { settings: any }) => {
     if (saving) return;
     try {
       setSaving(true);
-      if (!ensureFirebaseReady()) return;
+      
+      console.log("SAVE CLICKED");
+      console.log("firebaseReady:", firebaseReady);
+      console.log("db:", db);
+
+      if (!firebaseReady || !db) {
+        toast.error("Firebase belum aktif. Cek setting.js");
+        return;
+      }
       
       const p = { ...payload };
       const copyright = p.copyright;
       delete p.copyright;
 
-      const cleanFooter = removeUndefinedDeep(p);
-      await setDoc(doc(db, "settings", "footer"), cleanFooter, { merge: true });
-      await setDoc(doc(db, "settings", "branding"), { copyright: copyright || "© Copyright" }, { merge: true });
+      const cleanPayload = removeUndefinedDeep(p);
+      console.log("payload:", cleanPayload);
+      await withTimeout(setDoc(doc(db, "settings", "footer"), cleanPayload, { merge: true }));
+      await withTimeout(setDoc(doc(db, "settings", "branding"), { copyright: copyright || "© Copyright" }, { merge: true }));
       
       toast.success("Footer berhasil disimpan");
-    } catch (err) {
-      safeToastError(err, "Gagal menyimpan footer");
+    } catch (error: any) {
+      console.error("SAVE ERROR:", error);
+      safeToastError(error, "Gagal menyimpan");
     } finally {
       setSaving(false);
     }
@@ -428,12 +494,23 @@ export const GeneralView = ({ settings }: { settings: any }) => {
     if (saving) return;
     try {
       setSaving(true);
-      if (!ensureFirebaseReady()) return;
-      const clean = removeUndefinedDeep(payload);
-      await setDoc(doc(db, "settings", "general"), clean, { merge: true });
+      
+      console.log("SAVE CLICKED");
+      console.log("firebaseReady:", firebaseReady);
+      console.log("db:", db);
+
+      if (!firebaseReady || !db) {
+        toast.error("Firebase belum aktif. Cek setting.js");
+        return;
+      }
+
+      const cleanPayload = removeUndefinedDeep(payload);
+      console.log("payload:", cleanPayload);
+      await setDoc(doc(db, "settings", "general"), cleanPayload, { merge: true });
       toast.success("Pengaturan web berhasil disimpan");
-    } catch (err) {
-      safeToastError(err, "Gagal menyimpan pengaturan umum");
+    } catch (error: any) {
+      console.error("SAVE ERROR:", error);
+      safeToastError(error, "Gagal menyimpan");
     } finally {
       setSaving(false);
     }

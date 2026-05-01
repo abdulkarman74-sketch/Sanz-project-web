@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { collection, doc, deleteDoc, updateDoc, setDoc, query, onSnapshot, orderBy } from "firebase/firestore";
-import { db } from "../../lib/firebase";
+import { db, firebaseReady } from "../../lib/firebase";
 import { toast } from "react-hot-toast";
-import { ensureFirebaseReady, slugify, safeToastError } from "../utils/helpers";
+import { ensureFirebaseReady, slugify, safeToastError, removeUndefinedDeep , withTimeout } from "../utils/helpers";
 import { HeroSlide } from "../../constants";
 import { AdminButton, AdminInput, AdminTextarea } from "../components/ui-elements";
 
@@ -58,9 +58,17 @@ export const SlidesView = ({ slides }: { slides: HeroSlide[] }) => {
     
     try {
       setSaving(true);
-      if (!ensureFirebaseReady()) return;
+      
+      console.log("SAVE CLICKED");
+      console.log("firebaseReady:", firebaseReady);
+      console.log("db:", db);
 
-      const payload = {
+      if (!firebaseReady || !db) {
+        toast.error("Firebase belum aktif. Cek src/setting.js");
+        return;
+      }
+
+      const cleanPayload = removeUndefinedDeep({
         title: form.title.trim(),
         desc: form.desc.trim(),
         image: form.image.trim(),
@@ -68,19 +76,21 @@ export const SlidesView = ({ slides }: { slides: HeroSlide[] }) => {
         buttonTarget: form.buttonTarget.trim(),
         order: Number(form.order) || 0,
         enabled: form.enabled
-      };
+      });
+      console.log("payload:", cleanPayload);
 
       if (editingId && editingId !== "new") {
-        await updateDoc(doc(db, "slides", editingId), payload);
+        await withTimeout(setDoc(doc(db, "slides", editingId), cleanPayload, { merge: true }));
         toast.success("Slide diupdate");
       } else {
         const newRef = doc(collection(db, "slides"));
-        await setDoc(newRef, { ...payload, id: newRef.id });
+        await withTimeout(setDoc(newRef, { ...cleanPayload, id: newRef.id }));
         toast.success("Slide ditambahkan");
       }
       setEditingId(null);
-    } catch (err) {
-      safeToastError(err, "Gagal save slide");
+    } catch (error: any) {
+      console.error("SAVE ERROR:", error);
+      safeToastError(error, "Gagal menyimpan");
     } finally {
       setSaving(false);
     }
@@ -89,11 +99,15 @@ export const SlidesView = ({ slides }: { slides: HeroSlide[] }) => {
   const handleDelete = async (id: string) => {
     if (!window.confirm("Hapus slide ini?")) return;
     try {
-      if (!ensureFirebaseReady()) return;
-      await deleteDoc(doc(db, "slides", id));
+      if (!firebaseReady || !db) {
+        toast.error("Firebase belum aktif. Cek setting.js");
+        return;
+      }
+      await withTimeout(deleteDoc(doc(db, "slides", id)));
       toast.success("Slide dihapus");
-    } catch (err) {
-      safeToastError(err, "Gagal menghapus slide");
+    } catch (error: any) {
+      console.error("DELETE ERROR:", error);
+      safeToastError(error, "Gagal menghapus");
     }
   };
 
