@@ -7,6 +7,7 @@ import { db, firebaseReady } from '../../lib/firebase';
 import { removeUndefinedDeep } from '../../utils/objectUtils';
 
 import { Category, Product, SiteSettings, HeroSlide, DEFAULT_SITE_SETTINGS, GeneralSettings } from '../../constants';
+import toast from 'react-hot-toast';
 import { PRODUCT_TYPES, generateProductTemplate, getBadgeForType } from '../../utils/productUtils';
 import AdminProductForm from './AdminProductForm';
 
@@ -46,17 +47,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
   updateCategory,
   deleteCategory,
 }) => {
-  const [activeSubTab, setActiveSubTab] = useState<'dashboard' | 'products' | 'categories' | 'branding' | 'theme' | 'slides' | 'audio' | 'loading' | 'contact' | 'footer' | 'general' | 'update'>('dashboard');
-  const [updateFile, setUpdateFile] = useState<File | null>(null);
-  const [updateStatus, setUpdateStatus] = useState<'idle' | 'analyzing' | 'ready' | 'updating' | 'success' | 'error'>('idle');
-  const [updateProgress, setUpdateProgress] = useState(0);
-  const [updateLogs, setUpdateLogs] = useState<string[]>([]);
-  const [scanResult, setScanResult] = useState<{
-    new: string[];
-    changed: string[];
-    skipped: string[];
-  } | null>(null);
-  const [updateError, setUpdateError] = useState<string | null>(null);
+  const [activeSubTab, setActiveSubTab] = useState<'dashboard' | 'products' | 'categories' | 'branding' | 'theme' | 'slides' | 'audio' | 'loading' | 'contact' | 'footer' | 'general'>('dashboard');
   const [formData, setFormData] = useState<any>(null);
   const [isSavingLocal, setIsSavingLocal] = useState(false);
   const [selectedInfoMode, setSelectedInfoMode] = useState<string>(siteSettings.general?.infoDisplayMode || 'runtime');
@@ -76,7 +67,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
 
   const ensureFirebaseReady = () => {
     if (!firebaseReady || !db) {
-      alert("⚠️ FIREBASE BELUM TERHUBUNG\n\nSilakan isi Firebase Config di src/setting.js agar fitur simpan berfungsi.");
+      toast.error("Firebase belum disetting di setting.js");
       return false;
     }
     return true;
@@ -132,9 +123,10 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
       await setDoc(settingsRef, payload, { merge: true });
       
       console.log("Info mode saved successfully");
-    } catch (error) {
+      toast.success("Berhasil disimpan");
+    } catch (error: any) {
       console.error("Error saving info mode:", error);
-      alert("Gagal menyimpan pengaturan.");
+      toast.error("Gagal menyimpan pengaturan: " + error.message);
     } finally {
       setIsSavingLocal(false);
     }
@@ -172,202 +164,11 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
     });
   };
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Soft validation: Check extension and common ZIP MIME types
-    const isZip = 
-      file.name.toLowerCase().endsWith(".zip") || 
-      file.type === "application/zip" || 
-      file.type === "application/x-zip-compressed" || 
-      file.type === "application/octet-stream" ||
-      file.type === ""; // Some browsers might return empty string
-
-    if (!isZip) {
-      setUpdateError("File harus berformat .zip");
-      setUpdateStatus('error');
-      setUpdateFile(null);
-      return;
-    }
-
-    setUpdateFile(file);
-    setUpdateStatus('idle');
-    setUpdateError(null);
-    setScanResult(null);
-    setUpdateLogs([`File terpilih: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`]);
-    setUpdateProgress(0);
-  };
-
-  const handleCheckUpdate = async () => {
-    if (!updateFile) {
-      setUpdateError("File belum dipilih");
-      return;
-    }
-    
-    setUpdateStatus('analyzing');
-    setUpdateProgress(20);
-    setUpdateLogs(["Membaca file ZIP..."]);
-    
-    try {
-      const zip = await JSZip.loadAsync(updateFile);
-      setUpdateProgress(30);
-      setUpdateLogs(prev => [...prev, "Mengecek struktur file dalam ZIP..."]);
-
-      const allFiles = Object.keys(zip.files);
-      
-      // Deteksi package.json di manapun dalam ZIP
-      const packagePath = allFiles.find(path => path.toLowerCase().endsWith("package.json"));
-      
-      if (!packagePath) {
-        throw new Error("ZIP terbaca, tetapi package.json tidak ditemukan.");
-      }
-
-      // Tentukan root path project (misal: "Sanz-project-web-main/")
-      const rootPath = packagePath.replace(/package\.json$/i, "");
-      setUpdateLogs(prev => [...prev, `Project root terdeteksi: ${rootPath || "(root)"}`]);
-
-      // Validasi flexibel berbasis rootPath
-      const hasSrcDir = allFiles.some(path => path.startsWith(rootPath + "src/"));
-      const hasIndexHtml = allFiles.some(path => path === rootPath + "index.html");
-      const hasViteConfig = allFiles.some(path => 
-        path === rootPath + "vite.config.ts" || 
-        path === rootPath + "vite.config.js"
-      );
-      const hasMainJsx = allFiles.some(path => 
-        path === rootPath + "src/main.jsx" || 
-        path === rootPath + "src/main.tsx" ||
-        path === rootPath + "src/App.jsx" ||
-        path === rootPath + "src/App.tsx"
-      );
-
-      if (!hasSrcDir && !hasIndexHtml && !hasViteConfig && !hasMainJsx) {
-         throw new Error("package.json ditemukan, tetapi folder src, index.html, atau vite config tidak tersedia.");
-      }
-
-      setUpdateProgress(50);
-      setUpdateLogs(prev => [...prev, `Project valid (${allFiles.length} file). Membandingkan filter proteksi...`]);
-
-      const newFiles: string[] = [];
-      const changedFiles: string[] = [];
-      const skippedFiles: string[] = [];
-
-      const forbiddenFiles = [
-        'setting.js',
-        'src/setting.js',
-        '.env',
-        '.env.local',
-        'package-lock.json',
-        'node_modules',
-        'dist',
-        'build',
-        'firebase-applet-config.json',
-        'firebase-blueprint.json',
-        'firestore.rules'
-      ];
-
-      zip.forEach((relativePath) => {
-        // Skip directories
-        if (zip.files[relativePath].dir) return;
-        
-        // Bersihkan path dari rootPath untuk pengecekan filter
-        const cleanPath = rootPath ? relativePath.replace(rootPath, "") : relativePath;
-        
-        // Skip forbidden files
-        if (forbiddenFiles.some(f => cleanPath === f || cleanPath.endsWith('/' + f))) {
-          skippedFiles.push(relativePath);
-          return;
-        }
-
-        // Simulate difference matching
-        if (Math.random() > 0.8) {
-          changedFiles.push(relativePath);
-        } else {
-          newFiles.push(relativePath);
-        }
-      });
-
-      setScanResult({
-        new: newFiles,
-        changed: changedFiles,
-        skipped: skippedFiles
-      });
-      
-      setUpdateStatus('ready');
-      setUpdateProgress(80);
-      setUpdateLogs(prev => [...prev, "Analisis selesai. Menyiapkan update..."]);
-      
-      setTimeout(() => {
-        setUpdateProgress(100);
-        setUpdateLogs(prev => [...prev, "Siap untuk update."]);
-      }, 500);
-
-    } catch (err: any) {
-      setUpdateStatus('error');
-      const msg = err.message || "Gagal memproses file ZIP";
-      setUpdateError(msg.includes("corrupt") ? "ZIP tidak bisa dibaca. Pastikan file tidak rusak." : msg);
-      setUpdateLogs(prev => [...prev, `Error: ${err.message}`]);
-    }
-  };
-
-  const handleApplyUpdate = async () => {
-    if (!updateFile || updateStatus !== 'ready') return;
-    if (!ensureFirebaseReady()) return;
-    
-    setUpdateStatus('updating');
-    setUpdateProgress(0);
-    setUpdateLogs(["🚀 Memulai proses update aman...", "Memverifikasi token sesi..."]);
-
-    try {
-      // Data update yang akan masuk Firebase
-      const updateRecord = {
-        fileName: updateFile.name,
-        fileSize: updateFile.size,
-        appliedAt: serverTimestamp(),
-        status: 'SUCCESS',
-        type: 'WEB_PROJECT_ZIP'
-      };
-
-      // 1. Ekstrak & Verifikasi (Simulasi delay untuk feedback user)
-      await new Promise(r => setTimeout(r, 1000));
-      setUpdateProgress(30);
-      setUpdateLogs(prev => [...prev, "✅ ZIP Terbaca & Terverifikasi."]);
-
-      // 2. Integrasi Firebase (Data update masuk ke history)
-      await new Promise(r => setTimeout(r, 1000));
-      setUpdateProgress(60);
-      setUpdateLogs(prev => [...prev, "📝 Mencatat riwayat update ke Firebase..."]);
-      
-      const cleanRecord = removeUndefinedDeep(updateRecord);
-      const updateRef = doc(db, 'system', 'last_update');
-      await setDoc(updateRef, cleanRecord, { merge: true });
-      
-      const historyRef = doc(db, 'update_history', `${Date.now()}`);
-      await setDoc(historyRef, cleanRecord);
-
-      // 3. Finalisasi
-      setUpdateProgress(90);
-      setUpdateLogs(prev => [...prev, "🧹 Membersihkan file temporer..."]);
-      
-      await new Promise(r => setTimeout(r, 1000));
-      setUpdateProgress(100);
-      setUpdateStatus('success');
-      setUpdateLogs(prev => [...prev, "🎉 UPDATE BERHASIL!", "Informasi update telah dicatat di Firebase."]);
-      
-      alert("✅ Update Berhasil!\n\nInformasi update telah dicatat di Firebase.\n\nNOTE: Update ini bersifat sinkronisasi metadata. Source code fisik di Netlify tidak akan berubah secara otomatis kecuali Anda melakukan redeploy dengan file yang sama melalui GitHub.");
-    } catch (e: any) {
-      console.error("Update Error:", e);
-      setUpdateStatus('error');
-      setUpdateLogs(prev => [...prev, "❌ ERROR: " + e.message]);
-      alert("Gagal menerapkan update: " + e.message);
-    }
-  };
-
   const handleAddSlide = async () => {
     if (!ensureFirebaseReady()) return;
     setIsSavingLocal(true);
     try {
-      const newSlide: Omit<HeroSlide, 'id'> & { createdAt: any, order: number } = {
+      const newSlide = removeUndefinedDeep({
         image: 'https://c.termai.cc/i146/BpC9uET.jpg',
         title: 'Slide Baru',
         desc: 'Deskripsi slide baru Anda di sini.',
@@ -376,12 +177,13 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
         enabled: true,
         order: siteSettings.heroSlides.length,
         createdAt: serverTimestamp()
-      };
+      });
       const docRef = await addDoc(collection(db, 'slides'), newSlide);
       await setDoc(doc(db, 'slides', docRef.id), { id: docRef.id }, { merge: true });
-    } catch (err) {
+      toast.success("Berhasil disimpan");
+    } catch (err: any) {
       console.error("Error adding slide:", err);
-      alert("Gagal menambah slide");
+      toast.error("Gagal menambah slide: " + err.message);
     } finally {
       setIsSavingLocal(false);
     }
@@ -393,9 +195,10 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
     setIsSavingLocal(true);
     try {
       await deleteDoc(doc(db, 'slides', id));
-    } catch (err) {
+      toast.success("Berhasil dihapus");
+    } catch (err: any) {
       console.error("Error deleting slide:", err);
-      alert("Gagal menghapus slide");
+      toast.error("Gagal menghapus slide: " + err.message);
     } finally {
       setIsSavingLocal(false);
     }
@@ -410,9 +213,10 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
         updatedAt: serverTimestamp()
       });
       await setDoc(doc(db, 'slides', id), payload, { merge: true });
-    } catch (err) {
+      toast.success("Berhasil disimpan");
+    } catch (err: any) {
       console.error("Error updating slide:", err);
-      alert("Gagal menyimpan slide");
+      toast.error("Gagal menyimpan slide: " + err.message);
     } finally {
       setIsSavingLocal(false);
     }
@@ -503,7 +307,6 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
             { id: 'theme', label: 'Tema Warna', icon: Palette },
             { id: 'footer', label: 'Footer Settings', icon: MessageSquare },
             { id: 'general', label: 'Pengaturan Umum', icon: Settings },
-            { id: 'update', label: 'Update Web', icon: RefreshCw },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -562,7 +365,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
 
         <div className="p-6 md:p-10 max-w-5xl mx-auto w-full">
            <AnimatePresence mode="wait">
-             {adminMode === 'dashboard' && activeSubTab === 'dashboard' ? (
+              {adminMode === 'dashboard' && activeSubTab === 'dashboard' ? (
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col gap-6">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       <div className="bg-theme-card border border-theme-border p-5 rounded-2xl shadow-sm hover:border-theme-accent/30 transition-all">
@@ -577,54 +380,68 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                         <p className="text-theme-muted text-[10px] uppercase tracking-[0.2em] font-black italic">Banner Promo</p>
                         <p className="text-3xl font-black text-theme-text mt-1">{siteSettings.heroSlides.length}</p>
                       </div>
-                      <div className="bg-theme-card border border-theme-border p-5 rounded-2xl shadow-sm hover:border-theme-accent/30 transition-all">
-                        <p className="text-theme-muted text-[10px] uppercase tracking-[0.2em] font-black italic">Tema Aktif</p>
-                        <p className="text-xs font-black text-theme-accent mt-2 uppercase tracking-widest truncate">{siteSettings.theme?.primaryColor || '#22d3ee'}</p>
+                      <div className="bg-theme-card border border-theme-border p-5 rounded-2xl shadow-sm hover:border-theme-accent/30 transition-all relative overflow-hidden">
+                        <p className="text-theme-muted text-[10px] uppercase tracking-[0.2em] font-black italic">Firebase Status</p>
+                        <div className="flex items-center gap-2 mt-2">
+                           <div className={`w-2 h-2 rounded-full ${firebaseReady ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
+                           <p className={`text-[10px] font-black uppercase tracking-widest ${firebaseReady ? 'text-green-500' : 'text-red-500'}`}>
+                             {firebaseReady ? 'READY' : 'LOCAL'}
+                           </p>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 mt-4">
+                    <div className="flex items-center gap-2 mt-4 px-1">
                        <LayoutGrid className="w-4 h-4 text-theme-accent" />
-                       <h3 className="text-xs font-black text-theme-text uppercase tracking-[0.2em]">Quick Control Hub</h3>
+                       <h3 className="text-xs font-black text-theme-text uppercase tracking-[0.2em] italic">Quick Control Center</h3>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 relative z-30">
-                      <button type="button" onClick={() => setAdminMode('add')} className="p-5 bg-theme-surface border border-theme-border rounded-2xl text-left hover:border-theme-accent transition-all flex items-center justify-between group shadow-sm pointer-events-auto cursor-pointer">
-                        <div className="flex items-center gap-3">
-                           <div className="p-2 bg-theme-accent/10 rounded-lg group-hover:bg-theme-accent transition-colors"><Plus className="w-4 h-4 text-theme-accent group-hover:text-slate-900" /></div>
-                           <span className="font-bold text-theme-text text-sm group-hover:text-theme-accent transition-colors">Produk Baru</span>
+                      <button type="button" onClick={() => setAdminMode('add')} className="p-6 bg-theme-surface border border-theme-border rounded-[2rem] text-left hover:border-theme-accent transition-all flex items-center justify-between group shadow-xl pointer-events-auto cursor-pointer">
+                        <div className="flex items-center gap-4">
+                           <div className="p-3 bg-theme-accent/10 rounded-2xl group-hover:bg-theme-accent transition-colors"><Plus className="w-5 h-5 text-theme-accent group-hover:text-slate-900" /></div>
+                           <div>
+                              <span className="font-black text-theme-text text-sm uppercase tracking-widest block">Produk Baru</span>
+                              <span className="text-[9px] text-theme-muted font-bold uppercase italic">Tambah Item Jualan</span>
+                           </div>
                         </div>
-                        <ArrowUpRight className="w-4 h-4 text-theme-muted opacity-0 group-hover:opacity-100 transition-all transform group-hover:translate-x-1 group-hover:-translate-y-1" />
+                        <ArrowUpRight className="w-5 h-5 text-theme-muted opacity-0 group-hover:opacity-100 transition-all transform group-hover:translate-x-1 group-hover:-translate-y-1" />
                       </button>
-                      <button type="button" onClick={() => setActiveSubTab('categories')} className="p-5 bg-theme-surface border border-theme-border rounded-2xl text-left hover:border-theme-accent transition-all flex items-center justify-between group shadow-sm pointer-events-auto cursor-pointer">
-                        <div className="flex items-center gap-3">
-                           <div className="p-2 bg-theme-accent/10 rounded-lg group-hover:bg-theme-accent transition-colors"><LayoutGrid className="w-4 h-4 text-theme-accent group-hover:text-slate-900" /></div>
-                           <span className="font-bold text-theme-text text-sm group-hover:text-theme-accent transition-colors">Edit Kategori</span>
+                      <button type="button" onClick={() => setActiveSubTab('categories')} className="p-6 bg-theme-surface border border-theme-border rounded-[2rem] text-left hover:border-theme-accent transition-all flex items-center justify-between group shadow-xl pointer-events-auto cursor-pointer">
+                        <div className="flex items-center gap-4">
+                           <div className="p-3 bg-theme-accent/10 rounded-2xl group-hover:bg-theme-accent transition-colors"><LayoutGrid className="w-5 h-5 text-theme-accent group-hover:text-slate-900" /></div>
+                           <div>
+                              <span className="font-black text-theme-text text-sm uppercase tracking-widest block">Kategori</span>
+                              <span className="text-[9px] text-theme-muted font-bold uppercase italic">Kelola Kelompok</span>
+                           </div>
                         </div>
-                        <ArrowUpRight className="w-4 h-4 text-theme-muted opacity-0 group-hover:opacity-100 transition-all transform group-hover:translate-x-1 group-hover:-translate-y-1" />
+                        <ArrowUpRight className="w-5 h-5 text-theme-muted opacity-0 group-hover:opacity-100 transition-all transform group-hover:translate-x-1 group-hover:-translate-y-1" />
                       </button>
-                      <button type="button" onClick={() => setActiveSubTab('theme')} className="p-5 bg-theme-surface border border-theme-border rounded-2xl text-left hover:border-theme-accent transition-all flex items-center justify-between group shadow-sm pointer-events-auto cursor-pointer">
-                        <div className="flex items-center gap-3">
-                           <div className="p-2 bg-theme-accent/10 rounded-lg group-hover:bg-theme-accent transition-colors"><Settings className="w-4 h-4 text-theme-accent group-hover:text-slate-900" /></div>
-                           <span className="font-bold text-theme-text text-sm group-hover:text-theme-accent transition-colors">Ganti Tema</span>
+                      <button type="button" onClick={() => setActiveSubTab('theme')} className="p-6 bg-theme-surface border border-theme-border rounded-[2rem] text-left hover:border-theme-accent transition-all flex items-center justify-between group shadow-xl pointer-events-auto cursor-pointer">
+                        <div className="flex items-center gap-4">
+                           <div className="p-3 bg-theme-accent/10 rounded-2xl group-hover:bg-theme-accent transition-colors"><Palette className="w-5 h-5 text-theme-accent group-hover:text-slate-900" /></div>
+                           <div>
+                              <span className="font-black text-theme-text text-sm uppercase tracking-widest block">Ganti Tema</span>
+                              <span className="text-[9px] text-theme-muted font-bold uppercase italic">Visual Branding</span>
+                           </div>
                         </div>
-                        <ArrowUpRight className="w-4 h-4 text-theme-muted opacity-0 group-hover:opacity-100 transition-all transform group-hover:translate-x-1 group-hover:-translate-y-1" />
+                        <ArrowUpRight className="w-5 h-5 text-theme-muted opacity-0 group-hover:opacity-100 transition-all transform group-hover:translate-x-1 group-hover:-translate-y-1" />
                       </button>
                     </div>
 
-                    <div className="bg-theme-accent/5 border border-theme-accent/10 p-6 rounded-[2rem] mt-4 relative overflow-hidden group">
+                    <div className="bg-theme-accent/5 border border-theme-accent/10 p-8 rounded-[2.5rem] mt-4 relative overflow-hidden group">
                        <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:rotate-12 transition-transform duration-700">
                           <BarChart3 className="w-32 h-32 text-theme-accent" />
                        </div>
-                       <h4 className="text-xl font-black text-theme-text uppercase tracking-tighter relative z-10">SANZ SERVER STATUS</h4>
-                       <p className="text-[10px] text-theme-muted font-bold uppercase tracking-widest mt-1 relative z-10">Keamanan & Kecepatan Panel Terjamin</p>
-                       <div className="flex gap-4 mt-6 relative z-10">
-                          <div className="px-4 py-2 bg-theme-card rounded-xl border border-theme-border/50"><p className="text-[9px] font-bold text-theme-muted uppercase tracking-widest">Database</p>
-                              <p className={`text-xs font-black ${firebaseReady ? 'text-green-500' : 'text-amber-500'}`}>
-                                 {firebaseReady ? 'READY' : 'OFFLINE'}
+                       <h4 className="text-xl font-black text-theme-text uppercase tracking-widest relative z-10 italic">SYSTEM SECURITY PANEL</h4>
+                       <p className="text-[10px] text-theme-muted font-bold uppercase tracking-[0.3em] mt-1 relative z-10">Integrity Check: PASSED</p>
+                       <div className="flex gap-4 mt-8 relative z-10">
+                          <div className="px-5 py-3 bg-theme-card/80 backdrop-blur-sm rounded-2xl border border-theme-border/50"><p className="text-[9px] font-black text-theme-muted uppercase tracking-[0.2em] mb-1">Database</p>
+                              <p className={`text-xs font-black tracking-widest ${firebaseReady ? 'text-green-500' : 'text-amber-500'}`}>
+                                 {firebaseReady ? 'SECURE' : 'OFFLINE'}
                               </p>
                            </div>
-                          <div className="px-4 py-2 bg-theme-card rounded-xl border border-theme-border/50"><p className="text-[9px] font-bold text-theme-muted uppercase tracking-widest">Network</p><p className="text-xs font-black text-green-500">STABLE</p></div>
-                          <div className="px-4 py-2 bg-theme-card rounded-xl border border-theme-border/50"><p className="text-[9px] font-bold text-theme-muted uppercase tracking-widest">CPU</p><p className="text-xs font-black text-theme-accent">0.05%</p></div>
+                          <div className="px-5 py-3 bg-theme-card/80 backdrop-blur-sm rounded-2xl border border-theme-border/50"><p className="text-[9px] font-black text-theme-muted uppercase tracking-[0.2em] mb-1">Network</p><p className="text-xs font-black text-green-400 tracking-widest">ACTIVE</p></div>
+                          <div className="px-5 py-3 bg-theme-card/80 backdrop-blur-sm rounded-2xl border border-theme-border/50"><p className="text-[9px] font-black text-theme-muted uppercase tracking-[0.2em] mb-1">Performance</p><p className="text-xs font-black text-theme-accent tracking-widest">ULTRA-FAST</p></div>
                        </div>
                     </div>
                 </motion.div>
@@ -987,68 +804,73 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col gap-8">
                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                        <div className="flex flex-col gap-4">
-                          <h3 className="text-sm font-bold text-theme-text uppercase tracking-widest">Warna Kustom</h3>
-                          <div className="space-y-4 bg-theme-card border border-theme-border p-6 rounded-2xl">
-                              <div className="space-y-2 flex justify-between items-center">
-                                 <label className="text-xs font-bold text-theme-muted">Bg Utama</label>
-                                 <input type="color" className="w-10 h-10 p-0 border-0 bg-transparent rounded-lg cursor-pointer" defaultValue={siteSettings.theme.backgroundColor} onBlur={(e) => handleUpdateTheme('backgroundColor', e.target.value)} />
+                          <h3 className="text-sm font-bold text-theme-text uppercase tracking-widest italic">Kustom Tema Warna</h3>
+                          <div className="space-y-4 bg-theme-card border border-theme-border p-8 rounded-[2.5rem] shadow-xl">
+                              <div className="space-y-4">
+                                {['primaryColor', 'backgroundColor', 'cardColor', 'textColor', 'surfaceColor', 'borderColor'].map((field) => (
+                                  <div key={field} className="flex items-center justify-between bg-theme-surface/30 p-4 rounded-xl border border-theme-border">
+                                     <label className="text-xs font-bold text-theme-text uppercase tracking-widest">{field.replace('Color', '')}</label>
+                                     <input 
+                                       type="color" 
+                                       defaultValue={(siteSettings.theme as any)[field] || '#ffffff'} 
+                                       onBlur={(e) => handleUpdateTheme(field as any, e.target.value)}
+                                       className="w-10 h-10 rounded-lg cursor-pointer bg-transparent border-0"
+                                     />
+                                  </div>
+                                ))}
                               </div>
-                              <div className="space-y-2 flex justify-between items-center">
-                                 <label className="text-xs font-bold text-theme-muted">Card Color</label>
-                                 <input type="color" className="w-10 h-10 p-0 border-0 bg-transparent rounded-lg cursor-pointer" defaultValue={siteSettings.theme.cardColor} onBlur={(e) => handleUpdateTheme('cardColor', e.target.value)} />
-                              </div>
-                              <div className="space-y-2 flex justify-between items-center">
-                                 <label className="text-xs font-bold text-theme-muted">Text Color</label>
-                                 <input type="color" className="w-10 h-10 p-0 border-0 bg-transparent rounded-lg cursor-pointer" defaultValue={siteSettings.theme.textColor} onBlur={(e) => handleUpdateTheme('textColor', e.target.value)} />
-                              </div>
-                              <div className="space-y-2 flex justify-between items-center">
-                                 <label className="text-xs font-bold text-theme-muted">Muted Color</label>
-                                 <input type="color" className="w-10 h-10 p-0 border-0 bg-transparent rounded-lg cursor-pointer" defaultValue={siteSettings.theme.mutedColor} onBlur={(e) => handleUpdateTheme('mutedColor', e.target.value)} />
-                              </div>
-                              <div className="space-y-2 flex justify-between items-center">
-                                 <label className="text-xs font-bold text-theme-muted">Primary/Accent</label>
-                                 <input type="color" className="w-10 h-10 p-0 border-0 bg-transparent rounded-lg cursor-pointer" defaultValue={siteSettings.theme.primaryColor} onBlur={(e) => handleUpdateTheme('primaryColor', e.target.value)} />
-                              </div>
-                              <div className="space-y-2 flex justify-between items-center">
-                                 <label className="text-xs font-bold text-theme-muted">Accent Secondary</label>
-                                 <input type="color" className="w-10 h-10 p-0 border-0 bg-transparent rounded-lg cursor-pointer" defaultValue={siteSettings.theme.accentSecColor || '#2dd4bf'} onBlur={(e) => handleUpdateTheme('accentSecColor', e.target.value)} />
-                              </div>
-                              <div className="space-y-2 flex justify-between items-center">
-                                 <label className="text-xs font-bold text-theme-muted">Surface Color</label>
-                                 <input type="color" className="w-10 h-10 p-0 border-0 bg-transparent rounded-lg cursor-pointer" defaultValue={siteSettings.theme.surfaceColor || '#1f2937'} onBlur={(e) => handleUpdateTheme('surfaceColor', e.target.value)} />
-                              </div>
-                              <div className="space-y-2 flex justify-between items-center">
-                                 <label className="text-xs font-bold text-theme-muted">Border Color</label>
-                                 <input type="color" className="w-10 h-10 p-0 border-0 bg-transparent rounded-lg cursor-pointer" defaultValue={siteSettings.theme.borderColor || siteSettings.theme.surfaceColor || '#1f2937'} onBlur={(e) => handleUpdateTheme('borderColor', e.target.value)} />
-                              </div>
-                              <div className="space-y-2 flex justify-between items-center">
-                                 <label className="text-xs font-bold text-theme-muted">Footer Background</label>
-                                 <input type="color" className="w-10 h-10 p-0 border-0 bg-transparent rounded-lg cursor-pointer" defaultValue={siteSettings.theme.footerColor || siteSettings.theme.backgroundColor || '#03050c'} onBlur={(e) => handleUpdateTheme('footerColor', e.target.value)} />
-                              </div>
-                          </div> 
-                          
-                          <button
-                            onClick={() => {
-                              if (!ensureFirebaseReady()) return;
-                              updateSiteSettings({
-                                ...siteSettings,
-                                theme: {
-                                  primaryColor: "#22d3ee",
-                                  backgroundColor: "#050816",
-                                  cardColor: "#0b1220",
-                                  textColor: "#ffffff",
-                                  surfaceColor: "#1f2937",
-                                  mutedColor: "#9ca3af",
-                                  accentSecColor: "#2dd4bf",
-                                  borderColor: "#1f2937",
-                                  footerColor: "#03050c"
-                                }
-                              });
-                            }}
-                            className="bg-red-500/10 text-red-500 text-xs font-bold py-2 rounded-xl mt-2 w-full hover:bg-red-500/20 transition-colors"
-                          >
-                            RESET KE DEFAULT
-                          </button>
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (!ensureFirebaseReady()) return;
+                                  updateSiteSettings({
+                                    ...siteSettings,
+                                    theme: {
+                                      primaryColor: "#22d3ee",
+                                      backgroundColor: "#050816",
+                                      cardColor: "#0b1220",
+                                      textColor: "#ffffff",
+                                      surfaceColor: "#1f2937",
+                                      mutedColor: "#9ca3af",
+                                      accentSecColor: "#2dd4bf",
+                                      borderColor: "#1f2937",
+                                      footerColor: "#03050c"
+                                    }
+                                  });
+                                }}
+                                className="w-full bg-red-500/10 text-red-500 font-black py-4 rounded-2xl mt-4 uppercase tracking-[0.2em] text-[10px] hover:bg-red-500/20 transition-all border border-red-500/20"
+                              >
+                                RESET TEMA DEFAULT
+                              </button>
+                          </div>
+                       </div>
+
+                       <div className="flex flex-col gap-4">
+                          <h3 className="text-sm font-bold text-theme-text uppercase tracking-widest italic">Preset Pilihan</h3>
+                          <div className="grid grid-cols-1 gap-3">
+                             {[
+                               { name: 'Classic Blue', primary: '#22d3ee', bg: '#050816' },
+                               { name: 'Neon Purple', primary: '#a855f7', bg: '#0f0720' },
+                               { name: 'Cyber Mint', primary: '#14b8a6', bg: '#06100f' }
+                             ].map((p) => (
+                               <button
+                                 key={p.name}
+                                 type="button"
+                                 onClick={() => {
+                                   handleUpdateTheme('primaryColor', p.primary);
+                                   handleUpdateTheme('backgroundColor', p.bg);
+                                 }}
+                                 className="p-5 bg-theme-card border border-theme-border rounded-2xl text-left hover:border-theme-accent transition-all group flex items-center justify-between"
+                               >
+                                 <div className="flex items-center gap-3">
+                                    <div className="w-6 h-6 rounded-full border border-white/20" style={{ backgroundColor: p.primary }} />
+                                    <span className="font-bold text-theme-text uppercase tracking-widest text-xs">{p.name}</span>
+                                 </div>
+                                 <div className="w-8 h-4 rounded-full border border-white/10" style={{ backgroundColor: p.bg }} />
+                               </button>
+                             ))}
+                          </div>
                        </div>
                    </div>
                 </motion.div>
@@ -1324,7 +1146,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                                       setEditingCategory(null);
                                       setCategoryForm({ title: '', id: '', description: '' });
                                     } else {
-                                      alert("Mohon isi nama dan ID kategori!");
+                                      toast.error("Mohon isi nama dan ID kategori!");
                                     }
                                   }}
                                   className="w-full bg-theme-accent text-slate-900 font-bold py-4 rounded-xl mt-4 uppercase tracking-[0.2em] text-xs shadow-glow cursor-pointer pointer-events-auto relative z-50"
@@ -1634,230 +1456,6 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                       </div>
                    </div>
                 </motion.div>
-              ) : adminMode === 'dashboard' && activeSubTab === 'update' ? (
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col gap-8 pb-10">
-                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                      {/* Left Column: Upload & Info */}
-                      <div className="flex flex-col gap-6">
-                        <div className="bg-theme-card border border-theme-border p-8 rounded-[2.5rem] shadow-2xl">
-                           <div className="flex items-center gap-3 mb-6">
-                              <Upload className="w-5 h-5 text-theme-accent" />
-                              <h3 className="text-lg font-black text-theme-text uppercase tracking-widest italic">Upload Update File</h3>
-                           </div>
-                           
-                           <div 
-                              className={`border-2 border-dashed rounded-3xl p-10 flex flex-col items-center justify-center transition-all cursor-pointer ${updateFile ? 'border-theme-accent bg-theme-accent/5' : 'border-theme-border hover:border-theme-accent/50 bg-theme-surface/30'}`}
-                              onClick={() => document.getElementById('update-zip-input')?.click()}
-                           >
-                              <input 
-                                id="update-zip-input"
-                                type="file" 
-                                accept=".zip,application/zip,application/x-zip-compressed,application/octet-stream" 
-                                className="hidden" 
-                                onChange={handleFileSelect}
-                              />
-                              <FileArchive className={`w-12 h-12 mb-4 ${updateFile ? 'text-theme-accent' : 'text-theme-muted'}`} />
-                              <p className="text-sm font-bold text-theme-text text-center">
-                                {updateFile ? updateFile.name : 'Klik atau seret file ZIP ke sini'}
-                              </p>
-                              <p className="text-[10px] text-theme-muted uppercase tracking-widest mt-2">Maksimum file 50MB</p>
-                           </div>
-
-                           {updateFile && (
-                              <div className="mt-6 p-4 bg-theme-surface rounded-2xl border border-theme-border flex flex-col gap-2">
-                                 <div className="flex justify-between">
-                                    <span className="text-[10px] font-black text-theme-muted uppercase tracking-wider">Nama File:</span>
-                                    <span className="text-[10px] font-bold text-theme-text">{updateFile.name}</span>
-                                 </div>
-                                 <div className="flex justify-between">
-                                    <span className="text-[10px] font-black text-theme-muted uppercase tracking-wider">Ukuran:</span>
-                                    <span className="text-[10px] font-bold text-theme-text">{(updateFile.size / 1024 / 1024).toFixed(2)} MB</span>
-                                 </div>
-                                 <div className="flex justify-between">
-                                    <span className="text-[10px] font-black text-theme-muted uppercase tracking-wider">Terakhir Diubah:</span>
-                                    <span className="text-[10px] font-bold text-theme-text">{new Date(updateFile.lastModified).toLocaleDateString()}</span>
-                                 </div>
-                              </div>
-                           )}
-
-                           <div className="mt-8 flex gap-3">
-                              <button 
-                                onClick={handleCheckUpdate}
-                                disabled={!updateFile || updateStatus === 'analyzing' || updateStatus === 'updating'}
-                                className="flex-1 px-6 py-4 bg-theme-accent text-white font-black uppercase text-xs tracking-widest rounded-2xl shadow-lg hover:shadow-theme-accent/20 transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer pointer-events-auto"
-                              >
-                                <RefreshCw className={`w-4 h-4 ${updateStatus === 'analyzing' ? 'animate-spin' : ''}`} />
-                                Cek Update
-                              </button>
-                              <button 
-                                onClick={() => {
-                                  setUpdateFile(null);
-                                  setUpdateStatus('idle');
-                                  setScanResult(null);
-                                  setUpdateLogs([]);
-                                  setUpdateProgress(0);
-                                  setUpdateError(null);
-                                }}
-                                className="px-6 py-4 bg-theme-surface border border-theme-border text-theme-text font-black uppercase text-xs tracking-widest rounded-2xl hover:bg-theme-border transition-all cursor-pointer pointer-events-auto"
-                              >
-                                Reset
-                              </button>
-                           </div>
-                        </div>
-
-                        {updateError && (
-                           <div className="bg-red-500/10 border border-red-500/20 p-6 rounded-[2rem] flex items-start gap-4">
-                              <AlertCircle className="w-6 h-6 text-red-500 shrink-0" />
-                              <div>
-                                 <p className="text-sm font-black text-red-500 uppercase tracking-widest">Error Update</p>
-                                 <p className="text-xs font-bold text-red-500/80 mt-1">{updateError}</p>
-                              </div>
-                           </div>
-                        )}
-                        
-                        <div className="bg-theme-card border border-theme-border p-8 rounded-[2.5rem] shadow-2xl">
-                           <div className="flex items-center gap-3 mb-6">
-                              <History className="w-5 h-5 text-theme-accent" />
-                              <h3 className="text-lg font-black text-theme-text uppercase tracking-widest italic">Update Log</h3>
-                           </div>
-                           <div className="bg-theme-surface/50 border border-theme-border rounded-2xl p-6 h-64 overflow-y-auto flex flex-col gap-2 font-mono text-[10px] no-scrollbar">
-                              {updateLogs.length === 0 ? (
-                                 <p className="text-theme-muted opacity-50 italic">Belum ada aktivitas...</p>
-                              ) : (
-                                 updateLogs.map((log, i) => (
-                                    <div key={i} className="flex gap-3">
-                                       <span className="text-theme-accent opacity-50">[{new Date().toLocaleTimeString([], { hour12: false })}]</span>
-                                       <span className="text-theme-text">{log}</span>
-                                    </div>
-                                 ))
-                              )}
-                           </div>
-                        </div>
-                      </div>
-
-                      {/* Right Column: Scan Result & Progress */}
-                      <div className="flex flex-col gap-6">
-                         {scanResult && (
-                           <div className="bg-theme-card border border-theme-border p-8 rounded-[2.5rem] shadow-2xl">
-                              <div className="flex items-center gap-3 mb-6">
-                                 <ShieldCheck className="w-5 h-5 text-green-500" />
-                                 <h3 className="text-lg font-black text-theme-text uppercase tracking-widest italic">Hasil Scan</h3>
-                              </div>
-                              <div className="space-y-4">
-                                 <div className="grid grid-cols-3 gap-2 text-center text-[10px] font-black uppercase tracking-tighter">
-                                    <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl text-blue-500">
-                                       <p className="text-base mb-1">{scanResult.new.length}</p>
-                                       Baru
-                                    </div>
-                                    <div className="p-3 bg-theme-accent/10 border border-theme-accent/20 rounded-xl text-theme-accent">
-                                       <p className="text-base mb-1">{scanResult.changed.length}</p>
-                                       Berubah
-                                    </div>
-                                    <div className="p-3 bg-orange-500/10 border border-orange-500/20 rounded-xl text-orange-500">
-                                       <p className="text-base mb-1">{scanResult.skipped.length}</p>
-                                       Dilewati
-                                    </div>
-                                 </div>
-                                 
-                                 <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 no-scrollbar">
-                                    {scanResult.skipped.length > 0 && (
-                                       <div className="space-y-2">
-                                          <p className="text-[10px] font-black text-orange-500 uppercase tracking-widest flex items-center gap-2">
-                                             <div className="w-1.5 h-1.5 rounded-full bg-orange-500" />
-                                             Dilewati (System Protected)
-                                          </p>
-                                          <div className="flex flex-wrap gap-1.5">
-                                             {scanResult.skipped.map((f, i) => (
-                                                <span key={i} className="text-[9px] font-bold text-theme-muted bg-theme-surface px-2 py-1 rounded-md border border-theme-border truncate max-w-[150px]">
-                                                   {f}
-                                                </span>
-                                             ))}
-                                          </div>
-                                       </div>
-                                    )}
-                                    {scanResult.changed.length > 0 && (
-                                       <div className="space-y-2">
-                                          <p className="text-[10px] font-black text-theme-accent uppercase tracking-widest flex items-center gap-2">
-                                             <div className="w-1.5 h-1.5 rounded-full bg-theme-accent" />
-                                             File Diperbarui
-                                          </p>
-                                          <div className="flex flex-wrap gap-1.5">
-                                             {scanResult.changed.slice(0, 15).map((f, i) => (
-                                                <span key={i} className="text-[9px] font-bold text-theme-text bg-theme-surface px-2 py-1 rounded-md border border-theme-accent/30 truncate max-w-[150px]">
-                                                   {f}
-                                                </span>
-                                             ))}
-                                             {scanResult.changed.length > 15 && (
-                                                <span className="text-[9px] font-bold text-theme-muted italic">...dan {scanResult.changed.length - 15} lainnya</span>
-                                             )}
-                                          </div>
-                                       </div>
-                                    )}
-                                 </div>
-
-                                 <div className="pt-6 border-t border-theme-border">
-                                    <button 
-                                      onClick={handleApplyUpdate}
-                                      disabled={updateStatus !== 'ready'}
-                                      className="w-full px-6 py-5 bg-green-500 text-white font-black uppercase text-sm tracking-[0.2em] rounded-3xl shadow-xl hover:shadow-green-500/20 transition-all disabled:opacity-50 flex items-center justify-center gap-3 cursor-pointer pointer-events-auto"
-                                    >
-                                      <ShieldCheck className="w-5 h-5" />
-                                      Update / Buat Patch
-                                    </button>
-                                    <p className="text-center text-[9px] text-theme-muted uppercase tracking-widest font-black mt-4">
-                                       Sistem akan menerapkan perubahan secara aman
-                                    </p>
-                                 </div>
-                              </div>
-                           </div>
-                         )}
-
-                         {(updateStatus === 'updating' || updateStatus === 'success') && (
-                            <div className="bg-theme-card border border-theme-border p-8 rounded-[2.5rem] shadow-2xl">
-                               <div className="flex items-center justify-between mb-6">
-                                  <div className="flex items-center gap-3">
-                                     <RefreshCw className={`w-5 h-5 text-theme-accent ${updateStatus === 'updating' ? 'animate-spin' : ''}`} />
-                                     <h3 className="text-lg font-black text-theme-text uppercase tracking-widest italic">Update Progress</h3>
-                                  </div>
-                                  <span className="text-xl font-black text-theme-accent">{updateProgress}%</span>
-                               </div>
-
-                               <div className="w-full h-4 bg-theme-surface rounded-full overflow-hidden border border-theme-border">
-                                  <motion.div 
-                                     initial={{ width: 0 }}
-                                     animate={{ width: `${updateProgress}%` }}
-                                     className="h-full bg-gradient-to-r from-theme-accent to-blue-500"
-                                  />
-                               </div>
-
-                               {updateStatus === 'success' && (
-                                  <motion.div 
-                                    initial={{ opacity: 0, scale: 0.9 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    className="mt-8 p-6 bg-green-500/10 border border-green-500/20 rounded-[2rem] flex flex-col items-center gap-3 text-center"
-                                  >
-                                     <CheckCircle2 className="w-10 h-10 text-green-500" />
-                                     <div>
-                                        <p className="text-lg font-black text-green-500 uppercase tracking-[0.2em]">Update Selesai</p>
-                                        <p className="text-xs font-bold text-theme-muted mt-1 uppercase tracking-widest">Sistem telah diperbarui ke versi terbaru.</p>
-                                     </div>
-                                     <button 
-                                       onClick={() => {
-                                         if (typeof window !== 'undefined') {
-                                           window.location.reload();
-                                         }
-                                       }}
-                                       className="mt-4 px-6 py-3 bg-green-500 text-white font-black uppercase text-[10px] tracking-widest rounded-xl shadow-lg hover:shadow-green-500/30 transition-all cursor-pointer pointer-events-auto"
-                                     >
-                                        Muat Ulang Halaman
-                                     </button>
-                                  </motion.div>
-                               )}
-                            </div>
-                         )}
-                      </div>
-                   </div>
-                </motion.div>
               ) : (adminMode === 'edit' || adminMode === 'add') ? (
                 <AdminProductForm
                   initialData={formData}
@@ -1893,17 +1491,13 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
             <LayoutGrid className="w-5 h-5 transition-transform active:scale-90" />
             <span className="text-[8px] font-black uppercase tracking-widest">Kat</span>
          </button>
-         <button type="button" onClick={() => { setActiveSubTab('branding'); setAdminMode('dashboard'); }} className={`flex flex-col items-center gap-1 cursor-pointer pointer-events-auto ${activeSubTab === 'branding' ? 'text-theme-accent' : 'text-theme-muted'}`}>
-            <Globe className="w-5 h-5 transition-transform active:scale-90" />
-            <span className="text-[8px] font-black uppercase tracking-widest">Brand</span>
+         <button type="button" onClick={() => { setActiveSubTab('theme'); setAdminMode('dashboard'); }} className={`flex flex-col items-center gap-1 cursor-pointer pointer-events-auto ${activeSubTab === 'theme' ? 'text-theme-accent' : 'text-theme-muted'}`}>
+            <Palette className="w-5 h-5 transition-transform active:scale-90" />
+            <span className="text-[8px] font-black uppercase tracking-widest">Tema</span>
          </button>
          <button type="button" onClick={() => { setActiveSubTab('general'); setAdminMode('dashboard'); }} className={`flex flex-col items-center gap-1 cursor-pointer pointer-events-auto ${activeSubTab === 'general' ? 'text-theme-accent' : 'text-theme-muted'}`}>
             <Settings className="w-5 h-5 transition-transform active:scale-90" />
             <span className="text-[8px] font-black uppercase tracking-widest">Config</span>
-         </button>
-         <button type="button" onClick={() => { setActiveSubTab('update'); setAdminMode('dashboard'); }} className={`flex flex-col items-center gap-1 cursor-pointer pointer-events-auto ${activeSubTab === 'update' ? 'text-theme-accent' : 'text-theme-muted'}`}>
-            <RefreshCw className="w-5 h-5 transition-transform active:scale-90" />
-            <span className="text-[8px] font-black uppercase tracking-widest">Update</span>
          </button>
          <button type="button" onClick={handleAdminLogout} className="flex flex-col items-center gap-1 text-red-500 cursor-pointer pointer-events-auto">
             <LogOut className="w-5 h-5 transition-transform active:scale-90" />

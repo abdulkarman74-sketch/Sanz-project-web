@@ -45,6 +45,7 @@ import {
 import { db, firebaseReady } from "./lib/firebase";
 import { doc, setDoc, onSnapshot, deleteDoc } from "firebase/firestore";
 import { removeUndefinedDeep } from "./utils/objectUtils";
+import { Toaster, toast } from 'react-hot-toast';
 
 const GameView = lazy(() => import("./components/views/GameView"));
 const VideoView = lazy(() => import("./components/views/VideoView"));
@@ -338,7 +339,7 @@ export default function App() {
 
   const saveToFirebase = async (data: Category[]) => {
     if (!isAdminLoggedIn) {
-      alert("Akses ditolak: Anda bukan admin store.");
+      toast.error("Akses ditolak: Anda bukan admin store.");
       return false;
     }
     setIsSaving(true);
@@ -346,7 +347,7 @@ export default function App() {
       // Logic handled via subcollections now
       return true;
     } catch (e: any) {
-      alert("Gagal menyimpan ke Firestore: " + e.message);
+      toast.error("Gagal menyimpan ke Firestore: " + e.message);
       return false;
     } finally {
       setIsSaving(false);
@@ -357,7 +358,7 @@ export default function App() {
 
   const ensureFirebaseReady = () => {
     if (!firebaseReady || !db) {
-      alert("⚠️ FIREBASE BELUM TERHUBUNG\n\nSilakan isi Firebase Config di src/setting.js agar fitur simpan berfungsi.");
+      toast.error("Firebase belum disetting di setting.js.");
       return false;
     }
     return true;
@@ -369,7 +370,7 @@ export default function App() {
 
     const rawPriceDigits = updatedProduct.price.replace(/\D/g, "");
     if (!rawPriceDigits || isNaN(Number(rawPriceDigits))) {
-      alert("Harga harus berupa angka valid!");
+      toast.error("Harga harus berupa angka valid!");
       return;
     }
 
@@ -384,11 +385,12 @@ export default function App() {
       await setDoc(doc(db, "products", cleanProduct.id), cleanProduct, {
         merge: true,
       });
+      toast.success("Berhasil disimpan");
       setEditingProduct(null);
       setAdminMode("dashboard");
     } catch (e: any) {
       console.error("Update Product Error:", e);
-      alert("Gagal memperbarui produk: " + e.message);
+      toast.error("Gagal memperbarui produk: " + e.message);
     } finally {
       setIsSaving(false);
     }
@@ -402,9 +404,10 @@ export default function App() {
       setIsSaving(true);
       try {
         await deleteDoc(doc(db, "products", productId));
+        toast.success("Produk berhasil dihapus!");
       } catch (e: any) {
         console.error("Delete Product Error:", e);
-        alert("Gagal menghapus produk: " + e.message);
+        toast.error("Gagal menghapus produk: " + e.message);
       } finally {
         setIsSaving(false);
       }
@@ -431,11 +434,11 @@ export default function App() {
         createdAt: Date.now(),
       });
       await setDoc(doc(db, "products", newId), payload);
-      alert("Berhasil ditambahin bg!");
+      toast.success("Berhasil disimpan");
       setAdminMode("dashboard");
     } catch (e: any) {
       console.error("Add Product Error:", e);
-      alert("Gagal menambah produk: " + e.message);
+      toast.error("Gagal menambah produk: " + e.message);
     } finally {
       setIsSaving(false);
     }
@@ -455,10 +458,10 @@ export default function App() {
     setIsSaving(true);
     try {
       await setDoc(doc(db, "categories", cat.id), removeUndefinedDeep(cat));
-      alert("Kategori berhasil ditambahkan!");
+      toast.success("Kategori berhasil ditambahkan!");
     } catch (e: any) {
       console.error("Add Category Error:", e);
-      alert("Gagal menambah kategori: " + e.message);
+      toast.error("Gagal menambah kategori: " + e.message);
     } finally {
       setIsSaving(false);
     }
@@ -470,10 +473,10 @@ export default function App() {
     setIsSaving(true);
     try {
       await setDoc(doc(db, "categories", cat.id), removeUndefinedDeep(cat), { merge: true });
-      alert("Kategori berhasil diperbarui!");
+      toast.success("Kategori berhasil diperbarui!");
     } catch (e: any) {
       console.error("Update Category Error:", e);
-      alert("Gagal memperbarui kategori: " + e.message);
+      toast.error("Gagal memperbarui kategori: " + e.message);
     } finally {
       setIsSaving(false);
     }
@@ -485,10 +488,10 @@ export default function App() {
     setIsSaving(true);
     try {
       await deleteDoc(doc(db, "categories", id));
-      alert("Kategori berhasil dihapus!");
+      toast.success("Kategori berhasil dihapus!");
     } catch (e: any) {
       console.error("Delete Category Error:", e);
-      alert("Gagal menghapus kategori: " + e.message);
+      toast.error("Gagal menghapus kategori: " + e.message);
     } finally {
       setIsSaving(false);
     }
@@ -497,7 +500,7 @@ export default function App() {
   const updateSiteSettings = async (newSettings: SiteSettings) => {
     if (!isAdminLoggedIn) return;
     if (!firebaseReady || !db) {
-      alert("⚠️ FIREBASE BELUM TERHUBUNG\n\nSilakan isi Firebase Config di src/setting.js dan deploy ulang ke Netlify agar fitur simpan berfungsi.");
+      toast.error("Firebase belum disetting di setting.js");
       return;
     }
     
@@ -552,9 +555,10 @@ export default function App() {
       }
 
       console.log("✅ Semua pengaturan berhasil disinkronkan ke Firebase.");
+      toast.success("Berhasil disimpan");
     } catch (e: any) {
       console.error("❌ Firebase Write Error:", e);
-      alert(`Gagal menyimpan ke Firebase: ${e.message}\n\nPastikan Firestore Rules Anda mengizinkan akses tulis.`);
+      toast.error(`Gagal menyimpan ke Firebase: ${e.message}`);
     } finally {
       setIsSaving(false);
     }
@@ -562,6 +566,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-theme-bg text-theme-text selection:bg-theme-accent/20 font-sans overflow-x-hidden">
+      <Toaster position="bottom-right" />
       {showLoginModal && (
         <LoginModal
           onClose={() => setShowLoginModal(false)}
