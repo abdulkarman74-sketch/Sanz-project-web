@@ -250,20 +250,22 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
 export interface Product {
   id: string;
   name: string;
-  price: string;
-  promoPrice?: string;
+  price: string | number;
+  promoPrice?: string | number;
+  originalPrice?: string | number;
   discountPercent?: number;
   type?: 'panel' | 'bot' | 'script' | 'reseller' | 'app' | 'custom' | string;
   typeDetails?: any;
   active?: boolean;
   duration?: string;
   description?: string;
+  shortDesc?: string;
   details?: string[];
   benefits: string[];
   badge?: string;
   category: string;
   rating: number;
-  stock?: string;
+  stock?: string | number;
   image: string;
   createdAt?: number;
   updatedAt?: number;
@@ -272,10 +274,14 @@ export interface Product {
 
 export interface Category {
   id: 'all' | 'panel' | 'bot' | 'app' | 'source' | 'reseller' | string;
-  title: string;
-  description: string;
-  subtext: string;
-  status: string;
+  title?: string;
+  description?: string;
+  subtext?: string;
+  status?: string;
+  name?: string;
+  slug?: string;
+  order?: number;
+  active?: boolean;
   products: Product[];
 }
 

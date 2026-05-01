@@ -50,7 +50,7 @@ import { Toaster, toast } from 'react-hot-toast';
 const GameView = lazy(() => import("./components/views/GameView"));
 const VideoView = lazy(() => import("./components/views/VideoView"));
 const ScriptBotView = lazy(() => import("./components/views/ScriptBotView"));
-const AdminPanel = lazy(() => import("./components/views/AdminPanel"));
+const AdminPanel = lazy(() => import("./admin/admin-panel"));
 const HeroSection = lazy(() => import("./components/common/HeroSection"));
 const LoadingScreen = lazy(() => import("./components/common/LoadingScreen"));
 const ProductDetailModal = lazy(
@@ -337,232 +337,15 @@ export default function App() {
     }
   }, [siteSettings.theme]);
 
-  const saveToFirebase = async (data: Category[]) => {
-    if (!isAdminLoggedIn) {
-      toast.error("Akses ditolak: Anda bukan admin store.");
-      return false;
-    }
-    setIsSaving(true);
-    try {
-      // Logic handled via subcollections now
-      return true;
-    } catch (e: any) {
-      toast.error("Gagal menyimpan ke Firestore: " + e.message);
-      return false;
-    } finally {
-      setIsSaving(false);
-    }
-  };
 
-  const handleLogout = handleLogoutInit;
-
-  const ensureFirebaseReady = () => {
-    if (!firebaseReady || !db) {
-      toast.error("Firebase belum disetting di setting.js.");
-      return false;
-    }
-    return true;
-  };
-
-  const updateProduct = async (catId: string, updatedProduct: Product) => {
-    if (!isAdminLoggedIn) return;
-    if (!ensureFirebaseReady()) return;
-
-    const rawPriceDigits = updatedProduct.price.replace(/\D/g, "");
-    if (!rawPriceDigits || isNaN(Number(rawPriceDigits))) {
-      toast.error("Harga harus berupa angka valid!");
-      return;
-    }
-
-    setIsSaving(true);
-    try {
-      const cleanProduct = removeUndefinedDeep({
-        ...updatedProduct,
-        price: Number(rawPriceDigits).toLocaleString("id-ID"),
-        updatedAt: Date.now(),
-      });
-
-      await setDoc(doc(db, "products", cleanProduct.id), cleanProduct, {
-        merge: true,
-      });
-      toast.success("Berhasil disimpan");
-      setEditingProduct(null);
-      setAdminMode("dashboard");
-    } catch (e: any) {
-      console.error("Update Product Error:", e);
-      toast.error("Gagal memperbarui produk: " + e.message);
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const deleteProduct = async (catId: string, productId: string) => {
-    if (!isAdminLoggedIn) return;
-    if (!ensureFirebaseReady()) return;
-
-    if (confirm("Yakin ngilangin produk ini bang?")) {
-      setIsSaving(true);
-      try {
-        await deleteDoc(doc(db, "products", productId));
-        toast.success("Produk berhasil dihapus!");
-      } catch (e: any) {
-        console.error("Delete Product Error:", e);
-        toast.error("Gagal menghapus produk: " + e.message);
-      } finally {
-        setIsSaving(false);
-      }
-    }
-  };
-
-  const addProduct = async (catId: string, newProduct: Omit<Product, "id">) => {
-    if (!isAdminLoggedIn) return;
-    if (!ensureFirebaseReady()) return;
-
-    const rawPriceDigits = newProduct.price.replace(/\D/g, "");
-    const cleanPrice = rawPriceDigits
-      ? Number(rawPriceDigits).toLocaleString("id-ID")
-      : "0";
-
-    setIsSaving(true);
-    try {
-      const newId = Math.random().toString(36).substring(2, 11);
-      const payload = removeUndefinedDeep({
-        ...newProduct,
-        categoryId: catId,
-        price: cleanPrice,
-        id: newId,
-        createdAt: Date.now(),
-      });
-      await setDoc(doc(db, "products", newId), payload);
-      toast.success("Berhasil disimpan");
-      setAdminMode("dashboard");
-    } catch (e: any) {
-      console.error("Add Product Error:", e);
-      toast.error("Gagal menambah produk: " + e.message);
-    } finally {
-      setIsSaving(false);
-    }
-  };
 
   useEffect(() => {
     if ((loading && !storeLoading) || activeCategory || selectedProduct || adminMode) {
       document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = "auto";
+      document.body.style.overflow = "unset";
     }
   }, [loading, storeLoading, activeCategory, selectedProduct, adminMode]);
-
-  const addCategory = async (cat: Omit<Category, 'products'>) => {
-    if (!isAdminLoggedIn) return;
-    if (!ensureFirebaseReady()) return;
-    setIsSaving(true);
-    try {
-      await setDoc(doc(db, "categories", cat.id), removeUndefinedDeep(cat));
-      toast.success("Kategori berhasil ditambahkan!");
-    } catch (e: any) {
-      console.error("Add Category Error:", e);
-      toast.error("Gagal menambah kategori: " + e.message);
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const updateCategory = async (cat: Omit<Category, 'products'>) => {
-    if (!isAdminLoggedIn) return;
-    if (!ensureFirebaseReady()) return;
-    setIsSaving(true);
-    try {
-      await setDoc(doc(db, "categories", cat.id), removeUndefinedDeep(cat), { merge: true });
-      toast.success("Kategori berhasil diperbarui!");
-    } catch (e: any) {
-      console.error("Update Category Error:", e);
-      toast.error("Gagal memperbarui kategori: " + e.message);
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const deleteCategory = async (id: string) => {
-    if (!isAdminLoggedIn) return;
-    if (!ensureFirebaseReady()) return;
-    setIsSaving(true);
-    try {
-      await deleteDoc(doc(db, "categories", id));
-      toast.success("Kategori berhasil dihapus!");
-    } catch (e: any) {
-      console.error("Delete Category Error:", e);
-      toast.error("Gagal menghapus kategori: " + e.message);
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const updateSiteSettings = async (newSettings: SiteSettings) => {
-    if (!isAdminLoggedIn) return;
-    if (!firebaseReady || !db) {
-      toast.error("Firebase belum disetting di setting.js");
-      return;
-    }
-    
-    setIsSaving(true);
-    console.log("Saving site settings to Firebase...", newSettings);
-    
-    try {
-      // 1. Save core branding/main settings
-      const mainData = {
-        storeName: newSettings.branding.siteName,
-        slogan: newSettings.branding.slogan,
-        contact: newSettings.contact,
-        updatedAt: Date.now()
-      };
-      await setDoc(doc(db, "settings", "main"), removeUndefinedDeep(mainData), { merge: true });
-
-      // 2. Save individual modules if they changed (targeted updates)
-      const tasks = [];
-      
-      if (newSettings.theme) {
-        tasks.push(setDoc(doc(db, "settings", "theme"), removeUndefinedDeep(newSettings.theme), { merge: true }));
-      }
-      if (newSettings.audio) {
-        tasks.push(setDoc(doc(db, "settings", "audio"), removeUndefinedDeep(newSettings.audio), { merge: true }));
-      }
-      if (newSettings.branding) {
-        tasks.push(setDoc(doc(db, "settings", "branding"), removeUndefinedDeep(newSettings.branding), { merge: true }));
-      }
-      if (newSettings.contact) {
-        tasks.push(setDoc(doc(db, "settings", "contact"), removeUndefinedDeep(newSettings.contact), { merge: true }));
-      }
-      if (newSettings.loading) {
-        tasks.push(setDoc(doc(db, "settings", "loading"), removeUndefinedDeep(newSettings.loading), { merge: true }));
-      }
-      if (newSettings.footer) {
-        tasks.push(setDoc(doc(db, "settings", "footer"), removeUndefinedDeep(newSettings.footer), { merge: true }));
-      }
-      if (newSettings.general) {
-        tasks.push(setDoc(doc(db, "settings", "general"), removeUndefinedDeep(newSettings.general), { merge: true }));
-      }
-
-      if (tasks.length > 0) {
-        await Promise.all(tasks);
-      }
-
-      // Handle Hero Slides separately if they are part of the object
-      if (newSettings.heroSlides && newSettings.heroSlides.length > 0) {
-        const slidePromises = newSettings.heroSlides.map((slide) =>
-          setDoc(doc(db, "slides", slide.id), removeUndefinedDeep(slide), { merge: true }),
-        );
-        await Promise.all(slidePromises);
-      }
-
-      console.log("✅ Semua pengaturan berhasil disinkronkan ke Firebase.");
-      toast.success("Berhasil disimpan");
-    } catch (e: any) {
-      console.error("❌ Firebase Write Error:", e);
-      toast.error(`Gagal menyimpan ke Firebase: ${e.message}`);
-    } finally {
-      setIsSaving(false);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-theme-bg text-theme-text selection:bg-theme-accent/20 font-sans overflow-x-hidden">
@@ -867,18 +650,10 @@ export default function App() {
             adminMode={adminMode}
             setAdminMode={setAdminMode}
             localCategories={localCategories}
-            editingProduct={editingProduct}
-            setEditingProduct={setEditingProduct}
-            updateProduct={updateProduct}
-            deleteProduct={deleteProduct}
-            addProduct={addProduct}
-            isSaving={isSaving}
             handleAdminLogout={handleLogoutInit}
             siteSettings={siteSettings}
-            updateSiteSettings={updateSiteSettings}
-            addCategory={addCategory}
-            updateCategory={updateCategory}
-            deleteCategory={deleteCategory}
+            products={storeProducts}
+            slides={slides}
           />
         )}
       </Suspense>
