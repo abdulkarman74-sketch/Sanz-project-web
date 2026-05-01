@@ -282,6 +282,7 @@ export interface Category {
   slug?: string;
   order?: number;
   active?: boolean;
+  image?: string;
   products: Product[];
 }
 

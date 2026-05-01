@@ -11,6 +11,7 @@ import React, {
   lazy,
   Suspense,
   useMemo,
+  useCallback,
 } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
@@ -45,7 +46,7 @@ import {
 import { db, firebaseReady } from "./lib/firebase";
 import { doc, setDoc, onSnapshot, deleteDoc } from "firebase/firestore";
 import { removeUndefinedDeep } from "./utils/objectUtils";
-import { Toaster, toast } from 'react-hot-toast';
+import { Toaster, toast } from "react-hot-toast";
 
 const GameView = lazy(() => import("./components/views/GameView"));
 const VideoView = lazy(() => import("./components/views/VideoView"));
@@ -53,16 +54,10 @@ const ScriptBotView = lazy(() => import("./components/views/ScriptBotView"));
 const AdminPanel = lazy(() => import("./admin/admin-panel"));
 const HeroSection = lazy(() => import("./components/common/HeroSection"));
 const LoadingScreen = lazy(() => import("./components/common/LoadingScreen"));
-const ProductDetailModal = lazy(
-  () => import("./components/views/ProductDetailModal"),
-);
 const VpsStatusShowcase = lazy(
   () => import("./components/common/VpsStatusShowcase"),
 );
-const TimeDateCard = lazy(
-  () => import("./components/common/TimeDateCard"),
-);
-
+const TimeDateCard = lazy(() => import("./components/common/TimeDateCard"));
 
 const ViewFallback = () => (
   <div className="flex-1 flex items-center justify-center min-h-[400px]">
@@ -116,8 +111,7 @@ const ProductCard = memo(
         initial={{ opacity: 0, y: 15 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-50px" }}
-        onClick={() => onDetail?.(product)}
-        className="group relative bg-theme-card border border-theme-border rounded-[24px] p-2.5 flex flex-col h-full cursor-pointer hover:border-[#334155] transition-all duration-500 overflow-hidden"
+        className="group relative bg-theme-card border border-theme-border rounded-[24px] p-2.5 flex flex-col h-full hover:border-[#334155] transition-all duration-500 overflow-hidden"
         style={{
           boxShadow:
             "0 8px 30px -4px rgba(0,0,0,0.4), inset 0 0 0 1px rgba(255,255,255,0.05)",
@@ -166,7 +160,7 @@ const ProductCard = memo(
             {product.name}
           </h3>
 
-          <p className="text-[10px] md:text-[11px] text-theme-muted line-clamp-3 leading-relaxed mb-4 flex-1">
+          <p className="text-[10px] md:text-[11px] text-theme-muted line-clamp-2 leading-relaxed mb-4 flex-1">
             {product.description ||
               "Layanan digital premium dan bergaransi resmi."}
           </p>
@@ -176,19 +170,27 @@ const ProductCard = memo(
               <span className="text-[8px] font-bold text-theme-muted uppercase tracking-widest leading-none mb-1">
                 Total Harga
               </span>
-              <span className="text-lg font-display font-black text-theme-text tracking-tight leading-none bg-clip-text text-transparent bg-gradient-to-r from-theme-accent to-theme-accent-sec">
+              <span className="text-base md:text-lg font-display font-black text-theme-text tracking-tight leading-none bg-clip-text text-transparent bg-gradient-to-r from-theme-accent to-theme-accent-sec">
                 Rp {product.price}
               </span>
             </div>
-            <div className="w-8 h-8 rounded-xl bg-theme-surface flex items-center justify-center group-hover:bg-theme-accent transition-all border border-theme-border group-hover:border-theme-accent shadow-sm group-hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] transform group-hover:rotate-[-5deg] shrink-0">
-              <ChevronRight className="w-4 h-4 text-theme-muted group-hover:text-theme-card transition-colors" />
-            </div>
+            <button
+              className="px-3 py-1.5 md:px-4 md:py-2 rounded-xl bg-theme-accent text-theme-bg font-bold text-[10px] md:text-xs hover:bg-white transition-all shadow-[0_0_15px_rgba(34,211,238,0.2)] hover:shadow-[0_0_20px_rgba(34,211,238,0.5)] transform border border-transparent whitespace-nowrap"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDetail?.(product);
+              }}
+            >
+              Beli Sekarang
+            </button>
           </div>
         </div>
       </motion.div>
     );
   },
 );
+
+import CategoryPopup from "./components/views/CategoryPopup";
 
 // Components removed to clear unused code
 
@@ -229,21 +231,86 @@ export default function App() {
   }, [rawCategories, storeProducts]);
 
   const [loading, setLoading] = useState(true);
+  const [selectedPopupCategory, setSelectedPopupCategory] =
+    useState<Category | null>(null);
+
+  const handleDirectOrder = useCallback(
+    (product: Product) => {
+      const name = siteSettings?.branding?.siteName || "Admin";
+      const phone = siteSettings?.contact?.whatsapp || WHATSAPP_NUMBER;
+
+      let defaultMsg =
+        siteSettings?.contact?.orderMessage ||
+        `Halo ${name}, saya ingin memesan:\n\n*Produk:* {product_name}\n*Harga:* Rp{product_price}\n\nMohon info selanjutnya.`;
+
+      const catLower = product.category.toLowerCase();
+      if (catLower.includes("panel") && siteSettings?.contact?.panelMessage) {
+        defaultMsg = siteSettings.contact.panelMessage;
+      } else if (
+        catLower.includes("bot") &&
+        siteSettings?.contact?.botMessage
+      ) {
+        defaultMsg = siteSettings.contact.botMessage;
+      }
+
+      const message = defaultMsg
+        .replace(/{product_name}/g, product.name)
+        .replace(/{product_price}/g, product.price.toString());
+
+      const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+      window.open(url, "_blank");
+    },
+    [siteSettings],
+  );
 
   useEffect(() => {
     if (!siteSettings?.theme) return;
     const root = document.documentElement;
 
-    root.style.setProperty('--bg-main', siteSettings.theme.backgroundColor || '#050816');
-    root.style.setProperty('--bg-card', siteSettings.theme.cardColor || '#0b1220');
-    root.style.setProperty('--bg-surface', siteSettings.theme.surfaceColor || '#111827');
-    root.style.setProperty('--text-main', siteSettings.theme.textColor || '#f8fafc');
-    root.style.setProperty('--text-muted', siteSettings.theme.mutedColor || '#94a3b8');
-    root.style.setProperty('--accent', siteSettings.theme.primaryColor || '#22d3ee');
-    root.style.setProperty('--accent-sec', siteSettings.theme.accentSecColor || '#2dd4bf');
-    root.style.setProperty('--accent-glow', `${siteSettings.theme.primaryColor || '#22d3ee'}33`); // add 20% opacity
-    root.style.setProperty('--border-refined', siteSettings.theme.borderColor || siteSettings.theme.surfaceColor || '#1f2937');
-    root.style.setProperty('--footer-bg', siteSettings.theme.footerColor || siteSettings.theme.backgroundColor || '#03050c');
+    root.style.setProperty(
+      "--bg-main",
+      siteSettings.theme.backgroundColor || "#050816",
+    );
+    root.style.setProperty(
+      "--bg-card",
+      siteSettings.theme.cardColor || "#0b1220",
+    );
+    root.style.setProperty(
+      "--bg-surface",
+      siteSettings.theme.surfaceColor || "#111827",
+    );
+    root.style.setProperty(
+      "--text-main",
+      siteSettings.theme.textColor || "#f8fafc",
+    );
+    root.style.setProperty(
+      "--text-muted",
+      siteSettings.theme.mutedColor || "#94a3b8",
+    );
+    root.style.setProperty(
+      "--accent",
+      siteSettings.theme.primaryColor || "#22d3ee",
+    );
+    root.style.setProperty(
+      "--accent-sec",
+      siteSettings.theme.accentSecColor || "#2dd4bf",
+    );
+    root.style.setProperty(
+      "--accent-glow",
+      `${siteSettings.theme.primaryColor || "#22d3ee"}33`,
+    ); // add 20% opacity
+    root.style.setProperty(
+      "--border-refined",
+      siteSettings.theme.borderColor ||
+        siteSettings.theme.surfaceColor ||
+        "#1f2937",
+    );
+    root.style.setProperty(
+      "--footer-bg",
+      siteSettings.theme.footerColor ||
+        siteSettings.theme.backgroundColor ||
+        "#03050c",
+    );
   }, [siteSettings?.theme]);
 
   const [activeCategory, setActiveCategory] = useState<Category | null>(null);
@@ -252,8 +319,6 @@ export default function App() {
   >("home");
   const [selectedCategory, setSelectedCategory] = useState("Semua");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   // --- Admin Menu States ---
   const [adminMode, setAdminMode] = useState<
@@ -337,15 +402,13 @@ export default function App() {
     }
   }, [siteSettings.theme]);
 
-
-
   useEffect(() => {
-    if ((loading && !storeLoading) || activeCategory || selectedProduct || adminMode) {
+    if ((loading && !storeLoading) || activeCategory || adminMode) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "unset";
     }
-  }, [loading, storeLoading, activeCategory, selectedProduct, adminMode]);
+  }, [loading, storeLoading, activeCategory, adminMode]);
 
   return (
     <div className="min-h-screen bg-theme-bg text-theme-text selection:bg-theme-accent/20 font-sans overflow-x-hidden">
@@ -511,9 +574,10 @@ export default function App() {
                     {currentTab === "home" && (
                       <div className="mb-8 md:mb-12 px-4">
                         <HeroSection settings={siteSettings} />
-                        
-                        {siteSettings.general?.infoDisplayMode === "hidden" ? null : 
-                         siteSettings.general?.infoDisplayMode === "datetime" ? (
+
+                        {siteSettings.general?.infoDisplayMode ===
+                        "hidden" ? null : siteSettings.general
+                            ?.infoDisplayMode === "datetime" ? (
                           <TimeDateCard siteSettings={siteSettings} />
                         ) : siteSettings.general?.infoDisplayMode === "both" ? (
                           <div className="flex flex-col gap-0 overflow-hidden">
@@ -529,39 +593,113 @@ export default function App() {
                       </div>
                     )}
 
-                    <div className="overflow-x-auto no-scrollbar py-2 mb-4 md:mb-6 select-none relative"
-                        style={{ WebkitOverflowScrolling: "touch" }}
-                      >
-                        <div className="flex gap-2 min-w-max px-4">
-                          {[
-                            "Semua",
-                            "Panel",
-                            "Sewa Bot",
-                            "Source Code",
-                            "Reseller",
-                            "App Premium",
-                          ].map((cat) => (
-                            <button
-                              key={cat}
-                              onClick={() => setSelectedCategory(cat)}
-                              className={`relative px-4 md:px-6 py-2.5 rounded-xl text-[11px] md:text-xs font-bold uppercase tracking-widest transition-all duration-300 ${
-                                selectedCategory === cat
-                                  ? "text-theme-bg bg-theme-accent shadow-lg shadow-theme-accent/20 scale-105 transform"
-                                  : "text-theme-muted bg-theme-surface border border-theme-border hover:border-theme-muted hover:text-theme-text"
-                              }`}
-                            >
-                              {cat}
-                            </button>
-                          ))}
-                        </div>
+                    <div
+                      className="overflow-x-auto no-scrollbar py-2 mb-4 md:mb-6 select-none relative"
+                      style={{ WebkitOverflowScrolling: "touch" }}
+                    >
+                      <div className="flex gap-2 min-w-max px-4">
+                        {[
+                          "Semua",
+                          "Panel",
+                          "Sewa Bot",
+                          "Source Code",
+                          "Reseller",
+                          "App Premium",
+                        ].map((cat) => (
+                          <button
+                            key={cat}
+                            onClick={() => setSelectedCategory(cat)}
+                            className={`relative px-4 md:px-6 py-2.5 rounded-xl text-[11px] md:text-xs font-bold uppercase tracking-widest transition-all duration-300 ${
+                              selectedCategory === cat
+                                ? "text-theme-bg bg-theme-accent shadow-lg shadow-theme-accent/20 scale-105 transform"
+                                : "text-theme-muted bg-theme-surface border border-theme-border hover:border-theme-muted hover:text-theme-text"
+                            }`}
+                          >
+                            {cat}
+                          </button>
+                        ))}
                       </div>
+                    </div>
 
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 px-4">
+                    <div
+                      className={
+                        selectedCategory === "Semua"
+                          ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 px-4 bg-transparent max-w-5xl mx-auto"
+                          : "grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 px-4 bg-transparent"
+                      }
+                    >
                       {(() => {
+                        if (selectedCategory === "Semua") {
+                          // Show category cards instead of all products
+                          const activeCategories = localCategories.filter(
+                            (c) => c.products && c.products.length > 0,
+                          );
+                          return activeCategories.map((cat) => {
+                            const prices = cat.products.map((p) => {
+                              const numStr = p.price.replace(/[^0-9]/g, "");
+                              return parseInt(numStr) || 0;
+                            });
+                            const minPrice =
+                              prices.length > 0 ? Math.min(...prices) : 0;
+                            const formatLowest =
+                              minPrice > 0
+                                ? minPrice.toLocaleString("id-ID")
+                                : "0";
+                            const displayImage =
+                              cat.image || cat.products[0]?.image || "";
+
+                            return (
+                              <div
+                                key={cat.id}
+                                className="group relative bg-[#0f172a] border border-[#1e293b] rounded-[16px] overflow-hidden flex flex-col hover:-translate-y-1 transition-all duration-300 shadow-sm hover:shadow-lg hover:shadow-theme-accent/10 cursor-pointer h-[200px] md:h-[240px] max-w-md mx-auto w-full sm:max-w-none"
+                                onClick={() => setSelectedPopupCategory(cat)}
+                              >
+                                <div className="relative aspect-[21/9] sm:aspect-video bg-[#0b1220] overflow-hidden flex-shrink-0 h-[90px] md:h-[120px]">
+                                  {displayImage ? (
+                                    <img
+                                      src={displayImage}
+                                      alt={cat.title || cat.name}
+                                      className="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-500"
+                                    />
+                                  ) : (
+                                    <div className="w-full h-full flex items-center justify-center">
+                                      <Package className="w-8 h-8 text-theme-muted opacity-30" />
+                                    </div>
+                                  )}
+                                  <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a] to-transparent opacity-80" />
+                                  <div className="absolute top-2 left-2 bg-black/50 backdrop-blur-md px-1.5 py-0.5 rounded border border-white/10 flex items-center gap-1 shadow-sm">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-theme-accent animate-pulse shadow-[0_0_8px_rgba(34,211,238,0.8)]" />
+                                    <span className="text-[9px] font-bold text-white uppercase tracking-wider">
+                                      {cat.products.length} Produk
+                                    </span>
+                                  </div>
+                                </div>
+                                <div className="p-3 md:p-3.5 flex-1 flex flex-col bg-[#0f172a]">
+                                  <h3 className="text-[14px] md:text-[15px] font-black text-white mb-1 group-hover:text-theme-accent transition-colors truncate">
+                                    {cat.title || cat.name}
+                                  </h3>
+                                  <div className="mt-auto pt-2 border-t border-slate-800 flex items-end justify-between">
+                                    <div className="flex flex-col">
+                                      <span className="text-[8px] uppercase tracking-widest text-slate-500 font-bold mb-0.5">
+                                        Mulai dari
+                                      </span>
+                                      <span className="text-[12px] md:text-[14px] font-black text-theme-accent leading-none">
+                                        Rp {formatLowest}
+                                      </span>
+                                    </div>
+                                    <button className="px-2.5 py-1.5 bg-theme-accent/10 border border-theme-accent/20 text-theme-accent text-[9px] md:text-[10px] font-bold rounded-lg group-hover:bg-theme-accent group-hover:text-theme-bg transition-colors">
+                                      Lihat Detail
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          });
+                        }
+
                         const productsToShow = localCategories
                           .flatMap((c) => c.products)
                           .filter((p) => {
-                            if (selectedCategory === "Semua") return true;
                             if (selectedCategory === "Reseller")
                               return p.category
                                 .toLowerCase()
@@ -592,7 +730,7 @@ export default function App() {
                           <ProductCard
                             key={product.id}
                             product={product}
-                            onDetail={setSelectedProduct}
+                            onDetail={handleDirectOrder}
                           />
                         ));
                       })()}
@@ -635,12 +773,12 @@ export default function App() {
 
       {/* Heavy Modals lazy loaded */}
       <Suspense fallback={null}>
-        {selectedProduct && (
-          <ProductDetailModal
-            product={selectedProduct}
-            allProducts={localCategories.flatMap((c) => c.products)}
-            onClose={() => setSelectedProduct(null)}
-            settings={siteSettings}
+        {selectedPopupCategory && (
+          <CategoryPopup
+            category={selectedPopupCategory}
+            isOpen={!!selectedPopupCategory}
+            onClose={() => setSelectedPopupCategory(null)}
+            siteSettings={siteSettings}
           />
         )}
 
