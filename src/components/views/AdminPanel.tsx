@@ -1133,6 +1133,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
                                    />
                                 </div>
                                 <button 
+                                  type="button"
                                   onClick={() => {
                                     if(categoryForm.title && categoryForm.id) {
                                       if (editingCategory && updateCategory) {
