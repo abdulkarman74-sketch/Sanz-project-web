@@ -213,6 +213,7 @@ export default function App() {
     return localStorage.getItem("sanz_admin_logged_in") === "true";
   });
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState("Semua");
 
   const {
     loading: storeLoading,
@@ -223,19 +224,27 @@ export default function App() {
   } = useStoreData();
 
   const localCategories = useMemo(() => {
-    const baseCategories =
-      rawCategories.length > 0 ? rawCategories : CATEGORIES;
+    let baseCategories: any[] = [];
+    if (rawCategories && rawCategories.length > 0) {
+      baseCategories = rawCategories.filter((cat) => cat.active !== false);
+    } else {
+      baseCategories = CATEGORIES;
+    }
     return baseCategories.map((cat) => {
       const dbProducts = storeProducts.filter(
         (p) =>
           p.categoryId === cat.id ||
+          p.categoryId === cat.slug ||
           p.category === cat.title ||
+          p.category === cat.name ||
+          p.category === cat.label ||
+          p.category === cat.id ||
           (p.category &&
-            p.category.toLowerCase().includes(cat.id.toLowerCase())),
+            cat.id && p.category.toLowerCase().includes(cat.id.toLowerCase())),
       );
       return {
         ...cat,
-        products: dbProducts.length > 0 ? dbProducts : cat.products,
+        products: dbProducts,
       };
     });
   }, [rawCategories, storeProducts]);
@@ -243,6 +252,19 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [selectedPopupCategory, setSelectedPopupCategory] =
     useState<Category | null>(null);
+
+  useEffect(() => {
+    console.log("Firestore categories:", rawCategories);
+    console.log("Visible categories:", localCategories);
+    console.log("Active category:", selectedCategory);
+    
+    if (selectedCategory !== "Semua") {
+      const exists = localCategories.some((cat) => cat.id === selectedCategory || (cat as any).name === selectedCategory || (cat as any).title === selectedCategory);
+      if (!exists) {
+        setSelectedCategory("Semua");
+      }
+    }
+  }, [rawCategories, localCategories, selectedCategory]);
 
   const handleDirectOrder = useCallback(
     (product: Product) => {
@@ -327,7 +349,6 @@ export default function App() {
   const [currentTab, setCurrentTab] = useState<
     "home" | "produk" | "app" | "game" | "video" | "script"
   >("home");
-  const [selectedCategory, setSelectedCategory] = useState("Semua");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   // --- Admin Menu States ---
@@ -434,7 +455,9 @@ export default function App() {
           {loading && siteSettings.loading?.enabled !== false && (
             <LoadingScreen
               onComplete={() => setLoading(false)}
-              storeName={siteSettings.branding.siteName}
+              storeName={siteSettings.branding.storeName || siteSettings.branding.siteName}
+              loadingName={siteSettings.branding.loadingName}
+              loadingSubtitle={siteSettings.branding.loadingSubtitle}
               settings={siteSettings.loading}
             />
           )}
@@ -443,34 +466,29 @@ export default function App() {
 
       {(!loading || siteSettings.loading?.enabled === false) && (
         <>
-          <nav className="fixed top-0 left-0 right-0 z-50 bg-[rgba(8,13,28,0.92)] backdrop-blur-[12px] border-b border-[rgba(255,255,255,0.08)] h-[72px] md:h-[76px] transition-all">
+          <nav className="navbar fixed top-0 left-0 right-0 z-50 h-[72px] md:h-[76px] transition-all">
             <div className="max-w-7xl mx-auto h-full px-4 md:px-6 flex items-center justify-between">
-              <div className="flex items-center gap-3 min-w-0">
+              <div className="header-brand cursor-pointer" onClick={() => setCurrentTab("home")}>
                 <div className="flex-shrink-0">
                   {siteSettings.branding.logoUrl ? (
                     <img
                       src={siteSettings.branding.logoUrl}
                       alt="Logo"
-                      className="w-[46px] h-[46px] rounded-[14px] object-cover ring-1 ring-white/10 shadow-[0_4px_12px_rgba(34,211,238,0.25)]"
+                      className="w-[46px] h-[46px] rounded-[14px] object-cover ring-1 ring-white/10 shadow-[0_4px_12px_rgba(34,211,238,0.25)] brand-logo"
                     />
                   ) : (
-                    <div className="w-[46px] h-[46px] bg-gradient-to-br from-[#22d3ee] to-[#0ea5e9] rounded-[14px] flex items-center justify-center shadow-[0_4px_12px_rgba(34,211,238,0.3)]">
+                    <div className="w-[46px] h-[46px] bg-gradient-to-br from-[#22d3ee] to-[#0ea5e9] rounded-[14px] flex items-center justify-center shadow-[0_4px_12px_rgba(34,211,238,0.3)] brand-logo">
                       <Bot className="w-6 h-6 text-white" />
                     </div>
                   )}
                 </div>
-                <div
-                  className="flex flex-col cursor-pointer min-w-0"
-                  onClick={() => setCurrentTab("home")}
-                >
-                  <h1 className="text-[18px] md:text-[20px] font-[800] text-white tracking-[-0.02em] leading-[1.1] truncate">
-                    {siteSettings.branding.siteName}
-                  </h1>
-                  {siteSettings.branding.slogan && (
-                    <p className="text-[12px] text-[rgba(255,255,255,0.62)] mt-[3px] truncate font-medium">
-                      {siteSettings.branding.slogan}
-                    </p>
-                  )}
+                <div className="brand-text">
+                  <div className="store-name">
+                    {siteSettings.branding.headerName || siteSettings.branding.storeName || siteSettings.branding.siteName || "SANZ STORE"}
+                  </div>
+                  <div className="store-slogan">
+                    {siteSettings.branding.slogan || "Infrastruktur Terpadu & Modern"}
+                  </div>
                 </div>
               </div>
 
@@ -557,7 +575,7 @@ export default function App() {
                   <VideoView
                     key="video"
                     videoData={VIDEO_DATA}
-                    storeName={siteSettings.branding.siteName}
+                    storeName={siteSettings.branding.storeName || siteSettings.branding.siteName}
                   />
                 ) : currentTab === "script" ? (
                   <ScriptBotView
@@ -608,24 +626,17 @@ export default function App() {
                       style={{ WebkitOverflowScrolling: "touch" }}
                     >
                       <div className="flex gap-2 min-w-max px-4">
-                        {[
-                          "Semua",
-                          "Panel",
-                          "Sewa Bot",
-                          "Source Code",
-                          "Reseller",
-                          "App Premium",
-                        ].map((cat) => (
+                        {[{ id: "Semua", title: "Semua", name: "Semua" }, ...localCategories].map((cat) => (
                           <button
-                            key={cat}
-                            onClick={() => setSelectedCategory(cat)}
-                            className={`relative px-4 md:px-6 py-2.5 rounded-xl text-[11px] md:text-xs font-bold uppercase tracking-widest transition-all duration-300 ${
-                              selectedCategory === cat
+                            key={cat.id || cat.name || cat.title}
+                            onClick={() => setSelectedCategory(cat.id || (cat as any).name || (cat as any).title || "Semua")}
+                            className={`relative px-4 md:px-6 py-2.5 rounded-xl text-[11px] md:text-xs font-bold uppercase tracking-widest transition-all duration-300 whitespace-nowrap ${
+                              selectedCategory === (cat.id || (cat as any).name || (cat as any).title || "Semua")
                                 ? "text-theme-bg bg-theme-accent shadow-lg shadow-theme-accent/20 scale-105 transform"
                                 : "text-theme-muted bg-theme-surface border border-theme-border hover:border-theme-muted hover:text-theme-text"
                             }`}
                           >
-                            {cat}
+                            {(cat.title || (cat as any).name || cat.id).replace(/-/g, " ")}
                           </button>
                         ))}
                       </div>
@@ -724,8 +735,12 @@ export default function App() {
                               )
                               .map((cat) => {
                                 const prices = cat.products.map((p) => {
-                                  const numStr = p.price.replace(/[^0-9]/g, "");
-                                  return parseInt(numStr) || 0;
+                                  if (typeof p.price === 'number') return p.price;
+                                  if (typeof p.price === 'string') {
+                                    const numStr = p.price.replace(/[^0-9]/g, "");
+                                    return parseInt(numStr) || 0;
+                                  }
+                                  return 0;
                                 });
                                 const minPrice =
                                   prices.length > 0 ? Math.min(...prices) : 0;
@@ -737,7 +752,7 @@ export default function App() {
                                 return (
                                   <div
                                     key={cat.id}
-                                    onClick={() => setSelectedCategory(cat.name || "")}
+                                    onClick={() => setSelectedCategory(cat.id || (cat as any).name || (cat as any).title || "")}
                                     className="group cursor-pointer bg-[#0f172a]/80 backdrop-blur-sm border border-theme-accent/10 rounded-[20px] p-5 shadow-sm hover:shadow-lg hover:shadow-theme-accent/5 hover:-translate-y-1 transition-all duration-300 flex flex-col min-h-[140px] md:min-h-[160px]"
                                   >
                                     <div className="flex items-start gap-4 mb-3">
@@ -746,7 +761,7 @@ export default function App() {
                                       </div>
                                       <div className="flex-1">
                                         <h3 className="text-[15px] font-black text-white mb-1 group-hover:text-theme-accent transition-colors">
-                                          {cat.title || cat.name}
+                                          {cat.title || (cat as any).name}
                                         </h3>
                                         <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-white/5 border border-white/5">
                                           <Package className="w-3 h-3 text-slate-400" />
@@ -760,7 +775,7 @@ export default function App() {
                                     <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed mb-4 flex-1">
                                       {cat.description ||
                                         `Layanan ${
-                                          cat.title || cat.name
+                                          cat.title || (cat as any).name
                                         } premium bergaransi terbaik dan terpercaya.`}
                                     </p>
 
@@ -775,7 +790,7 @@ export default function App() {
                                       </div>
                                       <button
                                         onClick={() =>
-                                          setSelectedCategory(cat.name || "")
+                                          setSelectedCategory(cat.id || (cat as any).name || (cat as any).title || "")
                                         }
                                         className="px-4 py-2 bg-theme-accent/10 border border-theme-accent/20 text-theme-accent text-[11px] font-bold rounded-xl group-hover:bg-theme-accent group-hover:text-theme-bg transition-colors flex items-center gap-1.5"
                                       >
@@ -912,7 +927,7 @@ export default function App() {
                                 (c) => c.products?.length > 0,
                               )[0];
                               if (firstCat)
-                                setSelectedCategory(firstCat.name || "");
+                                setSelectedCategory(firstCat.id || (firstCat as any).name || (firstCat as any).title || "");
                             }}
                             className="px-8 py-4 bg-theme-accent text-theme-bg font-black rounded-full hover:bg-white transition-all shadow-[0_0_20px_rgba(34,211,238,0.3)] hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] hover:-translate-y-1 flex items-center gap-2"
                           >
@@ -927,35 +942,13 @@ export default function App() {
                           const productsToShow = localCategories
                             .flatMap((c) => c.products)
                             .filter((p) => {
-                              if (selectedCategory === "Reseller")
-                                return p.category
-                                  .toLowerCase()
-                                  .includes("reseller");
-                              if (selectedCategory === "Panel")
-                                return p.category
-                                  .toLowerCase()
-                                  .includes("panel");
-                              if (selectedCategory === "Sewa Bot")
-                                return p.category
-                                  .toLowerCase()
-                                  .includes("sewa bot");
-                              if (selectedCategory === "App Premium")
-                                return (
-                                  p.category
-                                    .toLowerCase()
-                                    .includes("app premium") ||
-                                  p.category.toLowerCase().includes("premium")
-                                );
-                              if (selectedCategory === "Source Code")
-                                return (
-                                  p.category
-                                    .toLowerCase()
-                                    .includes("source code") ||
-                                  p.category.toLowerCase().includes("script")
-                                );
-                              return p.category === selectedCategory;
+                              const targetCat = localCategories.find(c => c.id === selectedCategory || (c as any).name === selectedCategory || c.title === selectedCategory);
+                              if (!targetCat) return false;
+                              return p.categoryId === targetCat.id || p.categoryId === targetCat.slug || p.category === targetCat.title || p.category === (targetCat as any).name || (targetCat.id && p.category && p.category.toLowerCase().includes(targetCat.id.toLowerCase()));
                             });
-                          return productsToShow.map((product) => (
+                          // Deduplicate products based on ID
+                          const uniqueProducts = Array.from(new Map(productsToShow.map((item: any) => [item.id, item])).values());
+                          return uniqueProducts.map((product: any) => (
                             <ProductCard
                               key={product.id}
                               product={product}
@@ -977,9 +970,14 @@ export default function App() {
               <div className="w-12 h-12 bg-theme-surface rounded-2xl flex items-center justify-center border border-theme-border mb-4">
                 <Bot className="w-6 h-6 text-theme-accent" />
               </div>
-              <p className="text-theme-text text-sm font-medium">
-                {siteSettings.branding.footerText}
+              <p className="text-theme-text text-base font-bold">
+                {siteSettings.branding.footerName || siteSettings.branding.storeName || siteSettings.branding.siteName}
               </p>
+              {siteSettings.branding.footerDescription && (
+                <p className="text-theme-muted text-sm max-w-sm">
+                  {siteSettings.branding.footerDescription}
+                </p>
+              )}
               <div className="flex items-center gap-6 mt-4">
                 <span className="text-xs text-theme-muted uppercase tracking-widest font-bold">
                   Secure
@@ -994,7 +992,7 @@ export default function App() {
                 </span>
               </div>
               <p className="text-xs text-theme-muted/50 mt-8 font-mono">
-                {siteSettings.branding.copyright}
+                {siteSettings.branding.copyrightText || siteSettings.branding.copyright}
               </p>
             </div>
           </footer>

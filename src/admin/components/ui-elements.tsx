@@ -39,9 +39,9 @@ export const AdminSelect: React.FC<React.SelectHTMLAttributes<HTMLSelectElement>
         className="w-full bg-[#020617] text-[#f8fafc] border border-[#334155] rounded-xl px-4 py-2.5 outline-none focus:border-[#22d3ee] focus:ring-1 focus:ring-[#22d3ee] transition-colors"
         {...props}
       >
-        <option value="" disabled className="text-[#64748b]">Pilih salah satu</option>
+        <option value="" disabled className="text-[#64748b] bg-[#020617]">Pilih salah satu</option>
         {options.map(o => (
-          <option key={o.value} value={o.value}>{o.label}</option>
+          <option key={o.value} value={o.value} className="bg-[#020617] text-[#f8fafc]">{o.label}</option>
         ))}
       </select>
       {error && <span className="text-xs text-red-500">{error}</span>}

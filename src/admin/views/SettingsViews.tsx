@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { setDoc, doc } from "firebase/firestore";
+import { setDoc, doc, serverTimestamp } from "firebase/firestore";
 import { db, firebaseReady } from "../../lib/firebase";
 import { toast } from "react-hot-toast";
 import { safeToastError, removeUndefinedDeep, ensureFirebaseReady , withTimeout } from "../utils/helpers";
@@ -8,73 +8,139 @@ import { AdminInput, AdminButton, AdminSelect } from "../components/ui-elements"
 // --- BRANDING VIEW ---
 export const BrandingView = ({ settings }: { settings: any }) => {
   const [payload, setPayload] = useState({
-    siteName: "",
+    loadingName: "",
+    loadingSubtitle: "",
+    storeName: "",
+    shortName: "",
     slogan: "",
-    logoUrl: "",
-    faviconUrl: "",
+    headerName: "",
+    footerName: "",
+    footerDescription: "",
+    copyrightText: "",
     badgeText: "",
   });
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     setPayload({
-      siteName: settings?.branding?.siteName || "",
+      loadingName: settings?.branding?.loadingName || "",
+      loadingSubtitle: settings?.branding?.loadingSubtitle || "",
+      storeName: settings?.branding?.storeName || settings?.branding?.siteName || "",
+      shortName: settings?.branding?.shortName || "",
       slogan: settings?.branding?.slogan || "",
-      logoUrl: settings?.branding?.logoUrl || "",
-      faviconUrl: settings?.branding?.faviconUrl || "",
+      headerName: settings?.branding?.headerName || "",
+      footerName: settings?.branding?.footerName || "",
+      footerDescription: settings?.branding?.footerDescription || "",
+      copyrightText: settings?.branding?.copyrightText || "",
       badgeText: settings?.branding?.badgeText || "",
     });
   }, [settings]);
 
   const handleSave = async () => {
     if (saving) return;
-    if (!payload.siteName.trim()) {
-      toast.error("Nama store wajib diisi");
+    if (!payload.storeName?.trim()) {
+      toast.error("Nama Website / Store wajib diisi");
       return;
     }
 
     try {
       setSaving(true);
       
-      console.log("SAVE CLICKED");
-      console.log("firebaseReady:", firebaseReady);
-      console.log("db:", db);
+      console.log("SAVE BRANDING CLICKED");
 
       if (!firebaseReady || !db) {
-        toast.error("Firebase belum aktif. Cek src/setting.js");
+        toast.error("Firebase belum aktif. Cek setting.js");
         return;
       }
 
-      const cleanPayload = removeUndefinedDeep(payload);
-      console.log("payload:", cleanPayload);
+      const cleanPayload = removeUndefinedDeep({
+        loadingName: payload.loadingName || payload.storeName,
+        loadingSubtitle: payload.loadingSubtitle,
+        storeName: payload.storeName,
+        shortName: payload.shortName,
+        slogan: payload.slogan,
+        headerName: payload.headerName || payload.storeName,
+        footerName: payload.footerName || payload.storeName,
+        footerDescription: payload.footerDescription,
+        copyrightText: payload.copyrightText || `© ${new Date().getFullYear()} ${payload.storeName}. All rights reserved.`,
+        badgeText: payload.badgeText,
+        updatedAt: serverTimestamp()
+      });
 
       await withTimeout(setDoc(doc(db, "settings", "branding"), cleanPayload, { merge: true }));
       
-      // Also update settings/main for storeName
-      await withTimeout(setDoc(doc(db, "settings", "main"), { storeName: cleanPayload.siteName, slogan: cleanPayload.slogan }, { merge: true }));
-
-      toast.success("Branding berhasil disimpan");
+      toast.success("Nama website berhasil disimpan");
     } catch (error: any) {
-      console.error("SAVE ERROR:", error);
-      safeToastError(error, "Gagal menyimpan");
+      console.error("SAVE BRANDING ERROR:", error);
+      toast.error("Gagal menyimpan branding: " + error.message);
     } finally {
       setSaving(false);
     }
   };
 
+  const handleReset = () => {
+    if (!window.confirm("Kembalikan semua nama ke pengaturan standar?")) return;
+    setPayload({
+      loadingName: "SANZ STORE",
+      loadingSubtitle: "Memuat layanan digital...",
+      storeName: "SANZ STORE",
+      shortName: "SANZ",
+      slogan: "Infrastruktur Terpadu & Modern",
+      headerName: "SANZ STORE",
+      footerName: "Sanz Official Store",
+      footerDescription: "Layanan digital cepat, aman, dan terpercaya.",
+      copyrightText: "© 2026 SANZ STORE. All rights reserved.",
+      badgeText: "VERIFIED",
+    });
+  };
+
   return (
     <div className="bg-[#111827] border border-[#334155] rounded-2xl p-6">
-      <h2 className="text-xl font-bold text-white mb-6">Branding</h2>
-      <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <AdminInput label="Nama Store" value={payload.siteName} onChange={e => setPayload({...payload, siteName: e.target.value})} />
-        <AdminInput label="Nama Pendek (Opsional)" value={payload.badgeText} onChange={e => setPayload({...payload, badgeText: e.target.value})} />
-        <AdminInput label="Slogan" value={payload.slogan} onChange={e => setPayload({...payload, slogan: e.target.value})} />
-        <AdminInput label="Logo URL" value={payload.logoUrl} onChange={e => setPayload({...payload, logoUrl: e.target.value})} />
-        <AdminInput label="Favicon URL" value={payload.faviconUrl} onChange={e => setPayload({...payload, faviconUrl: e.target.value})} />
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-xl font-bold text-white">Branding & Nama Website</h2>
+      </div>
+
+      <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="space-y-8">
         
-        <div className="md:col-span-2 pt-4">
+        {/* SECTION 1: Loading Screen */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold text-[#22d3ee] border-b border-[#22d3ee]/20 pb-2">1. Loading Screen</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <AdminInput label="Nama Loading Screen" value={payload.loadingName} onChange={e => setPayload({...payload, loadingName: e.target.value})} placeholder="Contoh: SANZ STORE" />
+            <AdminInput label="Subteks Loading Screen" value={payload.loadingSubtitle} onChange={e => setPayload({...payload, loadingSubtitle: e.target.value})} placeholder="Contoh: Memuat layanan digital..." />
+          </div>
+        </div>
+
+        {/* SECTION 2: Identitas Website */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold text-[#22d3ee] border-b border-[#22d3ee]/20 pb-2">2. Identitas Website</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <AdminInput label="Nama Website / Store *" value={payload.storeName} onChange={e => setPayload({...payload, storeName: e.target.value})} placeholder="Contoh: SANZ STORE" />
+            <AdminInput label="Nama Pendek" value={payload.shortName} onChange={e => setPayload({...payload, shortName: e.target.value})} placeholder="Contoh: SANZ" />
+            <AdminInput label="Slogan Website" value={payload.slogan} onChange={e => setPayload({...payload, slogan: e.target.value})} placeholder="Contoh: Infrastruktur Terpadu & Modern" />
+            <AdminInput label="Nama Header / Navbar" value={payload.headerName} onChange={e => setPayload({...payload, headerName: e.target.value})} placeholder="Contoh: SANZ STORE" />
+            <AdminInput label="Badge Text" value={payload.badgeText} onChange={e => setPayload({...payload, badgeText: e.target.value})} placeholder="Contoh: VERIFIED" />
+          </div>
+        </div>
+
+        {/* SECTION 3: Footer / Bawah Web */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold text-[#22d3ee] border-b border-[#22d3ee]/20 pb-2">3. Footer / Bawah Web</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <AdminInput label="Nama Footer" value={payload.footerName} onChange={e => setPayload({...payload, footerName: e.target.value})} placeholder="Contoh: Sanz Official Store" />
+            <AdminInput label="Deskripsi Footer" value={payload.footerDescription} onChange={e => setPayload({...payload, footerDescription: e.target.value})} placeholder="Contoh: Layanan digital cepat, aman, dan terpercaya." />
+            <div className="md:col-span-2">
+              <AdminInput label="Copyright Text" value={payload.copyrightText} onChange={e => setPayload({...payload, copyrightText: e.target.value})} placeholder="Contoh: © 2026 SANZ STORE. All rights reserved." />
+            </div>
+          </div>
+        </div>
+        
+        <div className="pt-6 flex gap-4 border-t border-[#334155]">
           <AdminButton type="submit" disabled={saving}>
             {saving ? "Menyimpan..." : "Simpan Branding"}
+          </AdminButton>
+          <AdminButton type="button" variant="ghost" onClick={handleReset} disabled={saving}>
+            Reset ke Default
           </AdminButton>
         </div>
       </form>

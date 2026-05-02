@@ -34,15 +34,22 @@ export interface AudioSettings {
 }
 
 export interface BrandingSettings {
-  siteName: string;
-  shortName?: string;
-  slogan: string;
-  heroSubTitle?: string;
+  siteName: string; // Legacy
   logoUrl: string;
   faviconUrl: string;
-  footerText?: string;
-  copyright?: string;
+  heroSubTitle?: string;
   watermark?: string;
+
+  // New fields
+  loadingName?: string;
+  loadingSubtitle?: string;
+  storeName?: string;
+  shortName?: string;
+  slogan?: string;
+  headerName?: string;
+  footerName?: string;
+  footerDescription?: string;
+  copyrightText?: string;
   badgeText?: string;
 }
 
@@ -190,14 +197,20 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
   },
   branding: {
     siteName: "SANZ STORE",
-    shortName: "SANZ",
-    slogan: "Infrastruktur Terpadu & Modern",
-    heroSubTitle: "Layanan digital cepat, aman, dan terpercaya",
     logoUrl: "",
     faviconUrl: "",
-    footerText: "Premium Digital Services provider since 2024",
-    copyright: "© 2024 SANZ STORE",
+    heroSubTitle: "Layanan digital cepat, aman, dan terpercaya",
     watermark: "",
+    
+    loadingName: "SANZ STORE",
+    loadingSubtitle: "Memuat layanan digital...",
+    storeName: "SANZ STORE",
+    shortName: "SANZ",
+    slogan: "Infrastruktur Terpadu & Modern",
+    headerName: "SANZ STORE",
+    footerName: "Sanz Official Store",
+    footerDescription: "Layanan digital cepat, aman, dan terpercaya.",
+    copyrightText: "© 2026 SANZ STORE. All rights reserved.",
     badgeText: "VERIFIED"
   },
   contact: {

@@ -62,13 +62,12 @@ export function useStoreData() {
           // Seed Categories
           for (const cat of CATEGORIES) {
             const { products, ...catData } = cat;
-            await setDoc(doc(db, 'categories', cat.id), catData, { merge: true });
-          }
-          
-          // Seed Products
-          const allBaseProducts = CATEGORIES.flatMap(c => c.products.map(p => ({ ...p, categoryId: c.id })));
-          for (const prod of allBaseProducts) {
-            await setDoc(doc(db, 'products', prod.id), prod, { merge: true });
+            await setDoc(doc(db, 'categories', cat.id), { ...catData, slug: cat.id, active: true }, { merge: true });
+            
+            // Seed initially products to products collection
+            for (const prod of products) {
+              await setDoc(doc(db, 'products', prod.id), { ...prod, categoryId: cat.id }, { merge: true });
+            }
           }
           
           console.log('Seeding complete.');
@@ -195,8 +194,9 @@ export function useStoreData() {
   }, []);
 
   useEffect(() => {
-    if (siteSettings.branding.siteName) {
-      document.title = `${siteSettings.branding.siteName} | Digital Marketplace`;
+    const titleName = siteSettings.branding.storeName || siteSettings.branding.siteName;
+    if (titleName) {
+      document.title = `${titleName}`;
     }
     if (siteSettings.branding.faviconUrl) {
       let link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
@@ -207,7 +207,7 @@ export function useStoreData() {
       }
       link.href = siteSettings.branding.faviconUrl;
     }
-  }, [siteSettings.branding.siteName, siteSettings.branding.faviconUrl]);
+  }, [siteSettings.branding.siteName, siteSettings.branding.storeName, siteSettings.branding.faviconUrl]);
 
   return { loading, siteSettings, categories, products, slides };
 }

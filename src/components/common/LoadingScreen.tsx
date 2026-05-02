@@ -10,10 +10,14 @@ import { Rocket as RocketIcon } from 'lucide-react';
 const LoadingScreen = ({
   onComplete,
   storeName,
+  loadingName,
+  loadingSubtitle,
   settings
 }: {
   onComplete: () => void;
   storeName?: string;
+  loadingName?: string;
+  loadingSubtitle?: string;
   settings?: any;
 }) => {
   const [progress, setProgress] = useState(0);
@@ -59,10 +63,10 @@ const LoadingScreen = ({
         <div className="flex justify-between items-end">
           <div className="space-y-1">
             <h2 className="text-slate-900 font-black text-xs uppercase tracking-[0.4em]">
-              {settings?.mainText || storeName || "Loading Store"}
+              {loadingName || settings?.mainText || storeName || "Loading Store"}
             </h2>
             <p className="text-blue-600 text-[10px] font-mono uppercase tracking-widest animate-pulse">
-              {settings?.subText || "Memuat Sistem..."}
+              {loadingSubtitle || settings?.subText || "Memuat Sistem..."}
             </p>
           </div>
           <span className="text-slate-900 font-mono text-xl font-black">

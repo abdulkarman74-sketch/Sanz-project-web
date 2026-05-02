@@ -7,12 +7,25 @@ import { Product, Category } from "../../constants";
 import { AdminButton, AdminInput, AdminSelect, AdminTextarea } from "../components/ui-elements";
 
 export const AddProductView = ({ categories, onComplete }: { categories: Category[], onComplete?: () => void }) => {
+  const defaultCategories: any[] = [
+    { id: "panel", title: "Panel", slug: "panel" },
+    { id: "sewa-bot", title: "Sewa Bot", slug: "sewa-bot" },
+    { id: "source-code", title: "Source Code", slug: "source-code" },
+    { id: "reseller", title: "Reseller", slug: "reseller" },
+    { id: "app-premium", title: "App Premium", slug: "app-premium" }
+  ];
+
+  const visibleCategories = categories && categories.length > 0 ? categories : defaultCategories;
+  const initialCategoryId = visibleCategories[0]?.slug || visibleCategories[0]?.id || (visibleCategories[0] as any)?.name || "";
+
+  console.log("categories:", categories);
+
   const [form, setForm] = useState<Partial<Product>>({
      name: "",
      price: 0,
      originalPrice: 0,
      image: "",
-     categoryId: categories[0]?.id || "",
+     categoryId: initialCategoryId,
      badge: "",
      rating: 5,
      stock: 999,
@@ -65,7 +78,7 @@ export const AddProductView = ({ categories, onComplete }: { categories: Categor
       // Kosongkan form
       setForm({
          name: "", price: 0, originalPrice: 0, image: "",
-         categoryId: categories[0]?.id || "", badge: "",
+         categoryId: initialCategoryId, badge: "",
          rating: 5, stock: 999, shortDesc: "", description: "",
          benefits: [], active: true, order: 0
       });
@@ -86,7 +99,10 @@ export const AddProductView = ({ categories, onComplete }: { categories: Categor
       <h2 className="text-xl font-bold text-white mb-6">Tambah Produk Baru</h2>
       <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
          <AdminInput label="Nama Produk *" value={form.name || ""} onChange={e => setForm({...form, name: e.target.value})} autoFocus className="lg:col-span-2" />
-         <AdminSelect label="Kategori *" value={form.categoryId || ""} onChange={e => setForm({...form, categoryId: e.target.value})} options={categories.map(c => ({ value: c.id, label: c.name }))} />
+         <AdminSelect label="Kategori *" value={form.categoryId || ""} onChange={e => setForm({...form, categoryId: e.target.value})} options={visibleCategories.map(c => ({ 
+             value: (c as any).slug || c.id || (c as any).name || "", 
+             label: (c as any).name || c.title || (c as any).label || (c as any).slug || "Tanpa Nama" 
+         }))} />
          
          <AdminInput label="Harga Jual *" type="number" value={form.price || ""} onChange={e => setForm({...form, price: e.target.value ? parseInt(e.target.value) : 0})} />
          <AdminInput label="Harga Coret (Promo)" type="number" value={form.originalPrice || ""} onChange={e => setForm({...form, originalPrice: e.target.value ? parseInt(e.target.value) : 0})} />
@@ -131,7 +147,7 @@ export const AddProductView = ({ categories, onComplete }: { categories: Categor
            <AdminButton type="submit" disabled={saving}>{saving ? "Menyimpan..." : "Simpan Produk Baru"}</AdminButton>
            <AdminButton variant="ghost" type="button" onClick={() => setForm({
                name: "", price: 0, originalPrice: 0, image: "",
-               categoryId: categories[0]?.id || "", badge: "",
+               categoryId: initialCategoryId, badge: "",
                rating: 5, stock: 999, shortDesc: "", description: "",
                benefits: [], active: true, order: 0
            })} disabled={saving}>Kosongkan Form</AdminButton>

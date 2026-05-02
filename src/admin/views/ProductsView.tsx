@@ -7,6 +7,16 @@ import { Product, Category } from "../../constants";
 import { AdminButton, AdminInput, AdminSelect, AdminTextarea } from "../components/ui-elements";
 
 export const ProductsView = ({ products, categories }: { products: Product[], categories: Category[] }) => {
+  const defaultCategories: any[] = [
+    { id: "panel", title: "Panel", slug: "panel" },
+    { id: "sewa-bot", title: "Sewa Bot", slug: "sewa-bot" },
+    { id: "source-code", title: "Source Code", slug: "source-code" },
+    { id: "reseller", title: "Reseller", slug: "reseller" },
+    { id: "app-premium", title: "App Premium", slug: "app-premium" }
+  ];
+
+  const visibleCategories = categories && categories.length > 0 ? categories : defaultCategories;
+
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<Partial<Product>>({
      name: "",
@@ -160,7 +170,10 @@ export const ProductsView = ({ products, categories }: { products: Product[], ca
         <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
            <AdminInput label="Nama Produk *" value={form.name || ""} onChange={e => setForm({...form, name: e.target.value})} autoFocus className="lg:col-span-2" />
-           <AdminSelect label="Kategori *" value={form.categoryId || ""} onChange={e => setForm({...form, categoryId: e.target.value})} options={categories.map(c => ({ value: c.id, label: c.name }))} />
+           <AdminSelect label="Kategori *" value={form.categoryId || ""} onChange={e => setForm({...form, categoryId: e.target.value})} options={visibleCategories.map(c => ({ 
+             value: (c as any).slug || c.id || (c as any).name || "", 
+             label: (c as any).name || c.title || (c as any).label || (c as any).slug || "Tanpa Nama" 
+         }))} />
            
            <AdminInput label="Harga Jual *" type="number" value={form.price || ""} onChange={e => setForm({...form, price: e.target.value ? parseInt(e.target.value) : 0})} />
            <AdminInput label="Harga Coret (Promo)" type="number" value={form.originalPrice || ""} onChange={e => setForm({...form, originalPrice: e.target.value ? parseInt(e.target.value) : 0})} />
@@ -241,7 +254,7 @@ export const ProductsView = ({ products, categories }: { products: Product[], ca
              {filteredProducts.length === 0 ? (
                <tr><td colSpan={6} className="text-center py-6 text-[#94a3b8]">Belum ada produk ditemukan</td></tr>
              ) : filteredProducts.map(p => {
-               const cat = categories.find(c => c.id === p.categoryId);
+               const cat = categories.find(c => c.id === p.categoryId || (c as any).slug === p.categoryId || (c as any).name === p.categoryId || c.title === p.categoryId);
                return (
                <tr key={p.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
                  <td className="py-2 px-2">
@@ -251,7 +264,9 @@ export const ProductsView = ({ products, categories }: { products: Product[], ca
                  </td>
                  <td className="py-2 px-2 font-medium text-white truncate max-w-[200px] sm:max-w-xs">{p.name}</td>
                  <td className="py-2 px-2 text-[#22d3ee] font-semibold text-sm">{formatPrice(p.price)}</td>
-                 <td className="py-2 px-2 text-[#94a3b8] text-sm hidden md:table-cell">{cat?.name || "Unknown"}</td>
+                 <td className="py-2 px-2 text-sm hidden md:table-cell">
+                   {cat ? <span className="text-[#94a3b8]">{cat.title || (cat as any).name || (cat as any).slug}</span> : <span className="text-red-400 bg-red-400/10 px-2 py-1 rounded-md text-xs">Kategori sudah dihapus</span>}
+                 </td>
                  <td className="py-2 px-2">
                    {p.active === false ? <span className="text-red-400 text-xs font-semibold px-2 py-1 bg-red-400/10 rounded-full">Nonaktif</span> : <span className="text-emerald-400 text-xs font-semibold px-2 py-1 bg-emerald-400/10 rounded-full">Aktif</span>}
                  </td>

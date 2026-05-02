@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { collection, doc, deleteDoc, updateDoc, setDoc } from "firebase/firestore";
+import { collection, doc, deleteDoc, updateDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import { db, firebaseReady } from "../../lib/firebase";
 import { toast } from "react-hot-toast";
 import { ensureFirebaseReady, slugify, safeToastError, removeUndefinedDeep , withTimeout } from "../utils/helpers";
@@ -7,6 +7,25 @@ import { Category } from "../../constants";
 import { AdminButton, AdminInput } from "../components/ui-elements";
 
 export const CategoriesView = ({ categories }: { categories: Category[] }) => {
+  function getCategoryName(category: any) {
+    function prettyCategoryName(value: string) {
+      if (!value) return "Tanpa Nama";
+      return String(value)
+        .replace(/-/g, " ")
+        .replace(/\b\w/g, c => c.toUpperCase());
+    }
+
+    const raw =
+      category?.name ||
+      category?.title ||
+      category?.label ||
+      category?.category ||
+      category?.slug ||
+      category?.id;
+
+    return raw ? prettyCategoryName(raw) : "Tanpa Nama";
+  }
+
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState({ name: "", slug: "", order: 0, active: true });
   const [saving, setSaving] = useState(false);
@@ -14,7 +33,7 @@ export const CategoriesView = ({ categories }: { categories: Category[] }) => {
   const startEdit = (cat?: Category) => {
     if (cat) {
       setEditingId(cat.id);
-      setForm({ name: cat.name, slug: cat.slug || "", order: cat.order || 0, active: cat.active !== false });
+      setForm({ name: getCategoryName(cat), slug: cat.slug || "", order: cat.order || 0, active: cat.active !== false });
     } else {
       setEditingId("new");
       setForm({ name: "", slug: "", order: categories.length + 1, active: true });
@@ -54,11 +73,12 @@ export const CategoriesView = ({ categories }: { categories: Category[] }) => {
       console.log("payload:", cleanPayload);
 
       if (editingId && editingId !== "new") {
-        await withTimeout(setDoc(doc(db, "categories", editingId), cleanPayload, { merge: true }));
+        await withTimeout(setDoc(doc(db, "categories", editingId), { ...cleanPayload, updatedAt: serverTimestamp() }, { merge: true }));
         toast.success("Kategori diupdate");
       } else {
-        const newRef = doc(collection(db, "categories"));
-        await withTimeout(setDoc(newRef, { ...cleanPayload, id: newRef.id }));
+        const newRef = doc(db, "categories", cleanPayload.slug);
+        await withTimeout(setDoc(newRef, { ...cleanPayload, id: newRef.id, createdAt: serverTimestamp(), updatedAt: serverTimestamp() }));
+        console.log("Added category:", cleanPayload.slug);
         toast.success("Kategori ditambahkan");
       }
       setEditingId(null);
@@ -70,25 +90,51 @@ export const CategoriesView = ({ categories }: { categories: Category[] }) => {
     }
   };
 
-  const handleDelete = async (id: string, productCount: number) => {
-    if (productCount > 0) {
-      if (!window.confirm(`Kategori ini memiliki ${productCount} produk. Apakah Anda yakin ingin menghapusnya? (Produk tidak akan otomatis terhapus)`)) {
-         return;
-      }
-    } else {
-      if (!window.confirm("Hapus kategori ini?")) return;
-    }
-
+  const handleDeleteCategory = async (category: any) => {
     try {
+      if (!category) {
+        toast.error("Data kategori tidak ditemukan");
+        return;
+      }
+
+      const categoryId = category.id || category.slug;
+
+      if (!categoryId) {
+        toast.error("ID kategori tidak ditemukan");
+        console.error("CATEGORY WITHOUT ID:", category);
+        return;
+      }
+
+      const productCount = category.products?.length || 0;
+      let ok = false;
+
+      if (productCount > 0) {
+        ok = window.confirm(
+          `Yakin ingin menghapus kategori ini? Kategori akan hilang dari website. Kategori ini memiliki ${productCount} produk (Produk tidak akan otomatis terhapus).`
+        );
+      } else {
+        ok = window.confirm(
+          `Yakin ingin menghapus kategori "${category.name || category.slug || categoryId}"? Kategori akan hilang dari website.`
+        );
+      }
+
+      if (!ok) return;
+
       if (!firebaseReady || !db) {
         toast.error("Firebase belum aktif. Cek setting.js");
         return;
       }
-      await withTimeout(deleteDoc(doc(db, "categories", id)));
-      toast.success("Kategori dihapus");
+
+      console.log("DELETE CATEGORY CLICKED:", category);
+      console.log("DELETE CATEGORY ID:", categoryId);
+
+      await withTimeout(deleteDoc(doc(db, "categories", categoryId)));
+
+      console.log("Deleted category:", categoryId);
+      toast.success("Kategori berhasil dihapus");
     } catch (error: any) {
-      console.error("DELETE ERROR:", error);
-      safeToastError(error, "Gagal menghapus");
+      console.error("DELETE CATEGORY ERROR:", error);
+      toast.error("Gagal menghapus kategori: " + error.message);
     }
   };
 
@@ -115,14 +161,29 @@ export const CategoriesView = ({ categories }: { categories: Category[] }) => {
     );
   }
 
+  const defaultCategories = [
+    { id: "panel", name: "Panel", slug: "panel", order: 1, active: true },
+    { id: "sewa-bot", name: "Sewa Bot", slug: "sewa-bot", order: 2, active: true },
+    { id: "source-code", name: "Source Code", slug: "source-code", order: 3, active: true },
+    { id: "reseller", name: "Reseller", slug: "reseller", order: 4, active: true },
+    { id: "app-premium", name: "App Premium", slug: "app-premium", order: 5, active: true }
+  ];
+
+  const visibleCategories = categories && categories.length > 0 ? categories : defaultCategories as any[];
+  console.log("CATEGORIES DATA:", categories);
+  console.log("CATEGORY NAME:", categories.map(getCategoryName));
+
   return (
     <div className="bg-[#111827] border border-[#334155] rounded-2xl p-6">
        <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-bold text-white">Kelola Kategori</h2>
+          <AdminButton onClick={() => startEdit()} className="py-2.5">
+             Tambah Kategori
+          </AdminButton>
        </div>
 
        <div className="overflow-x-auto">
-         <table className="w-full text-left border-collapse">
+         <table className="w-full text-left border-collapse category-table">
            <thead>
              <tr className="border-b border-[#334155] text-[#94a3b8] text-sm">
                 <th className="pb-3 px-2 font-medium">Urutan</th>
@@ -134,12 +195,12 @@ export const CategoriesView = ({ categories }: { categories: Category[] }) => {
              </tr>
            </thead>
            <tbody>
-             {categories.length === 0 ? (
+             {visibleCategories.length === 0 ? (
                <tr><td colSpan={6} className="text-center py-6 text-[#94a3b8]">Belum ada data</td></tr>
-             ) : categories.map(cat => (
-               <tr key={cat.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+             ) : visibleCategories.map(cat => (
+               <tr key={cat.id} className="border-b border-white/5 hover:bg-white/5 transition-colors category-row">
                  <td className="py-3 px-2 text-white">{cat.order || 0}</td>
-                 <td className="py-3 px-2 font-medium text-white">{cat.name}</td>
+                 <td className="py-3 px-2 font-medium text-white category-name">{getCategoryName(cat)}</td>
                  <td className="py-3 px-2 text-[#94a3b8] text-sm hidden sm:table-cell">{cat.slug}</td>
                  <td className="py-3 px-2">
                    <span className="bg-[#020617] text-[#22d3ee] border border-[#22d3ee]/20 px-2.5 py-1 rounded-full text-xs font-semibold">
@@ -150,9 +211,9 @@ export const CategoriesView = ({ categories }: { categories: Category[] }) => {
                    {cat.active === false ? <span className="text-red-400 text-sm">Nonaktif</span> : <span className="text-emerald-400 text-sm">Aktif</span>}
                  </td>
                  <td className="py-3 px-2 text-right">
-                   <div className="flex items-center justify-end gap-2">
+                   <div className="flex items-center justify-end gap-2 category-actions">
                      <button type="button" onClick={() => startEdit(cat)} className="text-[#94a3b8] hover:text-[#22d3ee] text-sm font-medium px-2 py-1">Edit</button>
-                     <button type="button" onClick={() => handleDelete(cat.id, cat.products?.length || 0)} className="text-[#94a3b8] hover:text-red-400 text-sm font-medium px-2 py-1">Hapus</button>
+                     <button type="button" onClick={() => handleDeleteCategory(cat)} className="text-[#94a3b8] hover:text-red-400 text-sm font-medium px-2 py-1 btn-danger">Hapus</button>
                    </div>
                  </td>
                </tr>

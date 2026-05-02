@@ -195,19 +195,14 @@ const HeroSection: React.FC<HeroSectionProps> = ({ settings }) => {
         )}
       </div>
 
-      {/* Audio Button Strip Below Slider */}
       {settings.audio.showButton && (
-        <div className="w-full bg-[var(--site-card)] border-b border-[var(--site-bg)] py-3 px-4 sm:px-6 flex justify-end">
-          <div className="max-w-7xl mx-auto w-full flex justify-end">
-            <button 
-              onClick={toggleAudio}
-              className="h-10 px-4 bg-theme-surface border border-theme-border hover:bg-theme-border text-slate-300 rounded-lg font-bold uppercase tracking-widest text-[10px] sm:text-xs transition-colors flex items-center gap-2"
-            >
-              {isPlaying ? <Volume2 className="w-4 h-4 text-theme-accent" /> : <Play className="w-4 h-4 text-slate-400" />}
-              <span>{isPlaying ? 'Matikan Musik' : 'Nyalakan Musik'}</span>
-            </button>
-          </div>
-        </div>
+        <button 
+          onClick={toggleAudio}
+          className="music-floating-button group"
+          title={isPlaying ? 'Pause Music' : 'Play Music'}
+        >
+          {isPlaying ? <Volume2 className="w-5 h-5 group-hover:scale-110 transition-transform" /> : <Play className="w-5 h-5 ml-0.5 group-hover:scale-110 transition-transform" />}
+        </button>
       )}
     </div>
   );

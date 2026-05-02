@@ -199,7 +199,7 @@ export default function AdminPanel({
             >
                ☰ Menu
             </button>
-            <span className="ml-4 text-white font-bold truncate">Admin {siteSettings?.branding?.siteName || "Store"}</span>
+            <span className="ml-4 text-white font-bold truncate">Admin {siteSettings?.branding?.storeName || siteSettings?.branding?.siteName || "Store"}</span>
          </header>
 
          {/* Content Scrollable Area */}

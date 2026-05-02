@@ -16,7 +16,7 @@ export const DashboardView = ({
   setActiveMenu: (menu: string) => void;
 }) => {
 
-  const storeName = settings?.branding?.siteName || "Belum diset";
+  const storeName = settings?.branding?.storeName || settings?.branding?.siteName || "Belum diset";
   const isMaintenance = settings?.general?.maintenanceMode;
   const infoMode = settings?.general?.infoDisplayMode || "runtime";
   const waNumber = settings?.contact?.whatsapp || "Belum diset";
