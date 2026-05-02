@@ -32,6 +32,16 @@ import {
   CheckCircle2,
   LayoutGrid,
   MoreHorizontal,
+  Zap,
+  ShieldCheck,
+  Clock,
+  RefreshCcw,
+  DollarSign,
+  TrendingUp,
+  HeadphonesIcon,
+  CreditCard,
+  Send,
+  ShoppingBag,
 } from "lucide-react";
 import {
   CATEGORIES,
@@ -621,120 +631,340 @@ export default function App() {
                       </div>
                     </div>
 
-                    <div
-                      className={
-                        selectedCategory === "Semua"
-                          ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 px-4 bg-transparent max-w-5xl mx-auto"
-                          : "grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 px-4 bg-transparent"
-                      }
-                    >
-                      {(() => {
-                        if (selectedCategory === "Semua") {
-                          // Show category cards instead of all products
-                          const activeCategories = localCategories.filter(
-                            (c) => c.products && c.products.length > 0,
-                          );
-                          return activeCategories.map((cat) => {
-                            const prices = cat.products.map((p) => {
-                              const numStr = p.price.replace(/[^0-9]/g, "");
-                              return parseInt(numStr) || 0;
-                            });
-                            const minPrice =
-                              prices.length > 0 ? Math.min(...prices) : 0;
-                            const formatLowest =
-                              minPrice > 0
-                                ? minPrice.toLocaleString("id-ID")
-                                : "0";
-                            const displayImage =
-                              cat.image || cat.products[0]?.image || "";
+                    {selectedCategory === "Semua" ? (
+                      <div className="flex flex-col gap-10 md:gap-14 pb-12 w-full max-w-6xl mx-auto">
+                        {/* Header Ringkasan */}
+                        <div className="px-4 text-center mt-6">
+                          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-theme-accent/10 border border-theme-accent/20 text-theme-accent text-[10px] font-bold uppercase tracking-wider mb-5">
+                            <LayoutGrid className="w-3.5 h-3.5" />
+                            Katalog Kategori
+                          </div>
+                          <h2 className="text-2xl md:text-4xl font-black text-white mb-4 tracking-tight">
+                            Semua Layanan Digital
+                          </h2>
+                          <p className="text-slate-400 text-[13px] md:text-sm max-w-lg mx-auto leading-relaxed">
+                            Pilih kategori layanan sesuai kebutuhan Anda. Produk
+                            dan pembelian tersedia di masing-masing menu
+                            kategori.
+                          </p>
+                        </div>
 
-                            return (
-                              <div
-                                key={cat.id}
-                                className="group relative bg-[#0f172a] border border-[#1e293b] rounded-[16px] overflow-hidden flex flex-col hover:-translate-y-1 transition-all duration-300 shadow-sm hover:shadow-lg hover:shadow-theme-accent/10 cursor-pointer h-[200px] md:h-[240px] max-w-md mx-auto w-full sm:max-w-none"
-                                onClick={() => setSelectedPopupCategory(cat)}
-                              >
-                                <div className="relative aspect-[21/9] sm:aspect-video bg-[#0b1220] overflow-hidden flex-shrink-0 h-[90px] md:h-[120px]">
-                                  {displayImage ? (
-                                    <img
-                                      src={displayImage}
-                                      alt={cat.title || cat.name}
-                                      className="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-500"
-                                    />
-                                  ) : (
-                                    <div className="w-full h-full flex items-center justify-center">
-                                      <Package className="w-8 h-8 text-theme-muted opacity-30" />
-                                    </div>
-                                  )}
-                                  <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a] to-transparent opacity-80" />
-                                  <div className="absolute top-2 left-2 bg-black/50 backdrop-blur-md px-1.5 py-0.5 rounded border border-white/10 flex items-center gap-1 shadow-sm">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-theme-accent animate-pulse shadow-[0_0_8px_rgba(34,211,238,0.8)]" />
-                                    <span className="text-[9px] font-bold text-white uppercase tracking-wider">
-                                      {cat.products.length} Produk
-                                    </span>
-                                  </div>
-                                </div>
-                                <div className="p-3 md:p-3.5 flex-1 flex flex-col bg-[#0f172a]">
-                                  <h3 className="text-[14px] md:text-[15px] font-black text-white mb-1 group-hover:text-theme-accent transition-colors truncate">
-                                    {cat.title || cat.name}
-                                  </h3>
-                                  <div className="mt-auto pt-2 border-t border-slate-800 flex items-end justify-between">
-                                    <div className="flex flex-col">
-                                      <span className="text-[8px] uppercase tracking-widest text-slate-500 font-bold mb-0.5">
-                                        Mulai dari
-                                      </span>
-                                      <span className="text-[12px] md:text-[14px] font-black text-theme-accent leading-none">
-                                        Rp {formatLowest}
-                                      </span>
-                                    </div>
-                                    <button className="px-2.5 py-1.5 bg-theme-accent/10 border border-theme-accent/20 text-theme-accent text-[9px] md:text-[10px] font-bold rounded-lg group-hover:bg-theme-accent group-hover:text-theme-bg transition-colors">
-                                      Lihat Detail
-                                    </button>
-                                  </div>
-                                </div>
+                        {/* Statistik Toko */}
+                        <div className="px-4">
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 max-w-4xl mx-auto">
+                            <div className="bg-[#0f172a] border border-[#1e293b] rounded-2xl p-4 flex flex-col items-center justify-center text-center gap-3 shadow-sm hover:border-theme-accent/30 transition-colors">
+                              <div className="w-10 h-10 rounded-full bg-theme-accent/10 flex items-center justify-center">
+                                <LayoutGrid className="w-5 h-5 text-theme-accent" />
                               </div>
-                            );
-                          });
-                        }
+                              <div>
+                                <h4 className="text-xl md:text-2xl font-black text-white">
+                                  {
+                                    localCategories.filter(
+                                      (c) =>
+                                        c.products && c.products.length > 0,
+                                    ).length
+                                  }
+                                </h4>
+                                <span className="text-[9px] md:text-[10px] text-slate-500 uppercase font-bold tracking-wider">
+                                  Kategori
+                                </span>
+                              </div>
+                            </div>
+                            <div className="bg-[#0f172a] border border-[#1e293b] rounded-2xl p-4 flex flex-col items-center justify-center text-center gap-3 shadow-sm hover:border-theme-accent/30 transition-colors">
+                              <div className="w-10 h-10 rounded-full bg-theme-accent/10 flex items-center justify-center">
+                                <Package className="w-5 h-5 text-theme-accent" />
+                              </div>
+                              <div>
+                                <h4 className="text-xl md:text-2xl font-black text-white">
+                                  {localCategories.reduce(
+                                    (acc, c) => acc + (c.products?.length || 0),
+                                    0,
+                                  )}
+                                </h4>
+                                <span className="text-[9px] md:text-[10px] text-slate-500 uppercase font-bold tracking-wider">
+                                  Produk Aktif
+                                </span>
+                              </div>
+                            </div>
+                            <div className="bg-[#0f172a] border border-[#1e293b] rounded-2xl p-4 flex flex-col items-center justify-center text-center gap-3 shadow-sm hover:border-theme-accent/30 transition-colors">
+                              <div className="w-10 h-10 rounded-full bg-theme-accent/10 flex items-center justify-center">
+                                <Zap className="w-5 h-5 text-theme-accent" />
+                              </div>
+                              <div>
+                                <h4 className="text-xl md:text-2xl font-black text-white">
+                                  Cepat
+                                </h4>
+                                <span className="text-[9px] md:text-[10px] text-slate-500 uppercase font-bold tracking-wider">
+                                  Proses Order
+                                </span>
+                              </div>
+                            </div>
+                            <div className="bg-[#0f172a] border border-[#1e293b] rounded-2xl p-4 flex flex-col items-center justify-center text-center gap-3 shadow-sm hover:border-theme-accent/30 transition-colors">
+                              <div className="w-10 h-10 rounded-full bg-theme-accent/10 flex items-center justify-center">
+                                <HeadphonesIcon className="w-5 h-5 text-theme-accent" />
+                              </div>
+                              <div>
+                                <h4 className="text-xl md:text-2xl font-black text-white">
+                                  24/7
+                                </h4>
+                                <span className="text-[9px] md:text-[10px] text-slate-500 uppercase font-bold tracking-wider">
+                                  Support Aktif
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
 
-                        const productsToShow = localCategories
-                          .flatMap((c) => c.products)
-                          .filter((p) => {
-                            if (selectedCategory === "Reseller")
-                              return p.category
-                                .toLowerCase()
-                                .includes("reseller");
-                            if (selectedCategory === "Panel")
-                              return p.category.toLowerCase().includes("panel");
-                            if (selectedCategory === "Sewa Bot")
-                              return p.category
-                                .toLowerCase()
-                                .includes("sewa bot");
-                            if (selectedCategory === "App Premium")
-                              return (
-                                p.category
+                        {/* Card Kategori Utama */}
+                        <div className="px-4">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto">
+                            {localCategories
+                              .filter(
+                                (c) => c.products && c.products.length > 0,
+                              )
+                              .map((cat) => {
+                                const prices = cat.products.map((p) => {
+                                  const numStr = p.price.replace(/[^0-9]/g, "");
+                                  return parseInt(numStr) || 0;
+                                });
+                                const minPrice =
+                                  prices.length > 0 ? Math.min(...prices) : 0;
+                                const formatLowest =
+                                  minPrice > 0
+                                    ? minPrice.toLocaleString("id-ID")
+                                    : "0";
+
+                                return (
+                                  <div
+                                    key={cat.id}
+                                    onClick={() => setSelectedCategory(cat.name || "")}
+                                    className="group cursor-pointer bg-[#0f172a]/80 backdrop-blur-sm border border-theme-accent/10 rounded-[20px] p-5 shadow-sm hover:shadow-lg hover:shadow-theme-accent/5 hover:-translate-y-1 transition-all duration-300 flex flex-col min-h-[140px] md:min-h-[160px]"
+                                  >
+                                    <div className="flex items-start gap-4 mb-3">
+                                      <div className="w-12 h-12 rounded-full bg-theme-accent/10 border border-theme-accent/20 flex flex-shrink-0 items-center justify-center">
+                                        <LayoutGrid className="w-5 h-5 text-theme-accent" />
+                                      </div>
+                                      <div className="flex-1">
+                                        <h3 className="text-[15px] font-black text-white mb-1 group-hover:text-theme-accent transition-colors">
+                                          {cat.title || cat.name}
+                                        </h3>
+                                        <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-white/5 border border-white/5">
+                                          <Package className="w-3 h-3 text-slate-400" />
+                                          <span className="text-[10px] font-bold text-slate-400">
+                                            {cat.products.length} Produk
+                                          </span>
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed mb-4 flex-1">
+                                      {cat.description ||
+                                        `Layanan ${
+                                          cat.title || cat.name
+                                        } premium bergaransi terbaik dan terpercaya.`}
+                                    </p>
+
+                                    <div className="pt-4 border-t border-slate-800 flex items-center justify-between mt-auto">
+                                      <div className="flex flex-col">
+                                        <span className="text-[8px] uppercase tracking-widest text-slate-500 font-bold mb-0.5">
+                                          Mulai dari
+                                        </span>
+                                        <span className="text-[13px] md:text-[14px] font-black text-theme-accent leading-none">
+                                          Rp {formatLowest}
+                                        </span>
+                                      </div>
+                                      <button
+                                        onClick={() =>
+                                          setSelectedCategory(cat.name || "")
+                                        }
+                                        className="px-4 py-2 bg-theme-accent/10 border border-theme-accent/20 text-theme-accent text-[11px] font-bold rounded-xl group-hover:bg-theme-accent group-hover:text-theme-bg transition-colors flex items-center gap-1.5"
+                                      >
+                                        Buka Kategori
+                                        <ChevronRight className="w-3.5 h-3.5" />
+                                      </button>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                          </div>
+                        </div>
+
+                        {/* Keunggulan Layanan */}
+                        <div className="px-4">
+                          <div className="bg-[#0f172a] border border-[#1e293b] rounded-2xl p-6 md:p-8 max-w-4xl mx-auto">
+                            <h3 className="text-lg md:text-xl font-black text-white mb-6 text-center">
+                              Kenapa Pilih Kami?
+                            </h3>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0">
+                                  <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                                </div>
+                                <span className="text-[13px] font-bold text-slate-300">
+                                  Aman & Terpercaya
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center shrink-0">
+                                  <Zap className="w-4 h-4 text-blue-500" />
+                                </div>
+                                <span className="text-[13px] font-bold text-slate-300">
+                                  Proses Cepat
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center shrink-0">
+                                  <DollarSign className="w-4 h-4 text-amber-500" />
+                                </div>
+                                <span className="text-[13px] font-bold text-slate-300">
+                                  Harga Transparan
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-full bg-purple-500/10 flex items-center justify-center shrink-0">
+                                  <RefreshCcw className="w-4 h-4 text-purple-500" />
+                                </div>
+                                <span className="text-[13px] font-bold text-slate-300">
+                                  Produk Selalu Update
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-full bg-rose-500/10 flex items-center justify-center shrink-0">
+                                  <Clock className="w-4 h-4 text-rose-500" />
+                                </div>
+                                <span className="text-[13px] font-bold text-slate-300">
+                                  Support Responsif
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Cara Order */}
+                        <div className="px-4">
+                          <h3 className="text-lg md:text-xl font-black text-white mb-6 text-center">
+                            Cara Order Layanan
+                          </h3>
+                          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 max-w-4xl mx-auto relative">
+                            {/* Connector line for desktop */}
+                            <div className="hidden sm:block absolute top-6 left-10 right-10 h-[1px] bg-slate-800 -z-10" />
+
+                            <div className="flex flex-col sm:items-center text-left sm:text-center gap-3 bg-[#0f172a] sm:bg-transparent p-4 sm:p-0 rounded-2xl border border-[#1e293b] sm:border-none">
+                              <div className="w-12 h-12 rounded-full bg-[#1e293b] border-2 border-[#0f172a] flex items-center justify-center text-white font-black shrink-0 relative">
+                                1
+                              </div>
+                              <div>
+                                <h4 className="text-[13px] font-bold text-white mb-1">
+                                  Pilih Kategori
+                                </h4>
+                                <p className="text-[11px] text-slate-400">
+                                  Temukan layanan yang sesuai.
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex flex-col sm:items-center text-left sm:text-center gap-3 bg-[#0f172a] sm:bg-transparent p-4 sm:p-0 rounded-2xl border border-[#1e293b] sm:border-none">
+                              <div className="w-12 h-12 rounded-full bg-[#1e293b] border-2 border-[#0f172a] flex items-center justify-center text-white font-black shrink-0 relative">
+                                2
+                              </div>
+                              <div>
+                                <h4 className="text-[13px] font-bold text-white mb-1">
+                                  Pilih Produk
+                                </h4>
+                                <p className="text-[11px] text-slate-400">
+                                  Cek detail dan harga produk.
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex flex-col sm:items-center text-left sm:text-center gap-3 bg-[#0f172a] sm:bg-transparent p-4 sm:p-0 rounded-2xl border border-[#1e293b] sm:border-none">
+                              <div className="w-12 h-12 rounded-full bg-[#1e293b] border-2 border-[#0f172a] flex items-center justify-center text-white font-black shrink-0 relative">
+                                3
+                              </div>
+                              <div>
+                                <h4 className="text-[13px] font-bold text-white mb-1">
+                                  Beli Sekarang
+                                </h4>
+                                <p className="text-[11px] text-slate-400">
+                                  Tekan tombol order pada produk.
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex flex-col sm:items-center text-left sm:text-center gap-3 bg-[#0f172a] sm:bg-transparent p-4 sm:p-0 rounded-2xl border border-[#1e293b] sm:border-none">
+                              <div className="w-12 h-12 rounded-full bg-theme-accent flex items-center justify-center text-theme-bg font-black shrink-0 shadow-[0_0_15px_rgba(34,211,238,0.3)] relative">
+                                4
+                              </div>
+                              <div>
+                                <h4 className="text-[13px] font-bold text-white mb-1">
+                                  Kirim Bukti
+                                </h4>
+                                <p className="text-[11px] text-slate-400">
+                                  Konfirmasi order via WhatsApp.
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* CTA Menu Semua */}
+                        <div className="px-4 flex justify-center mt-2">
+                          <button
+                            onClick={() => {
+                              const firstCat = localCategories.filter(
+                                (c) => c.products?.length > 0,
+                              )[0];
+                              if (firstCat)
+                                setSelectedCategory(firstCat.name || "");
+                            }}
+                            className="px-8 py-4 bg-theme-accent text-theme-bg font-black rounded-full hover:bg-white transition-all shadow-[0_0_20px_rgba(34,211,238,0.3)] hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] hover:-translate-y-1 flex items-center gap-2"
+                          >
+                            Mulai Pilih Kategori
+                            <ChevronRight className="w-5 h-5" />
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 px-4 bg-transparent">
+                        {(() => {
+                          const productsToShow = localCategories
+                            .flatMap((c) => c.products)
+                            .filter((p) => {
+                              if (selectedCategory === "Reseller")
+                                return p.category
                                   .toLowerCase()
-                                  .includes("app premium") ||
-                                p.category.toLowerCase().includes("premium")
-                              );
-                            if (selectedCategory === "Source Code")
-                              return (
-                                p.category
+                                  .includes("reseller");
+                              if (selectedCategory === "Panel")
+                                return p.category
                                   .toLowerCase()
-                                  .includes("source code") ||
-                                p.category.toLowerCase().includes("script")
-                              );
-                            return p.category === selectedCategory;
-                          });
-                        return productsToShow.map((product) => (
-                          <ProductCard
-                            key={product.id}
-                            product={product}
-                            onDetail={handleDirectOrder}
-                          />
-                        ));
-                      })()}
-                    </div>
+                                  .includes("panel");
+                              if (selectedCategory === "Sewa Bot")
+                                return p.category
+                                  .toLowerCase()
+                                  .includes("sewa bot");
+                              if (selectedCategory === "App Premium")
+                                return (
+                                  p.category
+                                    .toLowerCase()
+                                    .includes("app premium") ||
+                                  p.category.toLowerCase().includes("premium")
+                                );
+                              if (selectedCategory === "Source Code")
+                                return (
+                                  p.category
+                                    .toLowerCase()
+                                    .includes("source code") ||
+                                  p.category.toLowerCase().includes("script")
+                                );
+                              return p.category === selectedCategory;
+                            });
+                          return productsToShow.map((product) => (
+                            <ProductCard
+                              key={product.id}
+                              product={product}
+                              onDetail={handleDirectOrder}
+                            />
+                          ));
+                        })()}
+                      </div>
+                    )}
                     <div className="h-10" />
                   </motion.div>
                 )}

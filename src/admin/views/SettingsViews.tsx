@@ -313,29 +313,29 @@ export const AudioView = ({ settings }: { settings: any }) => {
 // --- CONTACT VIEW ---
 export const ContactView = ({ settings }: { settings: any }) => {
   const [payload, setPayload] = useState({
-    whatsappNumber: "",
-    whatsappMessageTemplate: "",
-    whatsappButtonText: "",
-    telegramUrl: "",
-    instagramUrl: "",
+    whatsapp: "",
+    orderMessage: "",
+    btnBuyText: "",
+    telegram: "",
+    instagram: "",
     email: "",
   });
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     setPayload({
-      whatsappNumber: settings?.contact?.whatsappNumber || "",
-      whatsappMessageTemplate: settings?.contact?.whatsappMessageTemplate || "",
-      whatsappButtonText: settings?.contact?.whatsappButtonText || "",
-      telegramUrl: settings?.contact?.telegramUrl || "",
-      instagramUrl: settings?.contact?.instagramUrl || "",
+      whatsapp: settings?.contact?.whatsapp || "",
+      orderMessage: settings?.contact?.orderMessage || "",
+      btnBuyText: settings?.contact?.btnBuyText || "",
+      telegram: settings?.contact?.telegram || "",
+      instagram: settings?.contact?.instagram || "",
       email: settings?.contact?.email || "",
     });
   }, [settings]);
 
   const handleSave = async () => {
     if (saving) return;
-    if (!payload.whatsappNumber.trim()) {
+    if (!payload.whatsapp.trim()) {
       toast.error("Nomor WhatsApp wajib diisi as fallback");
       return;
     }
@@ -353,9 +353,9 @@ export const ContactView = ({ settings }: { settings: any }) => {
 
       const cleanPayload = removeUndefinedDeep(payload);
       // clean mobile number structure
-      let cleanedWA = cleanPayload.whatsappNumber.replace(/[^0-9]/g, '');
+      let cleanedWA = cleanPayload.whatsapp.replace(/[^0-9]/g, '');
       if (cleanedWA.startsWith('0')) cleanedWA = '62' + cleanedWA.substring(1);
-      cleanPayload.whatsappNumber = cleanedWA;
+      cleanPayload.whatsapp = cleanedWA;
 
       console.log("payload:", cleanPayload);
 
@@ -373,12 +373,12 @@ export const ContactView = ({ settings }: { settings: any }) => {
     <div className="bg-[#111827] border border-[#334155] rounded-2xl p-6">
       <h2 className="text-xl font-bold text-white mb-6">Kontak & Order</h2>
       <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <AdminInput label="Nomor WhatsApp Order" placeholder="6281234567890" value={payload.whatsappNumber} onChange={e => setPayload({...payload, whatsappNumber: e.target.value})} />
-        <AdminInput label="Teks Tombol Order" value={payload.whatsappButtonText} onChange={e => setPayload({...payload, whatsappButtonText: e.target.value})} />
-        <AdminInput label="Template Pesan WA" value={payload.whatsappMessageTemplate} onChange={e => setPayload({...payload, whatsappMessageTemplate: e.target.value})} className="md:col-span-2" />
+        <AdminInput label="Nomor WhatsApp Order" placeholder="6281234567890" value={payload.whatsapp} onChange={e => setPayload({...payload, whatsapp: e.target.value})} />
+        <AdminInput label="Teks Tombol Order" value={payload.btnBuyText} onChange={e => setPayload({...payload, btnBuyText: e.target.value})} />
+        <AdminInput label="Template Pesan WA" value={payload.orderMessage} onChange={e => setPayload({...payload, orderMessage: e.target.value})} className="md:col-span-2" />
         
-        <AdminInput label="URL Telegram" value={payload.telegramUrl} onChange={e => setPayload({...payload, telegramUrl: e.target.value})} />
-        <AdminInput label="URL Instagram" value={payload.instagramUrl} onChange={e => setPayload({...payload, instagramUrl: e.target.value})} />
+        <AdminInput label="URL Telegram" value={payload.telegram} onChange={e => setPayload({...payload, telegram: e.target.value})} />
+        <AdminInput label="URL Instagram" value={payload.instagram} onChange={e => setPayload({...payload, instagram: e.target.value})} />
         <AdminInput label="Email Support" value={payload.email} onChange={e => setPayload({...payload, email: e.target.value})} className="md:col-span-2" />
         
         <div className="md:col-span-2 pt-4">
@@ -471,22 +471,24 @@ export const FooterView = ({ settings }: { settings: any }) => {
   );
 };
 
-// --- GENERAL VIEW ---
-export const GeneralView = ({ settings }: { settings: any }) => {
+// --- MAINTENANCE VIEW ---
+export const MaintenanceView = ({ settings }: { settings: any }) => {
   const [payload, setPayload] = useState({
-    websiteEnabled: true,
     maintenanceMode: false,
+    maintenanceTitle: "",
     maintenanceText: "",
-    infoDisplayMode: "runtime",
+    maintenanceEstimate: "",
+    contactButton: true,
   });
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     setPayload({
-      websiteEnabled: settings?.general?.websiteEnabled !== false,
       maintenanceMode: !!settings?.general?.maintenanceMode,
+      maintenanceTitle: settings?.general?.maintenanceTitle || "",
       maintenanceText: settings?.general?.maintenanceText || "",
-      infoDisplayMode: settings?.general?.infoDisplayMode || "runtime",
+      maintenanceEstimate: settings?.general?.maintenanceEstimate || "",
+      contactButton: settings?.general?.contactButton !== false,
     });
   }, [settings]);
 
@@ -494,23 +496,93 @@ export const GeneralView = ({ settings }: { settings: any }) => {
     if (saving) return;
     try {
       setSaving(true);
-      
-      console.log("SAVE CLICKED");
-      console.log("firebaseReady:", firebaseReady);
-      console.log("db:", db);
+      if (!firebaseReady || !db) {
+        toast.error("Firebase belum aktif. Cek setting.js");
+        return;
+      }
+      const cleanPayload = removeUndefinedDeep(payload);
+      await setDoc(doc(db, "settings", "general"), cleanPayload, { merge: true });
+      toast.success("Pengaturan Maintenance berhasil disimpan");
+    } catch (error: any) {
+      console.error(error);
+      toast.error("Gagal menyimpan: " + error.message);
+    } finally {
+      setSaving(false);
+    }
+  };
 
+  return (
+    <div className="bg-[#111827] border border-[#334155] rounded-2xl p-6">
+      <h2 className="text-xl font-bold text-white mb-6">Mode Maintenance</h2>
+      <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <div className="flex flex-col gap-4 p-4 border border-red-500/20 bg-red-500/5 rounded-xl col-span-2">
+           <label className="flex items-center gap-3 cursor-pointer text-white">
+            <input type="checkbox" checked={payload.maintenanceMode} onChange={e => setPayload({...payload, maintenanceMode: e.target.checked})} className="w-5 h-5 accent-red-500 rounded" />
+            Aktifkan Mode Maintenance (Situs ditutup untuk umum)
+          </label>
+        </div>
+
+        {payload.maintenanceMode && (
+          <>
+            <AdminInput label="Judul Maintenance" placeholder="Contoh: Sedang Perbaikan" value={payload.maintenanceTitle} onChange={e => setPayload({...payload, maintenanceTitle: e.target.value})} />
+            <AdminInput label="Estimasi Selesai" placeholder="Contoh: 2 Jam Lagi" value={payload.maintenanceEstimate} onChange={e => setPayload({...payload, maintenanceEstimate: e.target.value})} />
+            <AdminInput label="Pesan Kembalian" value={payload.maintenanceText} onChange={e => setPayload({...payload, maintenanceText: e.target.value})} className="md:col-span-2" />
+            <label className="flex items-center gap-3 cursor-pointer text-white md:col-span-2">
+              <input type="checkbox" checked={payload.contactButton} onChange={e => setPayload({...payload, contactButton: e.target.checked})} className="w-5 h-5 accent-[#22d3ee] rounded" />
+              Tampilkan Tombol Kontak Admin Saat Maintenance
+            </label>
+          </>
+        )}
+        
+        <div className="md:col-span-2 pt-4">
+          <AdminButton type="submit" disabled={saving}>
+            {saving ? "Menyimpan..." : "Simpan Maintenance"}
+          </AdminButton>
+        </div>
+      </form>
+    </div>
+  );
+};
+
+// --- GENERAL VIEW ---
+export const GeneralView = ({ settings }: { settings: any }) => {
+  const [payload, setPayload] = useState({
+    websiteEnabled: true,
+    infoDisplayMode: "runtime",
+    showSlider: true,
+    showAudioBtn: true,
+    showFooter: true,
+    showWaBtn: true,
+  });
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    setPayload({
+      websiteEnabled: settings?.general?.websiteEnabled !== false,
+      infoDisplayMode: settings?.general?.infoDisplayMode || "runtime",
+      showSlider: settings?.general?.showSlider !== false,
+      showAudioBtn: settings?.general?.showAudioBtn !== false,
+      showFooter: settings?.general?.showFooter !== false,
+      showWaBtn: settings?.general?.showWaBtn !== false,
+    });
+  }, [settings]);
+
+  const handleSave = async () => {
+    if (saving) return;
+    try {
+      setSaving(true);
       if (!firebaseReady || !db) {
         toast.error("Firebase belum aktif. Cek setting.js");
         return;
       }
 
       const cleanPayload = removeUndefinedDeep(payload);
-      console.log("payload:", cleanPayload);
       await setDoc(doc(db, "settings", "general"), cleanPayload, { merge: true });
       toast.success("Pengaturan web berhasil disimpan");
     } catch (error: any) {
-      console.error("SAVE ERROR:", error);
-      safeToastError(error, "Gagal menyimpan");
+      console.error(error);
+      toast.error("Gagal menyimpan: " + error.message);
     } finally {
       setSaving(false);
     }
@@ -521,21 +593,27 @@ export const GeneralView = ({ settings }: { settings: any }) => {
       <h2 className="text-xl font-bold text-white mb-6">Pengaturan Web</h2>
       <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="grid grid-cols-1 md:grid-cols-2 gap-6">
         
-        <div className="flex flex-col gap-4 p-4 border border-[#334155] bg-[#020617] rounded-xl col-span-2">
+        <div className="flex flex-col gap-4 p-4 border border-[#334155] bg-[#020617] rounded-xl md:col-span-2">
            <label className="flex items-center gap-3 cursor-pointer text-white">
             <input type="checkbox" checked={payload.websiteEnabled} onChange={e => setPayload({...payload, websiteEnabled: e.target.checked})} className="w-5 h-5 accent-[#22d3ee] rounded" />
             Website Aktif (Akses Publik)
           </label>
-        </div>
-
-        <div className="flex flex-col gap-4 p-4 border border-red-500/20 bg-red-500/5 rounded-xl col-span-2">
            <label className="flex items-center gap-3 cursor-pointer text-white">
-            <input type="checkbox" checked={payload.maintenanceMode} onChange={e => setPayload({...payload, maintenanceMode: e.target.checked})} className="w-5 h-5 accent-red-500 rounded" />
-            Mode Maintenance (Maintenance Page)
+            <input type="checkbox" checked={payload.showSlider} onChange={e => setPayload({...payload, showSlider: e.target.checked})} className="w-5 h-5 accent-[#22d3ee] rounded" />
+            Tampilkan Slider
           </label>
-          {payload.maintenanceMode && (
-            <AdminInput label="Pesan Maintenance" value={payload.maintenanceText} onChange={e => setPayload({...payload, maintenanceText: e.target.value})} />
-          )}
+           <label className="flex items-center gap-3 cursor-pointer text-white">
+            <input type="checkbox" checked={payload.showAudioBtn} onChange={e => setPayload({...payload, showAudioBtn: e.target.checked})} className="w-5 h-5 accent-[#22d3ee] rounded" />
+            Tampilkan Audio Button
+          </label>
+           <label className="flex items-center gap-3 cursor-pointer text-white">
+            <input type="checkbox" checked={payload.showFooter} onChange={e => setPayload({...payload, showFooter: e.target.checked})} className="w-5 h-5 accent-[#22d3ee] rounded" />
+            Tampilkan Footer
+          </label>
+           <label className="flex items-center gap-3 cursor-pointer text-white">
+            <input type="checkbox" checked={payload.showWaBtn} onChange={e => setPayload({...payload, showWaBtn: e.target.checked})} className="w-5 h-5 accent-[#22d3ee] rounded" />
+            Tampilkan Tombol WhatsApp
+          </label>
         </div>
 
         <AdminSelect
@@ -548,7 +626,7 @@ export const GeneralView = ({ settings }: { settings: any }) => {
             { value: "both", label: "Tampilkan Keduanya" },
             { value: "hidden", label: "Sembunyikan Keduanya" }
           ]}
-          className="col-span-2"
+          className="md:col-span-2"
         />
         
         <div className="md:col-span-2 pt-4">
@@ -560,3 +638,69 @@ export const GeneralView = ({ settings }: { settings: any }) => {
     </div>
   );
 };
+
+// --- DEBUG FIREBASE VIEW ---
+export const DebugFirebaseView = () => {
+  const [testResult, setTestResult] = useState<string | null>(null);
+  const [testing, setTesting] = useState(false);
+
+  const handleTestSave = async () => {
+    if (testing) return;
+    try {
+      setTesting(true);
+      setTestResult(null);
+      if (!firebaseReady || !db) {
+        setTestResult("Firebase belum aktif. Cek src/setting.js");
+        return;
+      }
+      
+      const testRef = doc(db, "test", "connection");
+      await setDoc(testRef, {
+        ok: true,
+        time: new Date().toISOString()
+      }, { merge: true });
+
+      setTestResult("Firebase berhasil tersambung dan data berhasil disimpan di test/connection.");
+      toast.success("Test koneksi berhasil");
+    } catch (error: any) {
+      console.error(error);
+      setTestResult("Error: " + error.message);
+      toast.error("Test koneksi gagal");
+    } finally {
+      setTesting(false);
+    }
+  };
+
+  return (
+    <div className="bg-[#111827] border border-[#334155] rounded-2xl p-6">
+      <h2 className="text-xl font-bold text-white mb-6">Debug Firebase</h2>
+      <div className="flex flex-col gap-4">
+        <div className="p-4 bg-[#0f172a] rounded-xl border border-[#1e293b] flex flex-col gap-2">
+           <div className="flex justify-between items-center text-sm">
+             <span className="text-slate-400">Firebase Ready</span>
+             <span className={`font-bold ${firebaseReady ? 'text-emerald-400' : 'text-red-400'}`}>
+               {firebaseReady ? 'TRUE' : 'FALSE'}
+             </span>
+           </div>
+           <div className="flex justify-between items-center text-sm">
+             <span className="text-slate-400">Firestore Instance</span>
+             <span className={`font-bold ${db ? 'text-emerald-400' : 'text-red-400'}`}>
+               {db ? 'INITIALIZED' : 'NULL'}
+             </span>
+           </div>
+        </div>
+
+        <AdminButton type="button" onClick={handleTestSave} disabled={testing}>
+          {testing ? "Testing Connection..." : "Test Firebase Save"}
+        </AdminButton>
+
+        {testResult && (
+          <div className={`p-4 rounded-xl border text-sm mt-4 ${testResult.startsWith("Error") ? 'bg-red-500/10 border-red-500/20 text-red-400' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'}`}>
+            {testResult}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+

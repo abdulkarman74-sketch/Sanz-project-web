@@ -156,8 +156,9 @@ export const ProductsView = ({ products, categories }: { products: Product[], ca
   if (editingId) {
     return (
       <div className="bg-[#111827] border border-[#334155] rounded-2xl p-6">
-        <h2 className="text-xl font-bold text-white mb-6">{editingId === "new" ? "Tambah" : "Edit"} Produk</h2>
+        <h2 className="text-xl font-bold text-white mb-6">Edit Produk</h2>
         <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
            <AdminInput label="Nama Produk *" value={form.name || ""} onChange={e => setForm({...form, name: e.target.value})} autoFocus className="lg:col-span-2" />
            <AdminSelect label="Kategori *" value={form.categoryId || ""} onChange={e => setForm({...form, categoryId: e.target.value})} options={categories.map(c => ({ value: c.id, label: c.name }))} />
            
@@ -212,7 +213,6 @@ export const ProductsView = ({ products, categories }: { products: Product[], ca
     <div className="bg-[#111827] border border-[#334155] rounded-2xl p-6">
        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <h2 className="text-xl font-bold text-white">Kelola Produk</h2>
-          <AdminButton onClick={() => startEdit()}>+ Tambah Produk</AdminButton>
        </div>
 
        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">

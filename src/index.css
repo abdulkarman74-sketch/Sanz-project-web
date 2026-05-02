@@ -298,4 +298,126 @@ input.admin-input:-webkit-autofill:active {
   }
 }
 
+/* ============================= */
+/* ADMIN TEXT VISIBILITY HOTFIX */
+/* ============================= */
+
+.admin-panel,
+.admin-panel * {
+  color: #f8fafc !important;
+  text-shadow: none !important;
+  opacity: 1 !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+}
+
+.admin-panel {
+  background: #020617 !important;
+}
+
+.admin-panel h1,
+.admin-panel h2,
+.admin-panel h3,
+.admin-panel h4,
+.admin-panel h5,
+.admin-panel h6,
+.admin-panel .page-title,
+.admin-panel .admin-title,
+.admin-panel .section-title {
+  color: #ffffff !important;
+  opacity: 1 !important;
+  font-weight: 800 !important;
+}
+
+.admin-panel p,
+.admin-panel span,
+.admin-panel div,
+.admin-panel label,
+.admin-panel small {
+  color: #e2e8f0 !important;
+  opacity: 1 !important;
+}
+
+.admin-panel .muted,
+.admin-panel .subtitle,
+.admin-panel .admin-subtitle,
+.admin-panel .page-subtitle,
+.admin-panel .card-label,
+.admin-panel .form-label {
+  color: #cbd5e1 !important;
+  opacity: 1 !important;
+}
+
+.admin-panel .card-value,
+.admin-panel .stat-value,
+.admin-panel .value {
+  color: #ffffff !important;
+  opacity: 1 !important;
+  font-weight: 800 !important;
+}
+
+.admin-panel .success,
+.admin-panel .connected,
+.admin-panel .status-success {
+  color: #34d399 !important;
+}
+
+.admin-panel .accent,
+.admin-panel .cyan,
+.admin-panel .link {
+  color: #22d3ee !important;
+}
+
+/* ============================= */
+/* FIX CARD DASHBOARD */
+/* ============================= */
+
+.admin-panel .dashboard-card,
+.admin-panel .stat-card,
+.admin-panel .admin-card,
+.admin-panel .quick-action,
+.admin-panel .quick-action-button {
+  background: #111827 !important;
+  border: 1px solid #334155 !important;
+  color: #f8fafc !important;
+  opacity: 1 !important;
+}
+
+.admin-panel .dashboard-card *,
+.admin-panel .stat-card *,
+.admin-panel .admin-card *,
+.admin-panel .quick-action *,
+.admin-panel .quick-action-button * {
+  color: inherit !important;
+  opacity: 1 !important;
+}
+
+/* ============================= */
+/* FIX TOMBOL YANG GELAP */
+/* ============================= */
+
+.admin-panel button {
+  opacity: 1 !important;
+  color: #f8fafc !important;
+}
+
+.admin-panel button:not(:disabled) {
+  cursor: pointer !important;
+}
+
+.admin-panel .btn-primary,
+.admin-panel button.primary,
+.admin-panel .quick-action-button {
+  background: #22d3ee !important;
+  color: #020617 !important;
+  border: 1px solid rgba(34, 211, 238, 0.4) !important;
+  font-weight: 800 !important;
+}
+
+.admin-panel .btn-primary *,
+.admin-panel button.primary *,
+.admin-panel .quick-action-button * {
+  color: #020617 !important;
+}
+
 

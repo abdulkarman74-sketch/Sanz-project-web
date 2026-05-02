@@ -8,7 +8,9 @@ import { DashboardView } from "./views/DashboardView";
 import { ProductsView } from "./views/ProductsView";
 import { CategoriesView } from "./views/CategoriesView";
 import { SlidesView } from "./views/SlidesView";
-import { BrandingView, LoadingView, ThemeView, AudioView, ContactView, FooterView, GeneralView } from "./views/SettingsViews";
+import { BrandingView, LoadingView, ThemeView, AudioView, ContactView, FooterView, GeneralView, MaintenanceView, DebugFirebaseView } from "./views/SettingsViews";
+import { AddProductView } from "./views/AddProductView";
+import { AddCategoryView } from "./views/AddCategoryView";
 
 interface AdminPanelProps {
   isAdminLoggedIn: boolean;
@@ -76,32 +78,40 @@ export default function AdminPanel({
   const renderContent = () => {
     switch (activeMenu) {
       case "dashboard": return <DashboardView categories={localCategories} products={products} slides={slides} settings={siteSettings} setActiveMenu={handleMenuClick} />;
-      case "products": return <ProductsView products={products} categories={localCategories} />;
-      case "categories": return <CategoriesView categories={localCategories} />;
-      case "slides": return <SlidesView slides={slides} />;
-      case "branding": return <BrandingView settings={siteSettings} />;
       case "loading": return <LoadingView settings={siteSettings} />;
+      case "branding": return <BrandingView settings={siteSettings} />;
+      case "slides": return <SlidesView slides={slides} />;
+      case "products": return <ProductsView products={products} categories={localCategories} />;
+      case "add-product": return <AddProductView categories={localCategories} onComplete={() => setActiveMenu("products")} />;
+      case "categories": return <CategoriesView categories={localCategories} />;
+      case "add-category": return <AddCategoryView onComplete={() => setActiveMenu("categories")} />;
+      case "contact": return <ContactView settings={siteSettings} />;
       case "theme": return <ThemeView settings={siteSettings} />;
       case "audio": return <AudioView settings={siteSettings} />;
-      case "contact": return <ContactView settings={siteSettings} />;
       case "footer": return <FooterView settings={siteSettings} />;
       case "general": return <GeneralView settings={siteSettings} />;
+      case "maintenance": return <MaintenanceView settings={siteSettings} />;
+      case "debug": return <DebugFirebaseView />;
       default: return <DashboardView categories={localCategories} products={products} slides={slides} settings={siteSettings} setActiveMenu={handleMenuClick} />;
     }
   };
 
   const MENU_ITEMS = [
     { id: "dashboard", label: "Dashboard" },
-    { id: "products", label: "Produk" },
-    { id: "categories", label: "Kategori" },
-    { id: "slides", label: "Banner Slider" },
-    { id: "branding", label: "Branding" },
     { id: "loading", label: "Loading Screen" },
-    { id: "theme", label: "Tema Warna" },
-    { id: "audio", label: "Audio Background" },
+    { id: "branding", label: "Branding Website" },
+    { id: "slides", label: "Banner Slider" },
+    { id: "products", label: "Produk" },
+    { id: "add-product", label: "Tambah Produk" },
+    { id: "categories", label: "Kategori" },
+    { id: "add-category", label: "Tambah Kategori" },
     { id: "contact", label: "Kontak & Order" },
+    { id: "theme", label: "Tema Warna" },
+    { id: "audio", label: "Audio & Musik" },
     { id: "footer", label: "Footer" },
     { id: "general", label: "Pengaturan Web" },
+    { id: "maintenance", label: "Maintenance" },
+    { id: "debug", label: "Debug Firebase" }
   ];
 
   return (

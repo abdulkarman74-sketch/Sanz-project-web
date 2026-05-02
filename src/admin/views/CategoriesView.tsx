@@ -95,7 +95,7 @@ export const CategoriesView = ({ categories }: { categories: Category[] }) => {
   if (editingId) {
     return (
       <div className="bg-[#111827] border border-[#334155] rounded-2xl p-6">
-        <h2 className="text-xl font-bold text-white mb-6">{editingId === "new" ? "Tambah" : "Edit"} Kategori</h2>
+        <h2 className="text-xl font-bold text-white mb-6">Edit Kategori</h2>
         <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="grid grid-cols-1 md:grid-cols-2 gap-6">
            <AdminInput label="Nama Kategori" value={form.name} onChange={e => setForm({...form, name: e.target.value})} autoFocus />
            <AdminInput label="URL Slug (Otomatis jika kosong)" value={form.slug} onChange={e => setForm({...form, slug: e.target.value})} />
@@ -118,8 +118,7 @@ export const CategoriesView = ({ categories }: { categories: Category[] }) => {
   return (
     <div className="bg-[#111827] border border-[#334155] rounded-2xl p-6">
        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold text-white">Semua Kategori</h2>
-          <AdminButton onClick={() => startEdit()}>+ Tambah</AdminButton>
+          <h2 className="text-xl font-bold text-white">Kelola Kategori</h2>
        </div>
 
        <div className="overflow-x-auto">
