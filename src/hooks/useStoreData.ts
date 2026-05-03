@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { collection, doc, onSnapshot, query, orderBy, getDocs, setDoc, serverTimestamp, getDoc } from 'firebase/firestore';
 import { db, firebaseReady } from '../lib/firebase';
-import { SiteSettings, Category, Product, HeroSlide, DEFAULT_SITE_SETTINGS, CATEGORIES } from '../constants';
+import { SiteSettings, Category, Product, HeroSlide, DEFAULT_SITE_SETTINGS, CATEGORIES, DEFAULT_MENU_SEMUA, DEFAULT_AI_SETTINGS } from '../constants';
 
 export function useStoreData() {
   const [loading, setLoading] = useState(true);
@@ -28,6 +28,8 @@ export function useStoreData() {
     let unsubLoading: any;
     let unsubFooter: any;
     let unsubGeneral: any;
+    let unsubMenuSemua: any;
+    let unsubAi: any;
     let unsubProducts: any;
     let unsubSlides: any;
     let unsubCats: any;
@@ -144,6 +146,16 @@ export function useStoreData() {
              setSiteSettings(prev => ({...prev, general: { ...(prev.general || DEFAULT_SITE_SETTINGS.general), ...snap.data() } as any}));
            }
         });
+        unsubMenuSemua = onSnapshot(doc(db, 'settings', 'menuSemua'), (snap) => {
+           if (snap.exists()) {
+             setSiteSettings(prev => ({...prev, menuSemua: { ...(prev.menuSemua || DEFAULT_MENU_SEMUA), ...snap.data() } as any}));
+           }
+        });
+        unsubAi = onSnapshot(doc(db, 'settings', 'ai'), (snap) => {
+           if (snap.exists()) {
+             setSiteSettings(prev => ({...prev, ai: { ...(prev.ai || DEFAULT_AI_SETTINGS), ...snap.data() } as any}));
+           }
+        });
 
         // Subscribe to collections (Global)
         unsubCats = onSnapshot(collection(db, 'categories'), (snap) => {
@@ -187,6 +199,8 @@ export function useStoreData() {
       if(unsubLoading) unsubLoading();
       if(unsubFooter) unsubFooter();
       if(unsubGeneral) unsubGeneral();
+      if(unsubMenuSemua) unsubMenuSemua();
+      if(unsubAi) unsubAi();
       if(unsubProducts) unsubProducts();
       if(unsubSlides) unsubSlides();
       if(unsubCats) unsubCats();

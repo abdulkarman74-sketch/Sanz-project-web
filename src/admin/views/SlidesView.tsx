@@ -113,7 +113,7 @@ export const SlidesView = ({ slides }: { slides: HeroSlide[] }) => {
 
   if (editingId) {
     return (
-      <div className="bg-[#111827] border border-[#334155] rounded-2xl p-6">
+      <div className="admin-card">
         <h2 className="text-xl font-bold text-white mb-6">{editingId === "new" ? "Tambah" : "Edit"} Slide</h2>
         
         {form.image && (
@@ -146,13 +146,17 @@ export const SlidesView = ({ slides }: { slides: HeroSlide[] }) => {
   }
 
   return (
-    <div className="bg-[#111827] border border-[#334155] rounded-2xl p-6">
-       <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold text-white">Banner Slider</h2>
-          <AdminButton onClick={() => startEdit()}>+ Tambah Slide</AdminButton>
+    <div className="admin-page">
+       <div className="admin-page-header flex justify-between items-center" style={{ flexDirection: 'row' }}>
+          <div>
+            <h1>Banner Slider</h1>
+            <p>Atur gambar promo di atas web</p>
+          </div>
+          <button className="bg-[#22d3ee] text-[#020617] px-4 py-2 rounded-xl text-sm font-bold" onClick={() => startEdit()}>+ Tambah Slide</button>
        </div>
 
-       <div className="overflow-x-auto">
+       <div className="admin-section-card">
+         <div className="overflow-x-auto">
          <table className="w-full text-left border-collapse">
            <thead>
              <tr className="border-b border-[#334155] text-[#94a3b8] text-sm">
@@ -192,6 +196,7 @@ export const SlidesView = ({ slides }: { slides: HeroSlide[] }) => {
            </tbody>
          </table>
        </div>
+      </div>
     </div>
   );
 };

@@ -95,7 +95,7 @@ export const AddProductView = ({ categories, onComplete }: { categories: Categor
   };
 
   return (
-    <div className="bg-[#111827] border border-[#334155] rounded-2xl p-6">
+    <div className="admin-card">
       <h2 className="text-xl font-bold text-white mb-6">Tambah Produk Baru</h2>
       <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
          <AdminInput label="Nama Produk *" value={form.name || ""} onChange={e => setForm({...form, name: e.target.value})} autoFocus className="lg:col-span-2" />

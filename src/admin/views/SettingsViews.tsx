@@ -95,55 +95,92 @@ export const BrandingView = ({ settings }: { settings: any }) => {
   };
 
   return (
-    <div className="bg-[#111827] border border-[#334155] rounded-2xl p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-bold text-white">Branding & Nama Website</h2>
+    <div className="admin-page">
+      <div className="admin-page-header">
+        <h1>Branding Website</h1>
+        <p>Edit identitas dan teks website</p>
       </div>
 
-      <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="space-y-8">
-        
-        {/* SECTION 1: Loading Screen */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-[#22d3ee] border-b border-[#22d3ee]/20 pb-2">1. Loading Screen</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <AdminInput label="Nama Loading Screen" value={payload.loadingName} onChange={e => setPayload({...payload, loadingName: e.target.value})} placeholder="Contoh: SANZ STORE" />
-            <AdminInput label="Subteks Loading Screen" value={payload.loadingSubtitle} onChange={e => setPayload({...payload, loadingSubtitle: e.target.value})} placeholder="Contoh: Memuat layanan digital..." />
-          </div>
-        </div>
+      <div className="admin-help-box">
+        <strong>Info Nama Web</strong>
+        <p>Atur nama yang muncul di header, footer, loading screen, dan seluruh teks di website.</p>
+      </div>
 
-        {/* SECTION 2: Identitas Website */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-[#22d3ee] border-b border-[#22d3ee]/20 pb-2">2. Identitas Website</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <AdminInput label="Nama Website / Store *" value={payload.storeName} onChange={e => setPayload({...payload, storeName: e.target.value})} placeholder="Contoh: SANZ STORE" />
-            <AdminInput label="Nama Pendek" value={payload.shortName} onChange={e => setPayload({...payload, shortName: e.target.value})} placeholder="Contoh: SANZ" />
-            <AdminInput label="Slogan Website" value={payload.slogan} onChange={e => setPayload({...payload, slogan: e.target.value})} placeholder="Contoh: Infrastruktur Terpadu & Modern" />
-            <AdminInput label="Nama Header / Navbar" value={payload.headerName} onChange={e => setPayload({...payload, headerName: e.target.value})} placeholder="Contoh: SANZ STORE" />
-            <AdminInput label="Badge Text" value={payload.badgeText} onChange={e => setPayload({...payload, badgeText: e.target.value})} placeholder="Contoh: VERIFIED" />
+      <div className="admin-section-card">
+        <div className="admin-section-header">
+          <h2>Identitas Toko</h2>
+          <p>Teks utama website</p>
+        </div>
+        <div className="admin-form-grid">
+          <div className="admin-form-field">
+            <label>Nama Website / Store (Utama)</label>
+            <input value={payload.storeName} onChange={(e) => setPayload({ ...payload, storeName: e.target.value })} placeholder="Contoh: SANZ STORE" />
+            <small>Nama ini akan dipakai sebagai default di semua tempat jika yang lain kosong.</small>
+          </div>
+          <div className="admin-form-field">
+            <label>Nama Pendek (Short Name)</label>
+            <input value={payload.shortName} onChange={(e) => setPayload({ ...payload, shortName: e.target.value })} placeholder="Contoh: SANZ" />
+            <small>Dipakai untuk tampilan layar kecil atau badge.</small>
+          </div>
+          <div className="admin-form-field full">
+            <label>Slogan Singkat</label>
+            <input value={payload.slogan} onChange={(e) => setPayload({ ...payload, slogan: e.target.value })} placeholder="Contoh: Termurah & Terpercaya" />
           </div>
         </div>
+      </div>
 
-        {/* SECTION 3: Footer / Bawah Web */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-[#22d3ee] border-b border-[#22d3ee]/20 pb-2">3. Footer / Bawah Web</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <AdminInput label="Nama Footer" value={payload.footerName} onChange={e => setPayload({...payload, footerName: e.target.value})} placeholder="Contoh: Sanz Official Store" />
-            <AdminInput label="Deskripsi Footer" value={payload.footerDescription} onChange={e => setPayload({...payload, footerDescription: e.target.value})} placeholder="Contoh: Layanan digital cepat, aman, dan terpercaya." />
-            <div className="md:col-span-2">
-              <AdminInput label="Copyright Text" value={payload.copyrightText} onChange={e => setPayload({...payload, copyrightText: e.target.value})} placeholder="Contoh: © 2026 SANZ STORE. All rights reserved." />
-            </div>
+      <div className="admin-section-card">
+        <div className="admin-section-header">
+          <h2>Teks Header & Loading</h2>
+          <p>Teks yang pertama kali dilihat user</p>
+        </div>
+        <div className="admin-form-grid">
+          <div className="admin-form-field">
+            <label>Teks Logo Header</label>
+            <input value={payload.headerName} onChange={(e) => setPayload({ ...payload, headerName: e.target.value })} placeholder="Nama di pojok kiri atas" />
+          </div>
+          <div className="admin-form-field">
+            <label>Badge Navbar (Di sebelah nama)</label>
+            <input value={payload.badgeText} onChange={(e) => setPayload({ ...payload, badgeText: e.target.value })} placeholder="Contoh: VERIFIED" />
+          </div>
+          <div className="admin-form-field">
+            <label>Nama di Loading Screen</label>
+            <input value={payload.loadingName} onChange={(e) => setPayload({ ...payload, loadingName: e.target.value })} placeholder="Tampil saat web dimuat" />
+          </div>
+          <div className="admin-form-field">
+            <label>Subtitle Loading Screen</label>
+            <input value={payload.loadingSubtitle} onChange={(e) => setPayload({ ...payload, loadingSubtitle: e.target.value })} placeholder="Status load" />
           </div>
         </div>
-        
-        <div className="pt-6 flex gap-4 border-t border-[#334155]">
-          <AdminButton type="submit" disabled={saving}>
-            {saving ? "Menyimpan..." : "Simpan Branding"}
-          </AdminButton>
-          <AdminButton type="button" variant="ghost" onClick={handleReset} disabled={saving}>
-            Reset ke Default
-          </AdminButton>
+      </div>
+
+      <div className="admin-section-card">
+        <div className="admin-section-header">
+          <h2>Teks Footer</h2>
+          <p>Teks untuk bagian bawah website</p>
         </div>
-      </form>
+        <div className="admin-form-grid">
+          <div className="admin-form-field">
+            <label>Nama Footer</label>
+            <input value={payload.footerName} onChange={(e) => setPayload({ ...payload, footerName: e.target.value })} placeholder="Nama brand di bawah" />
+          </div>
+          <div className="admin-form-field">
+            <label>Copyright Text</label>
+            <input value={payload.copyrightText} onChange={(e) => setPayload({ ...payload, copyrightText: e.target.value })} placeholder="© 2026 SANZ STORE" />
+          </div>
+          <div className="admin-form-field full">
+            <label>Deskripsi Footer</label>
+            <textarea value={payload.footerDescription} onChange={(e) => setPayload({ ...payload, footerDescription: e.target.value })} rows={3} placeholder="Deskripsi pendek tentang toko" />
+          </div>
+        </div>
+      </div>
+
+      <div className="admin-save-row">
+        <button className="admin-reset-button" onClick={handleReset} type="button">Reset ke Default</button>
+        <button className="admin-save-button" onClick={handleSave} disabled={saving} type="button">
+          {saving ? "Menyimpan..." : "Simpan Branding"}
+        </button>
+      </div>
     </div>
   );
 };
@@ -200,7 +237,7 @@ export const LoadingView = ({ settings }: { settings: any }) => {
   };
 
   return (
-    <div className="bg-[#111827] border border-[#334155] rounded-2xl p-6">
+    <div className="admin-card">
       <h2 className="text-xl font-bold text-white mb-6">Loading Screen</h2>
       <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <label className="flex items-center gap-3 cursor-pointer md:col-span-2 text-white">
@@ -277,24 +314,153 @@ export const ThemeView = ({ settings }: { settings: any }) => {
   };
 
   return (
-    <div className="bg-[#111827] border border-[#334155] rounded-2xl p-6">
-      <h2 className="text-xl font-bold text-white mb-6">Tema Warna</h2>
-      <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <AdminInput type="color" label="Warna Aksen (Primary)" value={payload.primaryColor} onChange={e => setPayload({...payload, primaryColor: e.target.value})} />
-        <AdminInput type="color" label="Background Main" value={payload.backgroundColor} onChange={e => setPayload({...payload, backgroundColor: e.target.value})} />
-        <AdminInput type="color" label="Background Card" value={payload.cardColor} onChange={e => setPayload({...payload, cardColor: e.target.value})} />
-        <AdminInput type="color" label="Background Surface" value={payload.surfaceColor} onChange={e => setPayload({...payload, surfaceColor: e.target.value})} />
-        <AdminInput type="color" label="Text Utama" value={payload.textColor} onChange={e => setPayload({...payload, textColor: e.target.value})} />
-        <AdminInput type="color" label="Text Muted" value={payload.mutedColor} onChange={e => setPayload({...payload, mutedColor: e.target.value})} />
-        <AdminInput type="color" label="Warna Border" value={payload.borderColor} onChange={e => setPayload({...payload, borderColor: e.target.value})} />
-        <AdminInput type="color" label="Background Footer" value={payload.footerColor} onChange={e => setPayload({...payload, footerColor: e.target.value})} />
-        
-        <div className="md:col-span-3 pt-4">
-          <AdminButton type="submit" disabled={saving}>
-            {saving ? "Menyimpan..." : "Simpan Tema"}
-          </AdminButton>
+    <div className="admin-page">
+      <div className="admin-page-header">
+        <h1>Tema Warna</h1>
+        <p>Sesuaikan warna utama dan latar web</p>
+      </div>
+
+      <div className="admin-help-box">
+        <strong>Info Tema Warna</strong>
+        <p>Ganti warna utama dan background dari website tanpa perlu koding. Gunakan format HEX (contoh: #0f172a).</p>
+      </div>
+
+      <div className="admin-two-column-grid">
+        {/* KOLOM KIRI = FORM WARNA */}
+        <div>
+          <div className="admin-section-card" style={{ marginBottom: "20px" }}>
+            <div className="admin-section-header">
+              <h2>Warna Utama (Primary)</h2>
+              <p>Warna dominan untuk tombol dan aksen</p>
+            </div>
+            <div className="admin-form-grid full">
+              <div className="admin-form-field full">
+                <label>Warna Aksen / Primary</label>
+                <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                  <input type="color" value={payload.primaryColor} onChange={e => setPayload({...payload, primaryColor: e.target.value})} style={{ height: '48px', padding: '4px', width: "60px", flexShrink: 0 }} />
+                  <input type="text" value={payload.primaryColor} onChange={e => setPayload({...payload, primaryColor: e.target.value})} placeholder="#000000" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="admin-section-card" style={{ marginBottom: "20px" }}>
+            <div className="admin-section-header">
+              <h2>Warna Latar (Background)</h2>
+              <p>Warna dasar untuk berbagai bagian website</p>
+            </div>
+            <div className="admin-form-grid full">
+              <div className="admin-form-field full">
+                <label>Background Main (Web)</label>
+                <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                  <input type="color" value={payload.backgroundColor} onChange={e => setPayload({...payload, backgroundColor: e.target.value})} style={{ height: '48px', padding: '4px', width: "60px", flexShrink: 0 }} />
+                  <input type="text" value={payload.backgroundColor} onChange={e => setPayload({...payload, backgroundColor: e.target.value})} placeholder="#000000" />
+                </div>
+              </div>
+              <div className="admin-form-field full">
+                <label>Background Card (Kotak)</label>
+                <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                  <input type="color" value={payload.cardColor} onChange={e => setPayload({...payload, cardColor: e.target.value})} style={{ height: '48px', padding: '4px', width: "60px", flexShrink: 0 }} />
+                  <input type="text" value={payload.cardColor} onChange={e => setPayload({...payload, cardColor: e.target.value})} placeholder="#000000" />
+                </div>
+              </div>
+              <div className="admin-form-field full">
+                <label>Background Surface</label>
+                <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                  <input type="color" value={payload.surfaceColor} onChange={e => setPayload({...payload, surfaceColor: e.target.value})} style={{ height: '48px', padding: '4px', width: "60px", flexShrink: 0 }} />
+                  <input type="text" value={payload.surfaceColor} onChange={e => setPayload({...payload, surfaceColor: e.target.value})} placeholder="#000000" />
+                </div>
+              </div>
+              <div className="admin-form-field full">
+                <label>Background Footer</label>
+                <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                  <input type="color" value={payload.footerColor} onChange={e => setPayload({...payload, footerColor: e.target.value})} style={{ height: '48px', padding: '4px', width: "60px", flexShrink: 0 }} />
+                  <input type="text" value={payload.footerColor} onChange={e => setPayload({...payload, footerColor: e.target.value})} placeholder="#000000" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="admin-section-card" style={{ marginBottom: "0" }}>
+            <div className="admin-section-header">
+              <h2>Warna Teks & Garis</h2>
+              <p>Warna tulisan dan pembatas</p>
+            </div>
+            <div className="admin-form-grid full">
+              <div className="admin-form-field full">
+                <label>Text Utama</label>
+                <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                  <input type="color" value={payload.textColor} onChange={e => setPayload({...payload, textColor: e.target.value})} style={{ height: '48px', padding: '4px', width: "60px", flexShrink: 0 }} />
+                  <input type="text" value={payload.textColor} onChange={e => setPayload({...payload, textColor: e.target.value})} placeholder="#000000" />
+                </div>
+              </div>
+              <div className="admin-form-field full">
+                <label>Text Redup (Muted)</label>
+                <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                  <input type="color" value={payload.mutedColor} onChange={e => setPayload({...payload, mutedColor: e.target.value})} style={{ height: '48px', padding: '4px', width: "60px", flexShrink: 0 }} />
+                  <input type="text" value={payload.mutedColor} onChange={e => setPayload({...payload, mutedColor: e.target.value})} placeholder="#000000" />
+                </div>
+              </div>
+              <div className="admin-form-field full">
+                <label>Warna Border/Garis</label>
+                <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                  <input type="color" value={payload.borderColor} onChange={e => setPayload({...payload, borderColor: e.target.value})} style={{ height: '48px', padding: '4px', width: "60px", flexShrink: 0 }} />
+                  <input type="text" value={payload.borderColor} onChange={e => setPayload({...payload, borderColor: e.target.value})} placeholder="#000000" />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      </form>
+
+        {/* KOLOM KANAN = PREVIEW & ACTIONS */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "20px", position: "sticky", top: "20px" }}>
+          
+          <div className="admin-section-card" style={{
+            backgroundColor: payload.backgroundColor || '#020617',
+            borderColor: payload.borderColor || '#334155',
+            margin: 0
+          }}>
+            <div className="admin-section-header">
+              <h2 style={{ color: payload.textColor || '#ffffff' }}>Live Preview</h2>
+              <p style={{ color: payload.mutedColor || '#94a3b8' }}>Melihat hasil kombinasi warna</p>
+            </div>
+            
+            <div style={{
+              backgroundColor: payload.cardColor || '#0f172a',
+              padding: '24px',
+              borderRadius: '20px',
+              border: `1px solid ${payload.borderColor || '#334155'}`,
+              marginTop: '16px'
+            }}>
+              <h3 style={{ color: payload.textColor || '#ffffff', marginBottom: '8px', fontSize: '18px', fontWeight: 800 }}>Sample Content Card</h3>
+              <p style={{ color: payload.mutedColor || '#94a3b8', fontSize: '13px', lineHeight: 1.5, marginBottom: '20px' }}>
+                Ini adalah contoh tulisan redup yang sering digunakan pada deksripsi sebuah list barang atau produk.
+              </p>
+              
+              <button style={{
+                  backgroundColor: payload.primaryColor || '#22d3ee',
+                  color: '#020617',
+                  padding: '12px 24px',
+                  borderRadius: '12px',
+                  border: 'none',
+                  fontWeight: 900,
+                  width: '100%',
+                  cursor: 'pointer',
+                  textAlign: 'center'
+              }}>
+                Simulasi Action Primary
+              </button>
+            </div>
+          </div>
+
+          <div className="admin-save-row" style={{ border: 'none', padding: 0, margin: 0, justifyContent: 'flex-start', flexDirection: 'column' }}>
+            <button className="admin-save-button" onClick={handleSave} disabled={saving} type="button" style={{ width: '100%' }}>
+              {saving ? "Menyimpan..." : "Simpan Tema Web"}
+            </button>
+          </div>
+
+        </div>
+      </div>
     </div>
   );
 };
@@ -350,28 +516,66 @@ export const AudioView = ({ settings }: { settings: any }) => {
   };
 
   return (
-    <div className="bg-[#111827] border border-[#334155] rounded-2xl p-6">
-      <h2 className="text-xl font-bold text-white mb-6">Background Audio</h2>
-      <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <label className="flex items-center gap-3 cursor-pointer text-white">
-          <input type="checkbox" checked={payload.autoplay} onChange={e => setPayload({...payload, autoplay: e.target.checked})} className="w-5 h-5 accent-[#22d3ee] rounded" />
-          Autoplay Audio
-        </label>
-        <label className="flex items-center gap-3 cursor-pointer text-white">
-          <input type="checkbox" checked={payload.loop} onChange={e => setPayload({...payload, loop: e.target.checked})} className="w-5 h-5 accent-[#22d3ee] rounded" />
-          Loop Audio
-        </label>
-        
-        <AdminInput label="URL Audio Mp3" value={payload.url} onChange={e => setPayload({...payload, url: e.target.value})} className="md:col-span-2" />
-        <AdminInput label="Nama Track/Artis" value={payload.name} onChange={e => setPayload({...payload, name: e.target.value})} />
-        <AdminInput label="Volume (0-100)" type="number" min="0" max="100" value={payload.volume} onChange={e => setPayload({...payload, volume: parseInt(e.target.value)})} />
-        
-        <div className="md:col-span-2 pt-4">
-          <AdminButton type="submit" disabled={saving}>
-            {saving ? "Menyimpan..." : "Simpan Audio"}
-          </AdminButton>
+    <div className="admin-page">
+      <div className="admin-page-header">
+        <h1>Background Audio</h1>
+        <p>Atur musik latar pada website</p>
+      </div>
+
+      <div className="admin-help-box">
+        <strong>Info Background Audio</strong>
+        <p>Tambahkan musik latar yang bisa diputar pengunjung (atau otomatis jika diizinkan browser).</p>
+      </div>
+
+      <div className="admin-section-card">
+        <div className="admin-section-header">
+          <h2>Tingkah Laku Audio</h2>
+          <p>Pengaturan putar otomatis dan perulangan</p>
         </div>
-      </form>
+        <div className="admin-toggle-grid">
+          <label className="admin-toggle-card cursor-pointer">
+            <div>
+              <h4>Autoplay Audio</h4>
+              <p>Mulai memutar saat website dibuka</p>
+            </div>
+            <input type="checkbox" checked={payload.autoplay} onChange={e => setPayload({...payload, autoplay: e.target.checked})} className="w-5 h-5 accent-[#22d3ee] rounded cursor-pointer" />
+          </label>
+          <label className="admin-toggle-card cursor-pointer">
+            <div>
+              <h4>Loop Audio</h4>
+              <p>Ulangi lagu saat sudah selesai</p>
+            </div>
+            <input type="checkbox" checked={payload.loop} onChange={e => setPayload({...payload, loop: e.target.checked})} className="w-5 h-5 accent-[#22d3ee] rounded cursor-pointer" />
+          </label>
+        </div>
+      </div>
+
+      <div className="admin-section-card">
+        <div className="admin-section-header">
+          <h2>Sumber Lagu</h2>
+          <p>Detail sumber file musik (.mp3)</p>
+        </div>
+        <div className="admin-form-grid">
+          <div className="admin-form-field full">
+            <label>URL Audio Mp3</label>
+            <input value={payload.url} onChange={e => setPayload({...payload, url: e.target.value})} placeholder="https://contoh.com/lagu.mp3" />
+          </div>
+          <div className="admin-form-field">
+            <label>Nama Track/Artis</label>
+            <input value={payload.name} onChange={e => setPayload({...payload, name: e.target.value})} placeholder="Contoh: Relaxing Lofi" />
+          </div>
+          <div className="admin-form-field">
+            <label>Volume (0-100)</label>
+            <input type="number" min="0" max="100" value={payload.volume} onChange={e => setPayload({...payload, volume: parseInt(e.target.value)})} />
+          </div>
+        </div>
+      </div>
+
+      <div className="admin-save-row">
+        <button className="admin-save-button" onClick={handleSave} disabled={saving} type="button">
+          {saving ? "Menyimpan..." : "Simpan Audio"}
+        </button>
+      </div>
     </div>
   );
 };
@@ -436,23 +640,67 @@ export const ContactView = ({ settings }: { settings: any }) => {
   };
 
   return (
-    <div className="bg-[#111827] border border-[#334155] rounded-2xl p-6">
-      <h2 className="text-xl font-bold text-white mb-6">Kontak & Order</h2>
-      <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <AdminInput label="Nomor WhatsApp Order" placeholder="6281234567890" value={payload.whatsapp} onChange={e => setPayload({...payload, whatsapp: e.target.value})} />
-        <AdminInput label="Teks Tombol Order" value={payload.btnBuyText} onChange={e => setPayload({...payload, btnBuyText: e.target.value})} />
-        <AdminInput label="Template Pesan WA" value={payload.orderMessage} onChange={e => setPayload({...payload, orderMessage: e.target.value})} className="md:col-span-2" />
-        
-        <AdminInput label="URL Telegram" value={payload.telegram} onChange={e => setPayload({...payload, telegram: e.target.value})} />
-        <AdminInput label="URL Instagram" value={payload.instagram} onChange={e => setPayload({...payload, instagram: e.target.value})} />
-        <AdminInput label="Email Support" value={payload.email} onChange={e => setPayload({...payload, email: e.target.value})} className="md:col-span-2" />
-        
-        <div className="md:col-span-2 pt-4">
-          <AdminButton type="submit" disabled={saving}>
-            {saving ? "Menyimpan..." : "Simpan Kontak"}
-          </AdminButton>
-        </div>
-      </form>
+    <div className="admin-page contact-order-admin">
+      <div className="admin-page-header">
+        <h1>Kontak & Order</h1>
+        <p>Pengaturan nomor penerima pesanan dan kontak sosial media</p>
+      </div>
+
+      <div className="admin-help-box">
+        <strong>Info Kontak & Order</strong>
+        <p>Atur nomor penerima pesanan dan link kontak lainnya.</p>
+      </div>
+
+      <div className="admin-two-column-grid">
+        <section className="admin-section-card" style={{ marginBottom: 0 }}>
+          <div className="admin-section-header">
+            <h2>Order WhatsApp</h2>
+            <p>Tujuan tombol beli</p>
+          </div>
+          <div className="admin-form-grid full">
+            <div className="admin-form-field full">
+              <label>Nomor WhatsApp Order</label>
+              <input value={payload.whatsapp} onChange={e => setPayload({...payload, whatsapp: e.target.value})} placeholder="Misal: 6281234567890" />
+              <small>Awali dengan angka 62.</small>
+            </div>
+            <div className="admin-form-field full">
+              <label>Teks Tombol Order</label>
+              <input value={payload.btnBuyText} onChange={e => setPayload({...payload, btnBuyText: e.target.value})} />
+            </div>
+            <div className="admin-form-field full">
+              <label>Template Pesan WA</label>
+              <textarea value={payload.orderMessage} onChange={e => setPayload({...payload, orderMessage: e.target.value})} rows={3} />
+            </div>
+          </div>
+        </section>
+
+        <section className="admin-section-card" style={{ marginBottom: 0 }}>
+          <div className="admin-section-header">
+            <h2>Kontak Sosial Sosial Media</h2>
+            <p>Akan muncul di footer website</p>
+          </div>
+          <div className="admin-form-grid full">
+            <div className="admin-form-field full">
+              <label>URL Telegram</label>
+              <input value={payload.telegram} onChange={e => setPayload({...payload, telegram: e.target.value})} />
+            </div>
+            <div className="admin-form-field full">
+              <label>URL Instagram</label>
+              <input value={payload.instagram} onChange={e => setPayload({...payload, instagram: e.target.value})} />
+            </div>
+            <div className="admin-form-field full">
+              <label>Email Support</label>
+              <input value={payload.email} onChange={e => setPayload({...payload, email: e.target.value})} />
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div className="admin-save-row">
+        <button className="admin-save-button" onClick={handleSave} disabled={saving} type="button">
+          {saving ? "Menyimpan..." : "Simpan Kontak"}
+        </button>
+      </div>
     </div>
   );
 };
@@ -513,26 +761,76 @@ export const FooterView = ({ settings }: { settings: any }) => {
   };
 
   return (
-    <div className="bg-[#111827] border border-[#334155] rounded-2xl p-6">
-      <h2 className="text-xl font-bold text-white mb-6">Footer Utama</h2>
-      <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <label className="flex items-center gap-3 cursor-pointer text-white md:col-span-2">
-          <input type="checkbox" checked={payload.showFooter} onChange={e => setPayload({...payload, showFooter: e.target.checked})} className="w-5 h-5 accent-[#22d3ee] rounded" />
-          Tampilkan Footer
-        </label>
-        
-        <AdminInput label="Footer Title" value={payload.title} onChange={e => setPayload({...payload, title: e.target.value})} />
-        <AdminInput label="Detail/Deskripsi Singkat" value={payload.description} onChange={e => setPayload({...payload, description: e.target.value})} />
-        <AdminInput label="Teks Copyright" value={payload.copyright} onChange={e => setPayload({...payload, copyright: e.target.value})} className="md:col-span-2" />
-        <AdminInput label="URL Kebijakan Privasi" value={payload.privacyUrl} onChange={e => setPayload({...payload, privacyUrl: e.target.value})} />
-        <AdminInput label="URL Syarat & Ketentuan" value={payload.termsUrl} onChange={e => setPayload({...payload, termsUrl: e.target.value})} />
-        
-        <div className="md:col-span-2 pt-4">
-          <AdminButton type="submit" disabled={saving}>
-            {saving ? "Menyimpan..." : "Simpan Footer"}
-          </AdminButton>
+    <div className="admin-page">
+      <div className="admin-page-header">
+        <h1>Footer Utama</h1>
+        <p>Edit bagian bawah website Anda</p>
+      </div>
+
+      <div className="admin-help-box">
+        <strong>Info Footer Web</strong>
+        <p>Sesuaikan bagian kaki bawah website Anda, seperti teks copyright, dan url kebijakan privasi.</p>
+      </div>
+
+      <div className="admin-section-card">
+        <div className="admin-section-header">
+          <h2>Tampilan Footer</h2>
+          <p>Tampilkan atau sembunyikan footer</p>
         </div>
-      </form>
+        <div className="admin-toggle-grid" style={{ gridTemplateColumns: '1fr' }}>
+          <label className="admin-toggle-card cursor-pointer">
+            <div>
+              <h4>Tampilkan Footer Utama</h4>
+              <p>Aktifkan agar bagian footer terlihat di bawah halaman utama.</p>
+            </div>
+            <input type="checkbox" checked={payload.showFooter} onChange={e => setPayload({...payload, showFooter: e.target.checked})} className="w-5 h-5 accent-[#22d3ee] rounded cursor-pointer" />
+          </label>
+        </div>
+      </div>
+
+      <div className="admin-section-card">
+        <div className="admin-section-header">
+          <h2>Konten Footer</h2>
+          <p>Judul, deskripsi dan copyright</p>
+        </div>
+        <div className="admin-form-grid">
+          <div className="admin-form-field">
+            <label>Footer Title</label>
+            <input value={payload.title} onChange={e => setPayload({...payload, title: e.target.value})} placeholder="Contoh: Store Kami" />
+          </div>
+          <div className="admin-form-field">
+            <label>Detail/Deskripsi Singkat</label>
+            <input value={payload.description} onChange={e => setPayload({...payload, description: e.target.value})} placeholder="Terbaik dan Terpercaya" />
+          </div>
+          <div className="admin-form-field full">
+            <label>Teks Copyright</label>
+            <input value={payload.copyright} onChange={e => setPayload({...payload, copyright: e.target.value})} placeholder="© 2024 Nama Store. All rights reserved." />
+          </div>
+        </div>
+      </div>
+
+      <div className="admin-section-card">
+        <div className="admin-section-header">
+          <h2>Link Tambahan</h2>
+          <p>Syarat ketentuan dan Kebijakan privasi</p>
+        </div>
+        <div className="admin-form-grid">
+          <div className="admin-form-field">
+            <label>URL Kebijakan Privasi</label>
+            <input value={payload.privacyUrl} onChange={e => setPayload({...payload, privacyUrl: e.target.value})} placeholder="https://..." />
+          </div>
+          <div className="admin-form-field">
+            <label>URL Syarat & Ketentuan</label>
+            <input value={payload.termsUrl} onChange={e => setPayload({...payload, termsUrl: e.target.value})} placeholder="https://..." />
+          </div>
+        </div>
+      </div>
+
+      <div className="admin-save-row">
+        <button className="admin-save-button" onClick={handleSave} disabled={saving} type="button">
+          {saving ? "Menyimpan..." : "Simpan Footer"}
+        </button>
+      </div>
     </div>
   );
 };
@@ -578,35 +876,67 @@ export const MaintenanceView = ({ settings }: { settings: any }) => {
   };
 
   return (
-    <div className="bg-[#111827] border border-[#334155] rounded-2xl p-6">
-      <h2 className="text-xl font-bold text-white mb-6">Mode Maintenance</h2>
-      <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
-        <div className="flex flex-col gap-4 p-4 border border-red-500/20 bg-red-500/5 rounded-xl col-span-2">
-           <label className="flex items-center gap-3 cursor-pointer text-white">
-            <input type="checkbox" checked={payload.maintenanceMode} onChange={e => setPayload({...payload, maintenanceMode: e.target.checked})} className="w-5 h-5 accent-red-500 rounded" />
-            Aktifkan Mode Maintenance (Situs ditutup untuk umum)
+    <div className="admin-page">
+      <div className="admin-page-header">
+        <h1>Mode Maintenance</h1>
+        <p>Tutup sementara toko Anda</p>
+      </div>
+
+      <div className="admin-help-box">
+        <strong>Info Mode Maintenance</strong>
+        <p>Aktifkan mode ini jika Anda akan melakukan perombakan besar di website sehingga pengunjung tidak mendapat error.</p>
+      </div>
+
+      <div className="admin-section-card">
+        <div className="admin-section-header">
+          <h2>Buka / Tutup Toko</h2>
+          <p>Kontrol akses publik ke website</p>
+        </div>
+        <div className="admin-toggle-grid" style={{ gridTemplateColumns: '1fr' }}>
+          <label className="admin-toggle-card cursor-pointer" style={{ border: payload.maintenanceMode ? '1px solid rgba(244, 63, 94, 0.4)' : '' }}>
+            <div>
+              <h4 style={{ color: payload.maintenanceMode ? '#f43f5e' : '#fff' }}>Aktifkan Mode Maintenance</h4>
+              <p>Situs ditutup untuk umum (hanya Admin yang bisa lihat halaman utama setelah login)</p>
+            </div>
+            <input type="checkbox" checked={payload.maintenanceMode} onChange={e => setPayload({...payload, maintenanceMode: e.target.checked})} className="w-6 h-6 accent-red-500 rounded cursor-pointer" />
           </label>
         </div>
+      </div>
 
-        {payload.maintenanceMode && (
-          <>
-            <AdminInput label="Judul Maintenance" placeholder="Contoh: Sedang Perbaikan" value={payload.maintenanceTitle} onChange={e => setPayload({...payload, maintenanceTitle: e.target.value})} />
-            <AdminInput label="Estimasi Selesai" placeholder="Contoh: 2 Jam Lagi" value={payload.maintenanceEstimate} onChange={e => setPayload({...payload, maintenanceEstimate: e.target.value})} />
-            <AdminInput label="Pesan Kembalian" value={payload.maintenanceText} onChange={e => setPayload({...payload, maintenanceText: e.target.value})} className="md:col-span-2" />
-            <label className="flex items-center gap-3 cursor-pointer text-white md:col-span-2">
-              <input type="checkbox" checked={payload.contactButton} onChange={e => setPayload({...payload, contactButton: e.target.checked})} className="w-5 h-5 accent-[#22d3ee] rounded" />
-              Tampilkan Tombol Kontak Admin Saat Maintenance
-            </label>
-          </>
-        )}
-        
-        <div className="md:col-span-2 pt-4">
-          <AdminButton type="submit" disabled={saving}>
-            {saving ? "Menyimpan..." : "Simpan Maintenance"}
-          </AdminButton>
+      {payload.maintenanceMode && (
+        <div className="admin-section-card">
+          <div className="admin-section-header">
+            <h2>Pesan Tampilan</h2>
+            <p>Apa yang akan dilihat pengunjung</p>
+          </div>
+          <div className="admin-form-grid">
+            <div className="admin-form-field">
+              <label>Judul Maintenance</label>
+              <input value={payload.maintenanceTitle} onChange={(e) => setPayload({ ...payload, maintenanceTitle: e.target.value })} placeholder="Contoh: Kami Sedang Maintenance" />
+            </div>
+            <div className="admin-form-field">
+              <label>Estimasi Selesai (Opsional)</label>
+              <input value={payload.maintenanceEstimate} onChange={(e) => setPayload({ ...payload, maintenanceEstimate: e.target.value })} placeholder="Contoh: 1 Jam Lagi" />
+            </div>
+            <div className="admin-form-field full">
+              <label>Pesan/Penjelasan</label>
+              <textarea value={payload.maintenanceText} onChange={(e) => setPayload({ ...payload, maintenanceText: e.target.value })} rows={3} placeholder="Mohon maaf atas ketidaknyamanannya" />
+            </div>
+            <div className="admin-form-field full" style={{ marginTop: '10px' }}>
+              <label className="flex items-center gap-3 cursor-pointer text-white">
+                <input type="checkbox" checked={payload.contactButton} onChange={e => setPayload({...payload, contactButton: e.target.checked})} className="w-5 h-5 accent-[#22d3ee] rounded cursor-pointer" />
+                Tampilkan Tombol Kontak Admin Saat Maintenance
+              </label>
+            </div>
+          </div>
         </div>
-      </form>
+      )}
+
+      <div className="admin-save-row">
+        <button className="admin-save-button" onClick={handleSave} disabled={saving} type="button">
+          {saving ? "Menyimpan..." : "Simpan Pengaturan"}
+        </button>
+      </div>
     </div>
   );
 };
@@ -655,52 +985,93 @@ export const GeneralView = ({ settings }: { settings: any }) => {
   };
 
   return (
-    <div className="bg-[#111827] border border-[#334155] rounded-2xl p-6">
-      <h2 className="text-xl font-bold text-white mb-6">Pengaturan Web</h2>
-      <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
-        <div className="flex flex-col gap-4 p-4 border border-[#334155] bg-[#020617] rounded-xl md:col-span-2">
-           <label className="flex items-center gap-3 cursor-pointer text-white">
-            <input type="checkbox" checked={payload.websiteEnabled} onChange={e => setPayload({...payload, websiteEnabled: e.target.checked})} className="w-5 h-5 accent-[#22d3ee] rounded" />
-            Website Aktif (Akses Publik)
-          </label>
-           <label className="flex items-center gap-3 cursor-pointer text-white">
-            <input type="checkbox" checked={payload.showSlider} onChange={e => setPayload({...payload, showSlider: e.target.checked})} className="w-5 h-5 accent-[#22d3ee] rounded" />
-            Tampilkan Slider
-          </label>
-           <label className="flex items-center gap-3 cursor-pointer text-white">
-            <input type="checkbox" checked={payload.showAudioBtn} onChange={e => setPayload({...payload, showAudioBtn: e.target.checked})} className="w-5 h-5 accent-[#22d3ee] rounded" />
-            Tampilkan Audio Button
-          </label>
-           <label className="flex items-center gap-3 cursor-pointer text-white">
-            <input type="checkbox" checked={payload.showFooter} onChange={e => setPayload({...payload, showFooter: e.target.checked})} className="w-5 h-5 accent-[#22d3ee] rounded" />
-            Tampilkan Footer
-          </label>
-           <label className="flex items-center gap-3 cursor-pointer text-white">
-            <input type="checkbox" checked={payload.showWaBtn} onChange={e => setPayload({...payload, showWaBtn: e.target.checked})} className="w-5 h-5 accent-[#22d3ee] rounded" />
-            Tampilkan Tombol WhatsApp
-          </label>
-        </div>
+    <div className="admin-page">
+      <div className="admin-page-header">
+        <h1>Pengaturan Web</h1>
+        <p>Fitur on/off utama website</p>
+      </div>
 
-        <AdminSelect
-          label="Tampilan Info Server (Beranda Utama)"
-          value={payload.infoDisplayMode}
-          onChange={e => setPayload({...payload, infoDisplayMode: e.target.value})}
-          options={[
-            { value: "runtime", label: "Tampilkan Server Status Saja" },
-            { value: "datetime", label: "Tampilkan Jam Saja" },
-            { value: "both", label: "Tampilkan Keduanya" },
-            { value: "hidden", label: "Sembunyikan Keduanya" }
-          ]}
-          className="md:col-span-2"
-        />
-        
-        <div className="md:col-span-2 pt-4">
-          <AdminButton type="submit" disabled={saving}>
-            {saving ? "Menyimpan..." : "Simpan Pengaturan"}
-          </AdminButton>
+      <div className="admin-help-box">
+        <strong>Info Pengaturan Web</strong>
+        <p>Atur fitur yang ingin ditampilkan atau disembunyikan di front-end website secara instan.</p>
+      </div>
+
+      <div className="admin-section-card">
+        <div className="admin-section-header">
+          <h2>Toggle Fitur Utama</h2>
+          <p>Fitur on/off untuk publik</p>
         </div>
-      </form>
+        <div className="admin-toggle-grid">
+          
+          <label className="admin-toggle-card cursor-pointer">
+            <div>
+              <h4>Website Aktif</h4>
+              <p>Biarkan user mengakses web</p>
+            </div>
+            <input type="checkbox" checked={payload.websiteEnabled} onChange={e => setPayload({...payload, websiteEnabled: e.target.checked})} className="w-5 h-5 accent-[#22d3ee] rounded cursor-pointer" />
+          </label>
+
+          <label className="admin-toggle-card cursor-pointer">
+            <div>
+              <h4>Tampilkan Slider</h4>
+              <p>Banner promosi di beranda</p>
+            </div>
+            <input type="checkbox" checked={payload.showSlider} onChange={e => setPayload({...payload, showSlider: e.target.checked})} className="w-5 h-5 accent-[#22d3ee] rounded cursor-pointer" />
+          </label>
+
+          <label className="admin-toggle-card cursor-pointer">
+            <div>
+              <h4>Tampilkan Audio</h4>
+              <p>Tombol musik di pojok kanan</p>
+            </div>
+            <input type="checkbox" checked={payload.showAudioBtn} onChange={e => setPayload({...payload, showAudioBtn: e.target.checked})} className="w-5 h-5 accent-[#22d3ee] rounded cursor-pointer" />
+          </label>
+
+          <label className="admin-toggle-card cursor-pointer">
+            <div>
+              <h4>Tampilkan Footer</h4>
+              <p>Info di paling bawah website</p>
+            </div>
+            <input type="checkbox" checked={payload.showFooter} onChange={e => setPayload({...payload, showFooter: e.target.checked})} className="w-5 h-5 accent-[#22d3ee] rounded cursor-pointer" />
+          </label>
+
+          <label className="admin-toggle-card cursor-pointer">
+            <div>
+              <h4>Tombol WhatsApp</h4>
+              <p>Tombol share/order ke WA</p>
+            </div>
+            <input type="checkbox" checked={payload.showWaBtn} onChange={e => setPayload({...payload, showWaBtn: e.target.checked})} className="w-5 h-5 accent-[#22d3ee] rounded cursor-pointer" />
+          </label>
+
+        </div>
+      </div>
+
+      <div className="admin-section-card">
+        <div className="admin-section-header">
+          <h2>Mode Info Homepage</h2>
+          <p>Teks info kecil di bawah nama store</p>
+        </div>
+        <div className="admin-form-grid full">
+          <div className="admin-form-field full">
+            <select
+              value={payload.infoDisplayMode}
+              onChange={e => setPayload({...payload, infoDisplayMode: e.target.value})}
+              className="admin-panel mt-1"
+            >
+              <option value="runtime">Tampilkan Server Status Saja</option>
+              <option value="datetime">Tampilkan Jam & Waktu Saja</option>
+              <option value="both">Tampilkan Keduannya</option>
+              <option value="hidden">Sembunyikan Semua Info</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div className="admin-save-row">
+        <button className="admin-save-button" onClick={handleSave} disabled={saving} type="button">
+          {saving ? "Menyimpan..." : "Simpan Pengaturan"}
+        </button>
+      </div>
     </div>
   );
 };
@@ -738,7 +1109,7 @@ export const DebugFirebaseView = () => {
   };
 
   return (
-    <div className="bg-[#111827] border border-[#334155] rounded-2xl p-6">
+    <div className="admin-card">
       <h2 className="text-xl font-bold text-white mb-6">Debug Firebase</h2>
       <div className="flex flex-col gap-4">
         <div className="p-4 bg-[#0f172a] rounded-xl border border-[#1e293b] flex flex-col gap-2">

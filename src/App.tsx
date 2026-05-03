@@ -47,6 +47,7 @@ import {
   Gamepad2,
   Shield,
   Phone,
+  Server
 } from "lucide-react";
 import {
   CATEGORIES,
@@ -56,6 +57,7 @@ import {
   VIDEO_DATA,
   SiteSettings,
   DEFAULT_SITE_SETTINGS,
+  DEFAULT_MENU_SEMUA
 } from "./constants";
 
 import { db, firebaseReady } from "./lib/firebase";
@@ -73,6 +75,7 @@ const VpsStatusShowcase = lazy(
   () => import("./components/common/VpsStatusShowcase"),
 );
 const TimeDateCard = lazy(() => import("./components/common/TimeDateCard"));
+const ChatDrawer = lazy(() => import("./components/views/ChatDrawer").then(module => ({ default: module.ChatDrawer })));
 
 const ViewFallback = () => (
   <div className="flex-1 flex items-center justify-center min-h-[400px]">
@@ -209,6 +212,7 @@ import CategoryPopup from "./components/views/CategoryPopup";
 
 // Components removed to clear unused code
 
+import MainMenuDrawer from "./components/views/MainMenuDrawer";
 import LoginModal from "./components/views/LoginModal";
 import { useStoreData } from "./hooks/useStoreData";
 
@@ -219,6 +223,7 @@ export default function App() {
   });
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("Semua");
+  const [isAiChatOpen, setIsAiChatOpen] = useState(false);
 
   const {
     loading: storeLoading,
@@ -227,6 +232,11 @@ export default function App() {
     products: storeProducts,
     slides,
   } = useStoreData();
+
+  const menuSemuaText = {
+    ...DEFAULT_MENU_SEMUA,
+    ...siteSettings?.menuSemua,
+  };
 
   const localCategories = useMemo(() => {
     let baseCategories: any[] = [];
@@ -366,14 +376,38 @@ export default function App() {
   } | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
+  const openAdminFromMainMenu = () => {
+    console.log("OPEN ADMIN FROM MAIN MENU");
+    setIsMenuOpen(false);
+    setIsAiChatOpen(false);
+
+    setTimeout(() => {
+      const savedAdmin = localStorage.getItem("sanz_admin_logged_in") === "true" || localStorage.getItem("isAdminLoggedIn") === "true";
+      
+      if (savedAdmin || isAdminLoggedIn) {
+        setShowLoginModal(false);
+        setAdminMode("dashboard");
+        return;
+      }
+      
+      setShowLoginModal(true);
+      setAdminMode(null);
+    }, 120);
+  };
+
   const handleAdminLoginInit = () => {
+    console.log("ADMIN LOGIN SUCCESS");
     localStorage.setItem("sanz_admin_logged_in", "true");
+    localStorage.setItem("isAdminLoggedIn", "true");
     setIsAdminLoggedIn(true);
     setShowLoginModal(false);
+    setAdminMode("dashboard");
   };
 
   const handleLogoutInit = () => {
     localStorage.removeItem("sanz_admin_logged_in");
+    localStorage.removeItem("isAdminLoggedIn");
+    localStorage.removeItem("adminLoggedIn");
     setIsAdminLoggedIn(false);
     setAdminMode(null);
   };
@@ -439,12 +473,21 @@ export default function App() {
   }, [siteSettings.theme]);
 
   useEffect(() => {
-    if ((loading && !storeLoading) || activeCategory || adminMode) {
+    if ((loading && !storeLoading) || activeCategory || showLoginModal) {
       document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = "unset";
+      document.body.style.overflow = "";
     }
-  }, [loading, storeLoading, activeCategory, adminMode]);
+  }, [loading, storeLoading, activeCategory, showLoginModal]);
+
+  useEffect(() => {
+    console.log("ADMIN STATE:", {
+      adminLoginOpen: showLoginModal,
+      adminPanelOpen: adminMode !== null,
+      isAdminLoggedIn,
+      savedLogin: localStorage.getItem("isAdminLoggedIn")
+    });
+  }, [showLoginModal, adminMode, isAdminLoggedIn]);
 
   return (
     <div className="min-h-screen bg-theme-bg text-theme-text selection:bg-theme-accent/20 font-sans overflow-x-hidden">
@@ -471,144 +514,69 @@ export default function App() {
 
       {(!loading || siteSettings.loading?.enabled === false) && (
         <>
-          <nav className="navbar fixed top-0 left-0 right-0 z-50 h-[72px] md:h-[76px] transition-all">
-            <div className="max-w-7xl mx-auto h-full px-4 md:px-6 flex items-center justify-between">
-              <div className="header-brand cursor-pointer" onClick={() => setCurrentTab("home")}>
-                <div className="flex-shrink-0">
+          <header className="store-header">
+            <div className="flex items-center gap-3 lg:gap-4">
+              <button
+                className="main-menu-button"
+                onClick={() => setIsAiChatOpen(true)}
+              >
+                <Bot className="w-5 h-5" />
+              </button>
+              <div className="store-brand" onClick={() => setCurrentTab("home")}>
+                <div className="store-logo">
                   {siteSettings.branding.logoUrl ? (
                     <img
                       src={siteSettings.branding.logoUrl}
                       alt="Logo"
-                      className="w-[46px] h-[46px] rounded-[14px] object-cover ring-1 ring-white/10 shadow-[0_4px_12px_rgba(34,211,238,0.25)] brand-logo"
+                      className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="w-[46px] h-[46px] bg-gradient-to-br from-[#22d3ee] to-[#0ea5e9] rounded-[14px] flex items-center justify-center shadow-[0_4px_12px_rgba(34,211,238,0.3)] brand-logo">
-                      <Bot className="w-6 h-6 text-white" />
-                    </div>
+                    <Bot className="w-6 h-6 text-white" />
                   )}
                 </div>
-                <div className="brand-text">
-                  <div className="store-name">
+                <div className="store-brand-text hidden sm:block">
+                  <h1 className="store-brand-title">
                     {siteSettings.branding.headerName || siteSettings.branding.storeName || siteSettings.branding.siteName || "SANZ STORE"}
-                  </div>
-                  <div className="store-slogan">
+                  </h1>
+                  <p className="store-brand-subtitle">
                     {siteSettings.branding.slogan || "Infrastruktur Terpadu & Modern"}
-                  </div>
+                  </p>
                 </div>
-              </div>
-
-              <div className="flex items-center gap-[10px] flex-shrink-0">
-                <button
-                  className="w-[44px] h-[44px] rounded-[14px] bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.10)] flex items-center justify-center text-[rgba(255,255,255,0.78)] hover:bg-[rgba(34,211,238,0.12)] hover:border-[#22d3ee]/50 hover:text-[#22d3ee] active:scale-[0.98] transition-all"
-                  onClick={() => setIsMenuOpen(!isMenuOpen)}
-                >
-                  {isMenuOpen ? (
-                    <X className="w-5 h-5" />
-                  ) : (
-                    <Menu className="w-5 h-5" />
-                  )}
-                </button>
               </div>
             </div>
 
-            <AnimatePresence>
-              {isMenuOpen && (
-                <>
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="fixed inset-0 z-[60] bg-black/45 backdrop-blur-[8px]"
-                    onClick={() => setIsMenuOpen(false)}
-                  />
-                  <motion.div
-                    initial={{ x: "100%" }}
-                    animate={{ x: 0 }}
-                    exit={{ x: "100%" }}
-                    transition={{ type: "spring", damping: 25, stiffness: 200, duration: 0.25 }}
-                    className="hamburger-drawer fixed right-0 top-0 bottom-0 z-[70] w-[82vw] max-w-[420px] bg-[#0f172a] backdrop-blur-xl border-l border-[#22d3ee]/20 shadow-[-10px_0_30px_rgba(0,0,0,0.3)] flex flex-col rounded-l-[24px]"
-                  >
-                    <div className="flex items-center justify-between p-5 border-b border-white/5">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-[#22d3ee]/10 flex items-center justify-center border border-[#22d3ee]/20 text-[#22d3ee]">
-                          <Menu className="w-5 h-5" />
-                        </div>
-                        <h2 className="text-white font-bold tracking-wide">MENU UTAMA</h2>
-                      </div>
-                      <button 
-                        onClick={() => setIsMenuOpen(false)}
-                        className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
-                      >
-                        <X className="w-5 h-5" />
-                      </button>
-                    </div>
+            <div className="flex items-center gap-[10px] flex-shrink-0">
+              <button
+                className="main-menu-button"
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+              >
+                {isMenuOpen ? (
+                  <X className="w-5 h-5" />
+                ) : (
+                  <Menu className="w-5 h-5" />
+                )}
+              </button>
+            </div>
 
-                    <div className="drawer-menu-list">
-                      {(() => {
-                        const hamburgerMenuItems = [
-                          { id: "home", label: "Beranda", icon: <Home className="w-5 h-5" />, action: "scroll-home" },
-                          { id: "video-game", label: "Video Game", icon: <Gamepad2 className="w-5 h-5" />, action: "open-video-game" },
-                          { id: "video", label: "Video", icon: <Video className="w-5 h-5" />, action: "open-video" },
-                          { id: "login-admin", label: "Login Admin", icon: <Shield className="w-5 h-5" />, action: "open-admin-login" }
-                        ];
-
-                        const handleHamburgerMenuAction = (item: any) => {
-                          setIsMenuOpen(false);
-
-                          if (item.id === "login-admin") {
-                            if (isAdminLoggedIn) setAdminMode("dashboard");
-                            else setShowLoginModal(true);
-                            return;
-                          }
-
-                          if (item.id === "video-game") {
-                            setCurrentTab("game");
-                            setSelectedCategory("Semua");
-                            return;
-                          }
-
-                          const oldTabs = ["home", "produk", "app", "video", "script"];
-                          if (oldTabs.includes(item.id)) {
-                            setCurrentTab(item.id as any);
-                            if (item.id === "app") setSelectedCategory("App Premium");
-                            else setSelectedCategory("Semua");
-                          }
-                        };
-
-                        return hamburgerMenuItems.map((item) => {
-                          const isActive = currentTab === (item.id === "video-game" ? "game" : item.id) && item.id !== "login-admin";
-                          
-                          return (
-                            <button
-                              key={item.id}
-                              type="button"
-                              onClick={() => handleHamburgerMenuAction(item)}
-                              className={`drawer-menu-item transition-all ${
-                                isActive 
-                                  ? "bg-[#22d3ee] !text-[#0f172a] shadow-[0_4px_12px_rgba(34,211,238,0.3)]" 
-                                  : "text-slate-300 hover:bg-white/5 hover:text-white"
-                              } ${item.id === "login-admin" ? "mt-2 pt-4 border-t border-white/5" : ""}`}
-                            >
-                              <span className="drawer-menu-icon" style={{color: isActive ? "#0f172a" : undefined}}>{item.icon}</span>
-                              <span className="drawer-menu-text" style={{color: isActive ? "#0f172a" : undefined}}>{item.label}</span>
-                            </button>
-                          );
-                        });
-                      })()}
-                    </div>
-
-                    <div className="p-5 border-t border-white/5 mt-auto bg-black/20">
-                      <div className="flex items-center gap-3">
-                         <div className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)] animate-pulse" />
-                         <div className="text-xs font-bold text-slate-300">Semua Sistem Normal</div>
-                      </div>
-                    </div>
-                  </motion.div>
-                </>
-              )}
-            </AnimatePresence>
-          </nav>
+            <MainMenuDrawer
+              open={isMenuOpen}
+              onClose={() => setIsMenuOpen(false)}
+              onLoginAdmin={openAdminFromMainMenu}
+              onChatAi={() => setIsAiChatOpen(true)}
+              onHome={() => {
+                setCurrentTab("home");
+                setSelectedCategory("Semua");
+              }}
+              onVideoGame={() => {
+                setCurrentTab("game");
+                setSelectedCategory("Semua");
+              }}
+              onVideo={() => {
+                setCurrentTab("video");
+                setSelectedCategory("Semua");
+              }}
+            />
+          </header>
 
           <div className="flex-1 pt-[88px] md:pt-[100px] pb-20 max-w-7xl mx-auto w-full">
             <Suspense fallback={<ViewFallback />}>
@@ -687,35 +655,61 @@ export default function App() {
                     </div>
 
                     {selectedCategory === "Semua" ? (
-                      <div className="menu-semua-landing px-4 pb-12 flex flex-col gap-6 md:gap-8">
-                        {/* 1. Hero Mini Premium */}
-                        <section className="land-hero">
-                          <span className="land-badge">DIGITAL SERVICE HUB</span>
-                          <h2>Pusat Layanan Digital</h2>
-                          <p>Kelola kebutuhan digital Anda dalam satu tempat, mulai dari layanan bot, panel, aplikasi premium, sampai kebutuhan digital lain.</p>
+                      <div className="menu-semua-premium">
+                        {/* 1. Hero Premium */}
+                        <section className="land-hero-premium">
+                          <div className="hero-orb"></div>
+                          <span className="land-badge">{menuSemuaText.badgeText}</span>
+                          <h2 className="land-title">{menuSemuaText.heroTitle}</h2>
+                          <p className="land-subtitle">{menuSemuaText.heroSubtitle}</p>
                           <div className="land-chips">
-                            <span className="land-chip"><Zap className="w-3.5 h-3.5" /> Cepat</span>
-                            <span className="land-chip"><ShieldCheck className="w-3.5 h-3.5" /> Aman</span>
-                            <span className="land-chip"><HeadphonesIcon className="w-3.5 h-3.5" /> Support Aktif</span>
+                            <span className="land-chip"><Zap className="w-3.5 h-3.5" /> {(menuSemuaText as any).chip1 || "Cepat"}</span>
+                            <span className="land-chip"><ShieldCheck className="w-3.5 h-3.5" /> {(menuSemuaText as any).chip2 || "Aman"}</span>
+                            <span className="land-chip"><HeadphonesIcon className="w-3.5 h-3.5" /> {(menuSemuaText as any).chip3 || "Support Aktif"}</span>
+                          </div>
+                          <div className="hero-line"></div>
+                        </section>
+
+                        {/* 2. Quick Stats */}
+                        <section className="land-stats-grid">
+                          <div className="stat-card">
+                            <HeadphonesIcon className="stat-icon" />
+                            <span className="stat-value">24/7</span>
+                            <span className="stat-label">Support</span>
+                          </div>
+                          <div className="stat-card">
+                            <Zap className="stat-icon" />
+                            <span className="stat-value">Fast</span>
+                            <span className="stat-label">Response</span>
+                          </div>
+                          <div className="stat-card">
+                            <Server className="stat-icon" />
+                            <span className="stat-value">Aktif</span>
+                            <span className="stat-label">Layanan</span>
+                          </div>
+                          <div className="stat-card">
+                            <CheckCircle2 className="stat-icon" />
+                            <span className="stat-value">Mudah</span>
+                            <span className="stat-label">Order</span>
                           </div>
                         </section>
 
-                        {/* 2. Service Flow */}
-                        <section className="land-section">
+                        {/* 3. Alur Layanan Timeline */}
+                        <section className="land-timeline-section">
                           <div className="land-section-header">
-                            <h3>Alur Layanan</h3>
-                            <p>Cara mudah order di SANZ STORE</p>
+                            <h3>{menuSemuaText.flowTitle}</h3>
+                            <p>{menuSemuaText.flowSubtitle}</p>
                           </div>
-                          <div className="land-flow-grid">
+                          <div className="land-timeline-grid">
                             {[
-                              { step: "1", title: "Pilih Kategori", desc: "Cari produk dari kategori di atas." },
-                              { step: "2", title: "Cek Detail", desc: "Lihat deskripsi dan fitur produk." },
-                              { step: "3", title: "Order ke Admin", desc: "Hubungi admin untuk proses." },
-                              { step: "4", title: "Aktivasi Diproses", desc: "Pesanan akan segera diproses." }
+                              { step: "1", title: menuSemuaText.step1Title, desc: menuSemuaText.step1Desc },
+                              { step: "2", title: menuSemuaText.step2Title, desc: menuSemuaText.step2Desc },
+                              { step: "3", title: menuSemuaText.step3Title, desc: menuSemuaText.step3Desc },
+                              { step: "4", title: menuSemuaText.step4Title, desc: menuSemuaText.step4Desc }
                             ].map((s) => (
-                              <div className="flow-card" key={s.step}>
-                                <div className="flow-number">{s.step}</div>
-                                <div className="flow-text">
+                              <div className="timeline-card" key={s.step}>
+                                <div className="timeline-number">{s.step}</div>
+                                <div className="timeline-text">
                                   <h4>{s.title}</h4>
                                   <p>{s.desc}</p>
                                 </div>
@@ -724,44 +718,50 @@ export default function App() {
                           </div>
                         </section>
 
-                        {/* 3. Trust Panel */}
-                        <section className="land-trust">
-                          <div className="trust-content">
-                            <h3>Kenapa Aman Order di Sini?</h3>
-                            <ul className="trust-list">
-                              <li><CheckCircle2 className="w-5 h-5 trust-check" /> Data order jelas</li>
-                              <li><CheckCircle2 className="w-5 h-5 trust-check" /> Harga transparan</li>
-                              <li><CheckCircle2 className="w-5 h-5 trust-check" /> Admin responsif</li>
-                              <li><CheckCircle2 className="w-5 h-5 trust-check" /> Layanan bisa dicek ulang</li>
-                              <li><CheckCircle2 className="w-5 h-5 trust-check" /> Garansi sesuai ketentuan</li>
+                        {/* 4. Trust Panel */}
+                        <section className="land-trust-panel">
+                          <div className="trust-left">
+                            <h3>{menuSemuaText.trustTitle}</h3>
+                            <p className="trust-subtitle">{(menuSemuaText as any).trustSubtitle || "Kami selalu memastikan setiap layanan yang Anda order aman, bergaransi, dan sesuai dengan deskripsi."}</p>
+                          </div>
+                          <div className="trust-right">
+                            <ul className="trust-checklist">
+                              <li><CheckCircle2 className="w-5 h-5 trust-check" /> {menuSemuaText.trustPoint1}</li>
+                              <li><CheckCircle2 className="w-5 h-5 trust-check" /> {menuSemuaText.trustPoint2}</li>
+                              <li><CheckCircle2 className="w-5 h-5 trust-check" /> {menuSemuaText.trustPoint3}</li>
+                              <li><CheckCircle2 className="w-5 h-5 trust-check" /> {menuSemuaText.trustPoint4}</li>
+                              <li><CheckCircle2 className="w-5 h-5 trust-check" /> {menuSemuaText.trustPoint5}</li>
                             </ul>
                           </div>
                         </section>
 
-                        {/* 4. Highlight Banner */}
-                        <section className="land-banner">
-                          <div className="banner-accent"></div>
-                          <p>Layanan aktif untuk kebutuhan bot, panel, aplikasi premium, dan digital tools.</p>
+                        {/* 5. Highlight Banner */}
+                        <section className="land-highlight-banner">
+                          <div className="banner-strip"></div>
+                          <div className="banner-content">
+                            <Zap className="w-7 h-7 text-cyan-400 shrink-0" />
+                            <p>{menuSemuaText.highlightText}</p>
+                          </div>
                         </section>
 
-                        {/* 5. Feature Grid Premium */}
-                        <section className="land-section">
+                        {/* 6. Feature Grid Premium */}
+                        <section className="land-feature-section">
                           <div className="land-section-header">
-                            <h3>Keunggulan Kami</h3>
-                            <p>Fitur layanan yang kami tawarkan</p>
+                            <h3>{menuSemuaText.featureTitle}</h3>
+                            <p>{menuSemuaText.featureSubtitle}</p>
                           </div>
-                          <div className="land-feature-grid">
+                          <div className="land-feature-grid-premium">
                             {[
-                              { icon: "⚡", title: "Fast Response", desc: "Balasan cepat dari tim admin." },
-                              { icon: "🛡️", title: "Garansi Layanan", desc: "Garansi sesuai S&K yang berlaku." },
-                              { icon: "✨", title: "Produk Update", desc: "Selalu diperbarui setiap saat." },
-                              { icon: "💬", title: "Support Order", desc: "Bantuan order & kendala teknis." },
-                              { icon: "💎", title: "Tampilan Rapi", desc: "Sistem dan panel user-friendly." },
-                              { icon: "📦", title: "Pilihan Lengkap", desc: "Banyak pilihan kategori." },
-                              { icon: "🤖", title: "Cocok Untuk Bot", desc: "Layanan optimasi bot & sc." },
-                              { icon: "🤝", title: "Cocok Untuk Reseller", desc: "Harga bersahabat untuk dijual lagi." }
-                            ].map((f) => (
-                              <div className="feature-item" key={f.title}>
+                              { icon: "⚡", title: menuSemuaText.feature1Title, desc: menuSemuaText.feature1Desc },
+                              { icon: "🛡️", title: menuSemuaText.feature2Title, desc: menuSemuaText.feature2Desc },
+                              { icon: "✨", title: menuSemuaText.feature3Title, desc: menuSemuaText.feature3Desc },
+                              { icon: "💬", title: menuSemuaText.feature4Title, desc: menuSemuaText.feature4Desc },
+                              { icon: "💎", title: menuSemuaText.feature5Title, desc: menuSemuaText.feature5Desc },
+                              { icon: "📦", title: menuSemuaText.feature6Title, desc: menuSemuaText.feature6Desc },
+                              { icon: "🤖", title: menuSemuaText.feature7Title, desc: menuSemuaText.feature7Desc },
+                              { icon: "🤝", title: menuSemuaText.feature8Title, desc: menuSemuaText.feature8Desc }
+                            ].map((f, i) => (
+                              <div className="feature-item-premium" key={i}>
                                 <div className="feature-icon">{f.icon}</div>
                                 <div className="feature-text">
                                   <h4>{f.title}</h4>
@@ -772,10 +772,38 @@ export default function App() {
                           </div>
                         </section>
 
-                        {/* 6. CTA Akhir */}
-                        <section className="land-cta">
-                          <h3>Mau mulai order?</h3>
-                          <p>Tentukan kategori dari tab di atas, lalu pilih produk sesuai kebutuhan.</p>
+                        {/* 7. Mini FAQ */}
+                        <section className="land-faq-section">
+                          <div className="land-section-header">
+                            <h3>Info Singkat</h3>
+                            <p>Pertanyaan umum seputar layanan</p>
+                          </div>
+                          <div className="faq-grid">
+                            <div className="faq-card">
+                              <h4>Bagaimana cara order?</h4>
+                              <p>Pilih kategori, pilih produk, lalu klik tombol Beli Sekarang.</p>
+                            </div>
+                            <div className="faq-card">
+                              <h4>Apakah harga bisa berubah?</h4>
+                              <p>Harga mengikuti update admin dan kategori masing-masing.</p>
+                            </div>
+                            <div className="faq-card">
+                              <h4>Kalau ada kendala?</h4>
+                              <p>Hubungi admin melalui tombol order/kontak yang tersedia.</p>
+                            </div>
+                          </div>
+                        </section>
+
+                        {/* 8. CTA Akhir */}
+                        <section className="land-cta-premium">
+                          <h3>Siap mulai pilih layanan?</h3>
+                          <p>Gunakan tab kategori di atas untuk melihat produk sesuai kebutuhan.</p>
+                          <button 
+                            className="cta-secondary-btn" 
+                            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                          >
+                            Lihat Kategori
+                          </button>
                         </section>
 
                       </div>
@@ -865,6 +893,11 @@ export default function App() {
             slides={slides}
           />
         )}
+        <ChatDrawer 
+          isOpen={isAiChatOpen} 
+          onClose={() => setIsAiChatOpen(false)} 
+          elainaSettings={siteSettings?.elainaChat} 
+        />
       </Suspense>
     </div>
   );

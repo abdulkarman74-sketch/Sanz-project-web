@@ -9,6 +9,8 @@ import { ProductsView } from "./views/ProductsView";
 import { CategoriesView } from "./views/CategoriesView";
 import { SlidesView } from "./views/SlidesView";
 import { BrandingView, LoadingView, ThemeView, AudioView, ContactView, FooterView, GeneralView, MaintenanceView, DebugFirebaseView } from "./views/SettingsViews";
+import { MenuSemuaView } from "./views/MenuSemuaView";
+import { SettingsAiView } from "./views/SettingsAiView";
 import { AddProductView } from "./views/AddProductView";
 import { AddCategoryView } from "./views/AddCategoryView";
 
@@ -37,16 +39,23 @@ export default function AdminPanel({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    // Hide body scroll when admin is open
-    if (isAdminLoggedIn && adminMode) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
+    // Debug scroll
+    const timeout = setTimeout(() => {
+      const adminMain = document.querySelector(".admin-main");
+      if (adminMain) {
+        console.log("ADMIN MAIN SCROLL:", {
+          scrollHeight: adminMain.scrollHeight,
+          clientHeight: adminMain.clientHeight,
+          overflowY: window.getComputedStyle(adminMain).overflowY
+        });
+      }
+    }, 1000);
+
     return () => {
-      document.body.style.overflow = "unset";
+      clearTimeout(timeout);
+      document.body.style.overflow = "";
     };
-  }, [isAdminLoggedIn, adminMode]);
+  }, []);
 
   if (!isAdminLoggedIn || !adminMode) return null;
 
@@ -80,6 +89,8 @@ export default function AdminPanel({
       case "dashboard": return <DashboardView categories={localCategories} products={products} slides={slides} settings={siteSettings} setActiveMenu={handleMenuClick} />;
       case "loading": return <LoadingView settings={siteSettings} />;
       case "branding": return <BrandingView settings={siteSettings} />;
+      case "edit-menu-semua": return <MenuSemuaView settings={siteSettings} />;
+      case "settings-ai": return <SettingsAiView settings={siteSettings} />;
       case "slides": return <SlidesView slides={slides} />;
       case "products": return <ProductsView products={products} categories={localCategories} />;
       case "add-product": return <AddProductView categories={localCategories} onComplete={() => setActiveMenu("products")} />;
@@ -96,81 +107,117 @@ export default function AdminPanel({
     }
   };
 
-  const MENU_ITEMS = [
-    { id: "dashboard", label: "Dashboard" },
-    { id: "loading", label: "Loading Screen" },
-    { id: "branding", label: "Branding Website" },
-    { id: "slides", label: "Banner Slider" },
-    { id: "products", label: "Produk" },
-    { id: "add-product", label: "Tambah Produk" },
-    { id: "categories", label: "Kategori" },
-    { id: "add-category", label: "Tambah Kategori" },
-    { id: "contact", label: "Kontak & Order" },
-    { id: "theme", label: "Tema Warna" },
-    { id: "audio", label: "Audio & Musik" },
-    { id: "footer", label: "Footer" },
-    { id: "general", label: "Pengaturan Web" },
-    { id: "maintenance", label: "Maintenance" },
-    { id: "debug", label: "Debug Firebase" }
+  const MENU_GROUPS = [
+    {
+      label: "Utama",
+      items: [
+        { id: "dashboard", label: "Dashboard", desc: "Ringkasan web", icon: "📊" }
+      ]
+    },
+    {
+      label: "Tampilan Web",
+      items: [
+        { id: "loading", label: "Loading Screen", desc: "Animasi masuk", icon: "✨" },
+        { id: "branding", label: "Branding Website", desc: "Logo & Teks", icon: "🏷️" },
+        { id: "edit-menu-semua", label: "Edit Menu Semua", desc: "Menu web", icon: "🧩" },
+        { id: "slides", label: "Banner Slider", desc: "Gambar promo", icon: "🖼️" },
+        { id: "theme", label: "Tema Warna", desc: "Ganti warna web", icon: "🎨" },
+        { id: "audio", label: "Audio & Musik", desc: "Suara web", icon: "🎧" },
+        { id: "footer", label: "Footer", desc: "Teks bawah", icon: "🧱" }
+      ]
+    },
+    {
+      label: "Produk & Kategori",
+      items: [
+        { id: "products", label: "Produk", desc: "Daftar produk", icon: "📦" },
+        { id: "add-product", label: "Tambah Produk", desc: "Produk baru", icon: "➕" },
+        { id: "categories", label: "Kategori", desc: "Daftar kategori", icon: "🗂️" },
+        { id: "add-category", label: "Tambah Kategori", desc: "Kategori baru", icon: "➕" }
+      ]
+    },
+    {
+      label: "Order & Kontak",
+      items: [
+        { id: "contact", label: "Kontak & Order", desc: "Nomor & Pesan", icon: "☎️" }
+      ]
+    },
+    {
+      label: "Sistem",
+      items: [
+        { id: "general", label: "Pengaturan Web", desc: "Server & Web", icon: "⚙️" },
+        { id: "settings-ai", label: "Pengaturan Elaina Chat", desc: "Bot Assistant", icon: "💬" },
+        { id: "maintenance", label: "Maintenance", desc: "Mode perbaikan", icon: "🛡️" }
+      ]
+    },
+    {
+      label: "Debug",
+      items: [
+        { id: "debug", label: "Debug Firebase", desc: "Cek Auth Database", icon: "🔥" }
+      ]
+    }
   ];
 
+  const flatMenuItems = MENU_GROUPS.flatMap(g => g.items);
+
   return (
-    <div className="admin-panel fixed inset-0 z-[9999] bg-[#020617] flex font-sans overflow-hidden">
+    <div className="admin-shell admin-panel">
       
       {/* Mobile Drawer Backdrop */}
       {mobileMenuOpen && (
         <div 
-           className="fixed inset-0 bg-black/60 z-40 lg:hidden"
+           className="admin-sidebar-backdrop md:hidden"
            onClick={() => setMobileMenuOpen(false)}
         />
       )}
 
       {/* Sidebar Desktop & Mobile Drawer */}
-      <aside className={`fixed lg:static top-0 bottom-0 left-0 z-50 w-64 bg-[#0f172a] border-r border-[#334155] flex flex-col transition-transform duration-300 ease-in-out ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+      <aside className={`admin-sidebar ${mobileMenuOpen ? 'open' : ''}`}>
          
          {/* Sidebar Header */}
-         <div className="h-16 flex items-center justify-between px-6 border-b border-[#334155] bg-[#0f172a] shrink-0">
-           <span className="text-white font-black tracking-widest text-lg">PANEL ADMIN</span>
-           <button type="button" onClick={() => setMobileMenuOpen(false)} className="lg:hidden text-white p-2">✕</button>
+         <div className="admin-sidebar-header">
+           <h2>CONTROL CENTER</h2>
+           <p>Kelola semua fitur web</p>
+           {mobileMenuOpen && (
+             <button type="button" onClick={() => setMobileMenuOpen(false)} className="md:hidden text-white absolute top-4 right-4">&times;</button>
+           )}
          </div>
 
          {/* Sidebar Navigation */}
-         <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-1 scrollbar-hide">
-            {MENU_ITEMS.map(m => {
-               const active = activeMenu === m.id;
-               return (
-                 <button
-                   key={m.id}
-                   type="button"
-                   onClick={() => handleMenuClick(m.id)}
-                   className={`w-full text-left px-4 py-3 rounded-xl transition-all cursor-pointer font-medium text-sm ${
-                     active 
-                     ? "bg-[#22d3ee]/10 text-[#22d3ee] border border-[#22d3ee]/20 ring-1 ring-[#22d3ee]/10" 
-                     : "text-[#94a3b8] hover:bg-[#1e293b] hover:text-white border border-transparent"
-                   }`}
-                 >
-                   {m.label}
-                 </button>
-               );
-            })}
-         </div>
+         <nav className="admin-nav">
+            {MENU_GROUPS.map((group, groupIdx) => (
+               <div key={groupIdx}>
+                  <div className="admin-menu-group-label">{group.label}</div>
+                  {group.items.map(m => {
+                     const active = activeMenu === m.id;
+                     return (
+                        <button
+                           key={m.id}
+                           type="button"
+                           onClick={() => handleMenuClick(m.id)}
+                           className={`admin-nav-item ${active ? "active" : ""}`}
+                        >
+                           <span className="admin-nav-item-icon">{m.icon}</span>
+                           <span className="admin-nav-item-text">
+                             <span className="admin-nav-item-label">{m.label}</span>
+                             <span className="admin-nav-item-desc">{m.desc}</span>
+                           </span>
+                        </button>
+                     );
+                  })}
+               </div>
+            ))}
+         </nav>
 
          {/* Sidebar Footer */}
-         <div className="p-4 border-t border-[#334155] shrink-0 flex flex-col gap-2">
-            <button
-               type="button"
-               onClick={testFirebaseSave}
-               className="w-full py-2.5 rounded-xl bg-orange-500/10 text-orange-400 border border-orange-500/20 hover:bg-orange-500/20 text-sm font-medium transition-colors mb-2"
-            >
-               TEST FIREBASE SAVE
-            </button>
+         <div className="admin-sidebar-actions" style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <button
                type="button"
                onClick={() => {
                  setAdminMode(null);
                  toast.success("Berhasil keluar dari mode edit");
                }}
-               className="w-full py-2.5 rounded-xl border border-[#334155] hover:bg-[#1e293b] text-white text-sm font-medium transition-colors"
+               className="admin-btn-close"
+               style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', border: '1px solid rgba(148,163,184,0.2)', color: '#cbd5e1', background: 'transparent', fontWeight: 'bold' }}
             >
                Tutup Admin
             </button>
@@ -181,7 +228,8 @@ export default function AdminPanel({
                  setAdminMode(null);
                  toast.success("Berhasil logout");
                }}
-               className="w-full py-2.5 rounded-xl bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 text-sm font-medium transition-colors"
+               className="admin-btn-logout"
+               style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', border: 'none', color: '#020617', background: '#fb7185', fontWeight: 'bold' }}
             >
                Logout Akun
             </button>
@@ -189,32 +237,33 @@ export default function AdminPanel({
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative bg-[#020617]">
+      <main className="admin-main">
          {/* Top Header Mobile Toggle */}
-         <header className="h-16 lg:h-0 lg:border-none border-b border-[#334155] bg-[#0f172a] flex items-center px-4 shrink-0 lg:hidden">
+         <div className="md:hidden mb-4 flex items-center gap-3">
             <button
                type="button"
                onClick={() => setMobileMenuOpen(true)}
-               className="p-2 text-white bg-[#1e293b] rounded-lg border border-[#334155]"
+               className="admin-mobile-toggle"
+               style={{ background: '#22d3ee', color: '#020617', padding: '6px 12px', borderRadius: '8px', fontWeight: 'bold' }}
             >
-               ☰ Menu
+               &#9776; Menu
             </button>
-            <span className="ml-4 text-white font-bold truncate">Admin {siteSettings?.branding?.storeName || siteSettings?.branding?.siteName || "Store"}</span>
-         </header>
+            <span className="text-white font-bold truncate">Admin {siteSettings?.branding?.storeName || siteSettings?.branding?.siteName || "Store"}</span>
+         </div>
+         
+         <div className="admin-main-header">
+           <div>
+             <h1>{flatMenuItems.find(m => m.id === activeMenu)?.label || "Dashboard Admin"}</h1>
+             <p>{flatMenuItems.find(m => m.id === activeMenu)?.desc || "Pengaturan website"}</p>
+           </div>
+         </div>
 
          {/* Content Scrollable Area */}
-         <div className="flex-1 overflow-y-auto p-4 md:p-8 w-full max-w-7xl mx-auto custom-admin-scroll pb-24 lg:pb-8">
+         <div className="admin-content">
             {renderContent()}
          </div>
       </main>
 
-      <style dangerouslySetInnerHTML={{__html: `
-        .custom-admin-scroll::-webkit-scrollbar { width: 8px; }
-        .custom-admin-scroll::-webkit-scrollbar-track { background: transparent; }
-        .custom-admin-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        .custom-admin-scroll::-webkit-scrollbar-thumb:hover { background: #475569; }
-        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-      `}} />
     </div>
   );
 }

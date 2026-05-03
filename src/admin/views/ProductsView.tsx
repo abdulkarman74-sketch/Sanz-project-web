@@ -165,7 +165,7 @@ export const ProductsView = ({ products, categories }: { products: Product[], ca
 
   if (editingId) {
     return (
-      <div className="bg-[#111827] border border-[#334155] rounded-2xl p-6">
+      <div className="admin-card">
         <h2 className="text-xl font-bold text-white mb-6">Edit Produk</h2>
         <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
@@ -223,7 +223,7 @@ export const ProductsView = ({ products, categories }: { products: Product[], ca
   }
 
   return (
-    <div className="bg-[#111827] border border-[#334155] rounded-2xl p-6">
+    <div className="admin-card">
        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <h2 className="text-xl font-bold text-white">Kelola Produk</h2>
        </div>

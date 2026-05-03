@@ -47,7 +47,7 @@ export const AddCategoryView = ({ onComplete }: { onComplete?: () => void }) => 
   };
 
   return (
-    <div className="bg-[#111827] border border-[#334155] rounded-2xl p-6">
+    <div className="admin-card">
       <h2 className="text-xl font-bold text-white mb-6">Tambah Kategori Baru</h2>
       <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="grid grid-cols-1 md:grid-cols-2 gap-6">
          <AdminInput label="Nama Kategori *" value={form.name} onChange={e => setForm({...form, name: e.target.value})} autoFocus />

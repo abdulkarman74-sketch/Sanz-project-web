@@ -28,7 +28,9 @@ if (firebaseReady) {
   try {
     app = getApps().length ? getApp() : initializeApp(firebaseConfig);
     try {
-      db = initializeFirestore(app, {});
+      db = initializeFirestore(app, {
+        experimentalForceLongPolling: true
+      });
     } catch (e: any) {
       if (e.message?.includes('already initialized')) {
         db = getFirestore(app);

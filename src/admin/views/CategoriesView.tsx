@@ -140,7 +140,7 @@ export const CategoriesView = ({ categories }: { categories: Category[] }) => {
 
   if (editingId) {
     return (
-      <div className="bg-[#111827] border border-[#334155] rounded-2xl p-6">
+      <div className="admin-card">
         <h2 className="text-xl font-bold text-white mb-6">Edit Kategori</h2>
         <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="grid grid-cols-1 md:grid-cols-2 gap-6">
            <AdminInput label="Nama Kategori" value={form.name} onChange={e => setForm({...form, name: e.target.value})} autoFocus />
@@ -174,7 +174,7 @@ export const CategoriesView = ({ categories }: { categories: Category[] }) => {
   console.log("CATEGORY NAME:", categories.map(getCategoryName));
 
   return (
-    <div className="bg-[#111827] border border-[#334155] rounded-2xl p-6">
+    <div className="admin-card">
        <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-bold text-white">Kelola Kategori</h2>
           <AdminButton onClick={() => startEdit()} className="py-2.5">

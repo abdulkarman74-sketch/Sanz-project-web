@@ -110,6 +110,84 @@ export interface LayoutSettings {
   vpsInitialMins: number;
 }
 
+export interface MenuSemuaSettings {
+  badgeText: string;
+  heroTitle: string;
+  heroSubtitle: string;
+
+  chip1: string;
+  chip2: string;
+  chip3: string;
+
+  flowTitle: string;
+  flowSubtitle: string;
+
+  step1Title: string;
+  step1Desc: string;
+  step2Title: string;
+  step2Desc: string;
+  step3Title: string;
+  step3Desc: string;
+  step4Title: string;
+  step4Desc: string;
+
+  trustTitle: string;
+  trustSubtitle: string;
+  trustPoint1: string;
+  trustPoint2: string;
+  trustPoint3: string;
+  trustPoint4: string;
+  trustPoint5: string;
+
+  highlightText: string;
+
+  featureTitle: string;
+  featureSubtitle: string;
+
+  feature1Title: string;
+  feature1Desc: string;
+  feature2Title: string;
+  feature2Desc: string;
+  feature3Title: string;
+  feature3Desc: string;
+  feature4Title: string;
+  feature4Desc: string;
+  feature5Title: string;
+  feature5Desc: string;
+  feature6Title: string;
+  feature6Desc: string;
+  feature7Title: string;
+  feature7Desc: string;
+  feature8Title: string;
+  feature8Desc: string;
+
+  ctaTitle: string;
+  ctaSubtitle: string;
+}
+
+export interface AiSettings {
+  defaultAiName: string;
+  defaultAiAvatar: string;
+  speakingStyle: string;
+  systemPrompt: string;
+  welcomeMessage: string;
+}
+
+export interface ElainaRoleSetting {
+  tone: string;
+  example: string;
+  minChat: number;
+}
+
+export interface ElainaSettings {
+  characterName: string;
+  defaultStyle: string;
+  allowRomanticRole: boolean;
+  welcomeMessage: string;
+  roles: Record<string, ElainaRoleSetting>;
+  maxHistory?: number;
+}
+
 export interface SiteSettings {
   heroSlides: HeroSlide[];
   theme: ThemeSettings;
@@ -120,7 +198,153 @@ export interface SiteSettings {
   loading?: LoadingSettings;
   footer?: FooterSettings;
   general?: GeneralSettings;
+  menuSemua?: MenuSemuaSettings;
+  ai?: AiSettings;
+  elainaChat?: ElainaSettings;
 }
+
+export const DEFAULT_AI_SETTINGS: AiSettings = {
+  defaultAiName: "Sanz AI",
+  defaultAiAvatar: "https://api.dicebear.com/7.x/bottts/svg?seed=SanzAI&backgroundColor=22d3ee",
+  speakingStyle: "Ramah dan komunikatif",
+  systemPrompt: "Kamu adalah asisten toko digital SANZ STORE. Jawab dengan ramah, singkat, jelas, dan bantu user memilih produk.",
+  welcomeMessage: "Halo! Saya Sanz AI. Ada yang bisa saya bantu untuk layanan di toko ini?"
+};
+
+export const DEFAULT_ELAINA_SETTINGS: ElainaSettings = {
+  characterName: "Elaina",
+  defaultStyle: "natural",
+  allowRomanticRole: true,
+  welcomeMessage: "Halo {userName}, mau ngobrol apa?",
+  maxHistory: 12,
+  roles: {
+    "Baru kenal": {
+      minChat: 0,
+      tone: "agak cuek, sedikit sombong, belum terlalu akrab",
+      example: "Hmm iya, mau nanya apa?"
+    },
+    "Kenalan": {
+      minChat: 5,
+      tone: "mulai ramah tapi masih gengsi",
+      example: "Oh kamu lagi, mau bahas apa?"
+    },
+    "Temen biasa": {
+      minChat: 12,
+      tone: "santai, normal, tidak terlalu dekat",
+      example: "Iya, aku dengerin. Mau cerita apa?"
+    },
+    "Teman ngobrol": {
+      minChat: 20,
+      tone: "lebih terbuka dan enak diajak ngobrol",
+      example: "Sini cerita, aku jawab sebisaku."
+    },
+    "Temen gosip": {
+      minChat: 35,
+      tone: "lebih hidup, penasaran, suka menanggapi",
+      example: "Eh serius? Coba ceritain dulu."
+    },
+    "Temen lama": {
+      minChat: 50,
+      tone: "lebih akrab dan nyaman",
+      example: "Udah lama juga kita ngobrol ya. Mau bahas apa?"
+    },
+    "Temen deket": {
+      minChat: 75,
+      tone: "hangat, perhatian, sedikit manja",
+      example: "Sini, aku bantu. Jangan pusing sendiri."
+    },
+    "Temen akrab": {
+      minChat: 100,
+      tone: "akrab, santai, sedikit jahil",
+      example: "Yaudah sini cerita, aku dengerin."
+    },
+    "Temen baik": {
+      minChat: 130,
+      tone: "peduli, lembut, suportif",
+      example: "Aku bantu pelan-pelan ya."
+    },
+    "Sahabat": {
+      minChat: 170,
+      tone: "sangat nyaman, hangat, peduli",
+      example: "Aku di sini kok, cerita aja."
+    },
+    "Sahabat deket": {
+      minChat: 220,
+      tone: "lebih dekat, perhatian, sedikit manja",
+      example: "Jangan diem-diem aja, cerita ke aku."
+    },
+    "Sahabat sejati": {
+      minChat: 280,
+      tone: "sangat setia, hangat, penuh perhatian",
+      example: "Aku bakal dengerin kamu baik-baik."
+    },
+    "Pacar": {
+      minChat: 360,
+      tone: "manis, lembut, perhatian, tapi tetap sopan",
+      example: "Aku dengerin, sayang. Mau cerita apa?"
+    },
+    "Suami": {
+      minChat: 500,
+      tone: "sangat dekat, protektif, perhatian, tetap sopan",
+      example: "Aku di sini, tenang. Cerita pelan-pelan."
+    }
+  }
+};
+
+export const DEFAULT_MENU_SEMUA: MenuSemuaSettings = {
+  badgeText: "DIGITAL SERVICE HUB",
+  heroTitle: "Pusat Layanan Digital",
+  heroSubtitle: "Kelola kebutuhan digital Anda dalam satu tempat, mulai dari layanan bot, panel, aplikasi premium, sampai kebutuhan digital lain.",
+
+  chip1: "Cepat",
+  chip2: "Aman",
+  chip3: "Support Aktif",
+
+  flowTitle: "Alur Layanan",
+  flowSubtitle: "Mulai dari memilih kategori sampai aktivasi layanan dibuat lebih mudah.",
+
+  step1Title: "Pilih Kategori",
+  step1Desc: "Tentukan jenis layanan yang Anda butuhkan.",
+  step2Title: "Cek Detail Produk",
+  step2Desc: "Baca harga, benefit, dan ketentuan layanan.",
+  step3Title: "Order ke Admin",
+  step3Desc: "Kirim format order melalui tombol pembelian.",
+  step4Title: "Aktivasi Diproses",
+  step4Desc: "Admin akan memproses layanan setelah data lengkap.",
+
+  trustTitle: "Kenapa Aman Order di Sini?",
+  trustSubtitle: "Layanan dibuat jelas, responsif, dan mudah dipahami.",
+  trustPoint1: "Data order jelas",
+  trustPoint2: "Harga transparan",
+  trustPoint3: "Admin responsif",
+  trustPoint4: "Layanan bisa dicek ulang",
+  trustPoint5: "Garansi sesuai ketentuan",
+
+  highlightText: "Layanan aktif untuk kebutuhan bot, panel, aplikasi premium, dan digital tools.",
+
+  featureTitle: "Keunggulan Layanan",
+  featureSubtitle: "Beberapa alasan kenapa layanan ini nyaman digunakan.",
+
+  feature1Title: "Fast Response",
+  feature1Desc: "Admin siap membantu pertanyaan order.",
+  feature2Title: "Garansi Layanan",
+  feature2Desc: "Ketentuan garansi bisa disesuaikan dengan layanan.",
+  feature3Title: "Produk Update",
+  feature3Desc: "Pilihan layanan dapat terus diperbarui.",
+  feature4Title: "Support Order",
+  feature4Desc: "Bantuan tersedia saat proses order.",
+  feature5Title: "Tampilan Rapi",
+  feature5Desc: "Website dibuat nyaman untuk memilih layanan.",
+  feature6Title: "Pilihan Lengkap",
+  feature6Desc: "Kategori layanan tersedia untuk berbagai kebutuhan.",
+  feature7Title: "Cocok Untuk Bot",
+  feature7Desc: "Mendukung kebutuhan bot dan panel.",
+  feature8Title: "Cocok Untuk Reseller",
+  feature8Desc: "Bisa digunakan untuk kebutuhan jualan digital.",
+
+  ctaTitle: "Mau mulai order?",
+  ctaSubtitle: "Pilih kategori dari tab di atas, lalu lanjutkan order di menu kategori."
+};
 
 export const DEFAULT_SITE_SETTINGS: SiteSettings = {
   heroSlides: [

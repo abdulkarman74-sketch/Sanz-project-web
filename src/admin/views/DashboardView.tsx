@@ -22,71 +22,101 @@ export const DashboardView = ({
   const waNumber = settings?.contact?.whatsapp || "Belum diset";
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">Dashboard Admin</h1>
-        <p className="text-slate-400 text-sm">Ringkasan status dan pengaturan website Anda.</p>
+    <div className="admin-dashboard-view">
+      
+      <div className="admin-dashboard-hero">
+        <h1 style={{ margin: "0 0 8px", color: "#fff", fontSize: "28px", fontWeight: 950, letterSpacing: "-0.02em" }}>Welcome to Control Center ✨</h1>
+        <p style={{ margin: 0, color: "#cbd5e1", fontSize: "14px", lineHeight: 1.5 }}>
+          Pantau statistik toko dan kelola semua fitur website Anda dengan mudah dari satu tempat.
+        </p>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-        <div className="bg-[#111827] border border-[#334155] rounded-xl p-4 flex flex-col gap-1 shadow-sm">
-          <span className="text-slate-400 font-bold text-[10px] uppercase tracking-wider">Nama Store</span>
-          <span className="text-lg font-black text-white truncate" title={storeName}>{storeName}</span>
+      <div className="admin-section-header">
+        <h2>Ringkasan Web</h2>
+        <p>Statistik dan status fitur website</p>
+      </div>
+      <div className="admin-dashboard-grid" style={{ marginBottom: '32px' }}>
+        <div className="admin-stat-card">
+          <div className="admin-stat-label">Total Produk</div>
+          <div className="admin-stat-value">{products.length} <span className="text-sm font-normal ml-1">Items</span></div>
         </div>
-        <div className="bg-[#111827] border border-[#334155] rounded-xl p-4 flex flex-col gap-1 shadow-sm">
-          <span className="text-slate-400 font-bold text-[10px] uppercase tracking-wider">Status Firebase</span>
-          <span className={`text-lg font-black ${firebaseReady ? "text-emerald-400" : "text-red-400"}`}>
-            {firebaseReady ? "Connected" : "Not Ready"}
-          </span>
+        <div className="admin-stat-card">
+          <div className="admin-stat-label">Total Kategori</div>
+          <div className="admin-stat-value">{categories.length} <span className="text-sm font-normal ml-1">Kategori</span></div>
         </div>
-        <div className="bg-[#111827] border border-[#334155] rounded-xl p-4 flex flex-col gap-1 shadow-sm">
-          <span className="text-slate-400 font-bold text-[10px] uppercase tracking-wider">Total Produk</span>
-          <span className="text-lg font-black text-white">{products.length} <span className="text-xs text-theme-accent ml-1 font-bold">Produk</span></span>
+        <div className="admin-stat-card">
+          <div className="admin-stat-label">Mode Maintenance</div>
+          <div className={`admin-stat-value ${isMaintenance ? "text-amber-400" : "success"}`}>
+            {isMaintenance ? "Aktif" : "Online"}
+          </div>
         </div>
-        <div className="bg-[#111827] border border-[#334155] rounded-xl p-4 flex flex-col gap-1 shadow-sm">
-          <span className="text-slate-400 font-bold text-[10px] uppercase tracking-wider">Total Kategori</span>
-          <span className="text-lg font-black text-white">{categories.length} <span className="text-xs text-theme-accent ml-1 font-bold">Kategori</span></span>
-        </div>
-        <div className="bg-[#111827] border border-[#334155] rounded-xl p-4 flex flex-col gap-1 shadow-sm">
-          <span className="text-slate-400 font-bold text-[10px] uppercase tracking-wider">Total Slide</span>
-          <span className="text-lg font-black text-white">{slides.length} <span className="text-xs text-theme-accent ml-1 font-bold">Banner</span></span>
-        </div>
-        <div className="bg-[#111827] border border-[#334155] rounded-xl p-4 flex flex-col gap-1 shadow-sm">
-          <span className="text-slate-400 font-bold text-[10px] uppercase tracking-wider">Maintenance</span>
-          <span className={`text-lg font-black ${isMaintenance ? "text-amber-400" : "text-emerald-400"}`}>
-            {isMaintenance ? "Aktif (Sedang Maintenace)" : "Tidak (Online Publik)"}
-          </span>
-        </div>
-        <div className="bg-[#111827] border border-[#334155] rounded-xl p-4 flex flex-col gap-1 shadow-sm">
-          <span className="text-slate-400 font-bold text-[10px] uppercase tracking-wider">Info Display</span>
-          <span className="text-lg font-black text-white truncate">
-             {infoMode === 'hidden' ? "Sembunyikan" : infoMode === 'datetime' ? "Jam & Masehi" : infoMode === 'runtime' ? "Runtime VPS" : "Semua Info"}
-          </span>
-        </div>
-        <div className="bg-[#111827] border border-[#334155] rounded-xl p-4 flex flex-col gap-1 shadow-sm">
-          <span className="text-slate-400 font-bold text-[10px] uppercase tracking-wider">Kontak WA</span>
-          <span className="text-lg font-black text-white truncate" title={waNumber}>{waNumber}</span>
+        <div className="admin-stat-card">
+          <div className="admin-stat-label">Tema Warna</div>
+          <div className="admin-stat-value truncate" style={{ color: settings?.theme?.primaryColor || '#22d3ee' }}>
+             {settings?.theme?.primaryColor ? "Kustom" : "Default"}
+          </div>
         </div>
       </div>
 
-      <div className="mt-2">
-        <h2 className="text-lg font-bold text-white mb-3">Quick Actions</h2>
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-          <button onClick={() => setActiveMenu('loading')} className="p-4 bg-[#0f172a] hover:bg-[#1e293b] border border-[#334155] hover:border-theme-accent/50 rounded-xl text-[12px] font-bold text-white transition-colors flex flex-col items-center justify-center gap-2 text-center shadow-sm">
-             Edit Loading Screen
-          </button>
-          <button onClick={() => setActiveMenu('branding')} className="p-4 bg-[#0f172a] hover:bg-[#1e293b] border border-[#334155] hover:border-theme-accent/50 rounded-xl text-[12px] font-bold text-white transition-colors flex flex-col items-center justify-center gap-2 text-center shadow-sm">
-             Edit Branding
-          </button>
-          <button onClick={() => setActiveMenu('add-product')} className="p-4 bg-theme-accent/10 hover:bg-theme-accent/20 border border-theme-accent/30 rounded-xl text-[12px] font-bold text-theme-accent transition-colors flex flex-col items-center justify-center gap-2 text-center shadow-sm">
-             + Tambah Produk
-          </button>
-          <button onClick={() => setActiveMenu('add-category')} className="p-4 bg-theme-accent/10 hover:bg-theme-accent/20 border border-theme-accent/30 rounded-xl text-[12px] font-bold text-theme-accent transition-colors flex flex-col items-center justify-center gap-2 text-center shadow-sm">
-             + Tambah Kategori
-          </button>
-          <button onClick={() => setActiveMenu('contact')} className="col-span-2 md:col-span-1 p-4 bg-[#0f172a] hover:bg-[#1e293b] border border-[#334155] hover:border-theme-accent/50 rounded-xl text-[12px] font-bold text-white transition-colors flex flex-col items-center justify-center gap-2 text-center shadow-sm">
-             Edit Kontak Order
-          </button>
+      <div className="admin-section-header">
+        <h2>Aksi Cepat</h2>
+        <p>Jalan pintas ke pengaturan yang sering digunakan</p>
+      </div>
+      <div className="admin-quick-grid" style={{ marginBottom: '32px' }}>
+        <div className="admin-quick-card" onClick={() => setActiveMenu('branding')}>
+           <div className="admin-quick-card-icon" style={{ background: "rgba(236, 72, 153, 0.12)", color: "#f472b6" }}>🏷️</div>
+           <h3>Branding Web</h3>
+           <p>Ganti nama toko dan logo</p>
+        </div>
+        <div className="admin-quick-card" onClick={() => setActiveMenu('edit-menu-semua')}>
+           <div className="admin-quick-card-icon" style={{ background: "rgba(52, 211, 153, 0.12)", color: "#34d399" }}>🧩</div>
+           <h3>Edit Menu Semua</h3>
+           <p>Atur tata letak list menu</p>
+        </div>
+        <div className="admin-quick-card" onClick={() => setActiveMenu('add-product')}>
+           <div className="admin-quick-card-icon" style={{ background: "rgba(250, 204, 21, 0.12)", color: "#facc15" }}>➕</div>
+           <h3>Tambah Produk</h3>
+           <p>Upload game atau list baru</p>
+        </div>
+        <div className="admin-quick-card" onClick={() => setActiveMenu('contact')}>
+           <div className="admin-quick-card-icon" style={{ background: "rgba(56, 189, 248, 0.12)", color: "#38bdf8" }}>☎️</div>
+           <h3>Atur Order WhatsApp</h3>
+           <p>Ganti nomor WA tujuan</p>
+        </div>
+        <div className="admin-quick-card" onClick={() => setActiveMenu('theme')}>
+           <div className="admin-quick-card-icon" style={{ background: "rgba(167, 139, 250, 0.12)", color: "#a78bfa" }}>🎨</div>
+           <h3>Ubah Tema Warna</h3>
+           <p>Ganti warna web instan</p>
+        </div>
+        <div className="admin-quick-card" onClick={() => setActiveMenu('settings-ai')}>
+           <div className="admin-quick-card-icon" style={{ background: "rgba(251, 146, 60, 0.12)", color: "#fb923c" }}>💬</div>
+           <h3>Pengaturan Elaina</h3>
+           <p>Atur cara bicara Assistant</p>
+        </div>
+      </div>
+
+      <div className="admin-section-header">
+        <h2>Status Sistem Terkini</h2>
+        <p>Kondisi integrasi server dan database</p>
+      </div>
+      <div className="admin-dashboard-grid">
+        <div className="admin-stat-card">
+          <div className="admin-stat-label">Koneksi Firebase</div>
+          <div className={`admin-stat-value ${firebaseReady ? "success" : "text-red-400"}`}>
+            {firebaseReady ? "Connected" : "Not Built"}
+          </div>
+        </div>
+        <div className="admin-stat-card">
+          <div className="admin-stat-label">Admin Sesi</div>
+          <div className="admin-stat-value success">
+            Terverifikasi
+          </div>
+        </div>
+        <div className="admin-stat-card" onClick={() => setActiveMenu('debug')} style={{ cursor: 'pointer' }}>
+          <div className="admin-stat-label">Pusat Debug</div>
+          <div className="admin-stat-value">
+            Buka &rarr;
+          </div>
         </div>
       </div>
 

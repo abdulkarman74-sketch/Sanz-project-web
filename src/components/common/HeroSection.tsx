@@ -100,100 +100,61 @@ const HeroSection: React.FC<HeroSectionProps> = ({ settings }) => {
       />
       
       {/* Slider Container */}
-      <div 
-        className="relative w-full overflow-hidden bg-slate-900"
-        style={{ aspectRatio: '16/9' }}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-      >
-        {slides.map((slide, index) => (
-          <div 
-            key={slide.id || index}
-            className={`absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out ${
-              index === currentIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'
-            }`}
-          >
-            {/* Image Cover */}
-            <img 
-              src={slide.image} 
-              alt={slide.title} 
-              className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none"
-              loading={index === 0 ? "eager" : "lazy"}
-            />
-            {/* Gradient Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-theme-bg via-theme-bg/70 to-theme-bg/10" />
-            
-            {/* Content Overlay */}
-            <div className="absolute inset-0 z-20 flex flex-col justify-end pb-10 sm:pb-16 md:pb-24 px-4 sm:px-12 md:px-20 max-w-7xl mx-auto w-full">
-              <h2 
-                className="text-xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight uppercase leading-[1.1] mb-1 sm:mb-2 md:mb-4 line-clamp-2 text-theme-text"
-                style={{ textShadow: '0 2px 12px rgba(0,0,0,0.6)' }}
-              >
-                {slide.title.split(' ').length > 1 ? (
-                  <>
-                    {slide.title.split(' ').slice(0, -1).join(' ')}{' '}
-                    <span className="text-theme-accent">{slide.title.split(' ').slice(-1)[0]}</span>
-                  </>
-                ) : (
-                  slide.title
-                )}
-              </h2>
-              <p 
-                className="text-[10px] sm:text-sm md:text-lg text-[#cbd5e1] font-medium max-w-2xl leading-snug md:leading-relaxed mb-3 sm:mb-6 line-clamp-2"
-                style={{ textShadow: '0 1px 8px rgba(0,0,0,0.5)' }}
-              >
-                {slide.desc}
-              </p>
-              
-              {slide.buttonText && (
-                <button 
-                  onClick={() => scrollToServices(slide.buttonTarget)}
-                  className="w-max h-8 sm:h-12 px-4 sm:px-6 bg-gradient-to-br from-[#0891b2] to-theme-accent hover:from-[#0e7490] hover:to-[#06b6d4] text-white rounded-lg sm:rounded-xl font-bold uppercase tracking-widest text-[9px] sm:text-xs shadow-[0_4px_15px_rgba(34,211,238,0.3)] hover:shadow-[0_6px_20px_rgba(34,211,238,0.5)] transition-all active:scale-95 flex items-center gap-1.5 sm:gap-2"
-                >
-                  <LayoutGrid className="w-3 h-3 sm:w-4 sm:h-4" /> {slide.buttonText}
-                </button>
-              )}
+      <section className="hero-slider-section" onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}>
+        <div className="hero-slider-card">
+          {slides.map((slide, index) => (
+            <div 
+              key={slide.id || index}
+              className={`absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out ${
+                index === currentIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'
+              }`}
+            >
+              <img
+                src={slide.image}
+                alt={slide.title || "Banner"}
+                className="hero-slide-image"
+                loading={index === 0 ? "eager" : "lazy"}
+              />
+
+              <div className="hero-slide-overlay"></div>
+              <div className="hero-slide-glow"></div>
+
+              <div className="hero-slide-content">
+                <div className="hero-slide-badge">
+                  ✦ Premium Digital Store
+                </div>
+
+                <h1 className="hero-slide-title">
+                  {slide.title && slide.title.split(' ').length > 1 ? (
+                    <>
+                      {slide.title.split(' ').slice(0, -1).join(' ')}{' '}
+                      <span className="accent">{slide.title.split(' ').slice(-1)[0]}</span>
+                    </>
+                  ) : (
+                    slide.title || "SANZ STORE PREMIUM"
+                  )}
+                </h1>
+
+                <p className="hero-slide-subtitle">
+                  {slide.desc || slide.subtitle || "Layanan digital cepat, aman, dan terpercaya untuk kebutuhan server, bot, dan aplikasi premium."}
+                </p>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
 
-        {/* Navigation Arrows (Hidden on mobile) */}
-        {slides.length > 1 && (
-          <>
-            <button 
-              onClick={prevSlide}
-              className="absolute left-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/20 hover:bg-black/50 border border-white/10 flex items-center justify-center text-white backdrop-blur-md transition-all hidden sm:flex"
-            >
-              <ChevronLeft className="w-6 h-6" />
-            </button>
-            <button 
-              onClick={nextSlide}
-              className="absolute right-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/20 hover:bg-black/50 border border-white/10 flex items-center justify-center text-white backdrop-blur-md transition-all hidden sm:flex"
-            >
-              <ChevronRight className="w-6 h-6" />
-            </button>
-          </>
-        )}
-
-        {/* Dots Indicator */}
-        {slides.length > 1 && (
-          <div className="absolute bottom-2 sm:bottom-6 left-0 right-0 z-30 flex justify-center gap-1.5 sm:gap-2">
-            {slides.map((_, i) => (
+          <div className="hero-dots">
+            {slides.map((slide, index) => (
               <button
-                key={i}
-                onClick={() => setCurrentIndex(i)}
-                className={`transition-all rounded-full ${
-                  i === currentIndex 
-                    ? 'bg-blue-500 w-6 sm:w-8 h-1.5 sm:h-2' 
-                    : 'bg-white/40 hover:bg-white/70 w-1.5 h-1.5 sm:w-2 sm:h-2'
-                }`}
-                aria-label={`Go to slide ${i+1}`}
+                key={slide.id || index}
+                type="button"
+                className={`hero-dot ${index === currentIndex ? "active" : ""}`}
+                onClick={() => setCurrentIndex(index)}
+                aria-label={`Slide ${index + 1}`}
               />
             ))}
           </div>
-        )}
-      </div>
+        </div>
+      </section>
 
       {settings.audio.showButton && (
         <button 
