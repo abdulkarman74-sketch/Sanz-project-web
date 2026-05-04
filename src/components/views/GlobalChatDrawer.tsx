@@ -13,8 +13,10 @@ export const GlobalChatDrawer: React.FC<GlobalChatDrawerProps> = ({ isOpen, onCl
   const [globalChatMessages, setGlobalChatMessages] = useState<any[]>([]);
   const [globalChatInput, setGlobalChatInput] = useState("");
   const [sendingGlobalChat, setSendingGlobalChat] = useState(false);
+  const [onlineUsersCount, setOnlineUsersCount] = useState(0);
   const globalChatEndRef = useRef<HTMLDivElement>(null);
 
+  // Read saved user
   useEffect(() => {
     const saved = localStorage.getItem("globalChatUser");
     if (saved) {
@@ -28,6 +30,75 @@ export const GlobalChatDrawer: React.FC<GlobalChatDrawerProps> = ({ isOpen, onCl
       }
     }
   }, []);
+
+  // Update presence heartbeat
+  useEffect(() => {
+    if (!globalChatUser?.userId || !globalChatUser?.userName || !firebaseReady || !db) return;
+
+    const updatePresence = async () => {
+      try {
+        await setDoc(doc(db, "globalChatPresence", globalChatUser.userId), {
+          userId: globalChatUser.userId,
+          userName: globalChatUser.userName,
+          online: true,
+          lastSeen: serverTimestamp(),
+          clientLastSeen: Date.now()
+        }, { merge: true });
+      } catch (error) {
+        console.error("UPDATE GLOBAL CHAT PRESENCE ERROR:", error);
+      }
+    };
+
+    updatePresence();
+    const interval = setInterval(updatePresence, 30000);
+
+    return () => clearInterval(interval);
+  }, [globalChatUser, firebaseReady, db]);
+
+  // Read active users count
+  useEffect(() => {
+    if (!firebaseReady || !db) return;
+
+    const unsub = onSnapshot(collection(db, "globalChatPresence"), (snapshot) => {
+      const now = Date.now();
+      const activeUsers = snapshot.docs
+        .map((docSnap) => docSnap.data())
+        .filter((user) => {
+          const lastSeen = Number(user.clientLastSeen || 0);
+          return user.online === true && now - lastSeen < 60000;
+        });
+
+      setOnlineUsersCount(activeUsers.length);
+    }, (error) => {
+      console.error("Global Chat Presence Snapshot error:", error);
+    });
+
+    return () => unsub();
+  }, [firebaseReady, db]);
+
+  // Mark offline on unmount/close
+  useEffect(() => {
+    if (!globalChatUser?.userId || !firebaseReady || !db) return;
+
+    const markOffline = async () => {
+      try {
+        await setDoc(doc(db, "globalChatPresence", globalChatUser.userId), {
+          online: false,
+          clientLastSeen: Date.now(),
+          lastSeen: serverTimestamp()
+        }, { merge: true });
+      } catch (error) {
+        console.error("MARK OFFLINE ERROR:", error);
+      }
+    };
+
+    window.addEventListener("beforeunload", markOffline);
+
+    return () => {
+      window.removeEventListener("beforeunload", markOffline);
+      markOffline();
+    };
+  }, [globalChatUser, firebaseReady, db]);
 
   useEffect(() => {
     if (!isOpen || !firebaseReady || !db) return;
@@ -198,17 +269,16 @@ export const GlobalChatDrawer: React.FC<GlobalChatDrawerProps> = ({ isOpen, onCl
         ) : (
           <>
             <div className="global-chat-userbar">
-              <span>Masuk sebagai: <strong>{globalChatUser.userName}</strong></span>
-              <button
-                type="button"
-                onClick={() => {
-                  localStorage.removeItem("globalChatUser");
-                  setGlobalChatUser(null);
-                  setGlobalChatNameInput("");
-                }}
-              >
-                Ganti Nama
-              </button>
+              <div className="global-chat-current-user">
+                <span>Masuk sebagai</span>
+                <strong>{globalChatUser.userName}</strong>
+              </div>
+
+              <div className="global-chat-online-count">
+                <span className="global-chat-online-dot"></span>
+                <strong>{onlineUsersCount}</strong>
+                <span>aktif</span>
+              </div>
             </div>
 
             <div className="global-chat-messages">
