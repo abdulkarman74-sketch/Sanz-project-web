@@ -30,19 +30,21 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onDetail }) => {
         className="new-product-image-box cursor-pointer"
         onClick={() => onDetail?.(product)}
       >
-        <img
-          src={imageError ? 'https://files.catbox.moe/p88k63.jpg' : image}
-          alt={title}
-          className={`new-product-image transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
-          onLoad={() => setImageLoaded(true)}
-          onError={() => setImageError(true)}
-          loading="lazy"
-        />
-        {!imageLoaded && !imageError && (
+        {image ? (
+          <img
+            src={imageError ? 'https://files.catbox.moe/p88k63.jpg' : image}
+            alt={title}
+            className={`new-product-image transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+            onLoad={() => setImageLoaded(true)}
+            onError={() => setImageError(true)}
+            loading="lazy"
+          />
+        ) : null}
+        {(!imageLoaded && !imageError) || !image ? (
           <div className="new-product-image-placeholder">
             <span>✦</span>
           </div>
-        )}
+        ) : null}
 
         <div className="new-product-image-badge">
           {category}

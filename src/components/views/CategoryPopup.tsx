@@ -78,7 +78,7 @@ export default function CategoryPopup({
           <div className="relative h-48 md:h-56 shrink-0 bg-theme-surface border-b border-theme-border">
             {category.image ? (
               <img
-                src={category.image}
+                src={category.image || undefined}
                 alt={category.title || category.name}
                 className="w-full h-full object-cover opacity-60"
               />

@@ -41,7 +41,7 @@ const VideoShort = memo(({ url, title, storeName }: { url: string; title: string
     <div className="relative w-full h-screen md:h-auto snap-start flex items-center justify-center bg-slate-50 md:bg-transparent overflow-hidden md:py-10">
       <video
         ref={videoRef}
-        src={url}
+        src={url || undefined}
         className="w-full h-full object-cover md:max-w-[400px] md:rounded-[2.5rem] md:h-[85vh] md:border md:border-slate-200 md:shadow-2xl shadow-slate-200/50 bg-black cursor-pointer"
         loop
         playsInline

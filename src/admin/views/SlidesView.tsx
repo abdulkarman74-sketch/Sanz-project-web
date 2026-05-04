@@ -118,7 +118,7 @@ export const SlidesView = ({ slides }: { slides: HeroSlide[] }) => {
         
         {form.image && (
           <div className="mb-6 aspect-video bg-[var(--theme-bg-main)] rounded-xl overflow-hidden border border-[var(--theme-border)] max-w-lg mx-auto relative">
-             <img src={form.image} alt="Preview" className="w-full h-full object-cover" onError={(e) => (e.currentTarget.style.display = 'none')} onLoad={(e) => (e.currentTarget.style.display = 'block')} />
+             <img src={form.image || undefined} alt="Preview" className="w-full h-full object-cover" onError={(e) => (e.currentTarget.style.display = 'none')} onLoad={(e) => (e.currentTarget.style.display = 'block')} />
              <div className="absolute inset-0 flex items-center justify-center text-[#64748b] bg-[var(--theme-bg-main)] -z-10 text-sm">Preview Gambar</div>
           </div>
         )}
@@ -174,7 +174,7 @@ export const SlidesView = ({ slides }: { slides: HeroSlide[] }) => {
                <tr key={slide.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
                  <td className="py-3 px-2">
                    <div className="w-20 h-11 bg-black rounded overflow-hidden border border-white/10 shrink-0">
-                     <img src={slide.image} alt={slide.title} className="w-full h-full object-cover" />
+                     <img src={slide.image || undefined} alt={slide.title} className="w-full h-full object-cover" />
                    </div>
                  </td>
                  <td className="py-3 px-2 text-[var(--theme-text-main)]">{slide.order || 0}</td>

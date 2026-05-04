@@ -377,7 +377,7 @@ Aturan:
               ) : (
                 <div className="flex items-center gap-3">
                   <div className="relative">
-                    <img src={aiAvatar} alt={aiName} className="w-10 h-10 rounded-full bg-[var(--theme-bg-surface)] border border-[var(--theme-primary)]/30 object-cover" />
+                    <img src={aiAvatar || undefined} alt={aiName} className="w-10 h-10 rounded-full bg-[var(--theme-bg-surface)] border border-[var(--theme-primary)]/30 object-cover" />
                     <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-slate-900"></div>
                   </div>
                   <div>

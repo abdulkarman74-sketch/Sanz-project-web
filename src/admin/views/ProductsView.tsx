@@ -259,7 +259,7 @@ export const ProductsView = ({ products, categories }: { products: Product[], ca
                <tr key={p.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
                  <td className="py-2 px-2">
                    <div className="w-12 h-12 bg-[var(--theme-bg-main)] rounded-lg overflow-hidden border border-white/10 shrink-0">
-                     <img src={p.image} alt="" className="w-full h-full object-cover" onError={(e) => (e.currentTarget.src = 'https://placehold.co/100x100/111827/334155?text=No+Img')} />
+                     <img src={p.image || undefined} alt="" className="w-full h-full object-cover" onError={(e) => (e.currentTarget.src = 'https://placehold.co/100x100/111827/334155?text=No+Img')} />
                    </div>
                  </td>
                  <td className="py-2 px-2 font-medium text-[var(--theme-text-main)] truncate max-w-[200px] sm:max-w-xs">{p.name}</td>

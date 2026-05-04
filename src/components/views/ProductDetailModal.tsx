@@ -87,7 +87,7 @@ const ProductDetailModal = ({
         
         {/* Image 16:9 always on top */}
         <div className="w-full aspect-[16/9] relative bg-theme-bg shrink-0">
-          <img src={currentProduct.image} alt={currentProduct.name} className="w-full h-full object-cover" loading="eager" />
+          <img src={currentProduct.image || undefined} alt={currentProduct.name} className="w-full h-full object-cover" loading="eager" />
           <div className="absolute inset-0 bg-gradient-to-t from-theme-card via-transparent to-transparent opacity-80" />
           <div className="absolute top-4 left-4"><span className="px-3 py-1 bg-theme-accent/10 border border-theme-accent/20 text-[10px] font-black uppercase tracking-widest rounded-lg text-theme-accent shadow-sm">Official Item</span></div>
         </div>

@@ -104,7 +104,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ settings }) => {
       <audio 
         ref={audioRef} 
         loop={settings.audio.loop} 
-        src={settings.audio.url} 
+        src={settings.audio.url || undefined} 
         preload="auto" 
       />
       
@@ -119,7 +119,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ settings }) => {
               }`}
             >
               <img
-                src={slide.image || slide.imageUrl || heroConfig?.imageUrl}
+                src={slide.image || slide.imageUrl || heroConfig?.imageUrl || undefined}
                 alt={slide.title || "Banner"}
                 className="hero-slide-image w-full h-full object-cover"
                 loading={index === 0 ? "eager" : "lazy"}

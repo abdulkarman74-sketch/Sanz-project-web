@@ -26,7 +26,7 @@ const BannerSlider = () => {
           transition={{ duration: 0.5, ease: "easeOut" }}
           className="absolute inset-0"
         >
-          <img src={slides[current].image} alt="" className="w-full h-full object-cover opacity-80" loading="eager" />
+          <img src={slides[current].image || undefined} alt="" className="w-full h-full object-cover opacity-80" loading="eager" />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-80" />
           <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/40 to-transparent opacity-90" />
           

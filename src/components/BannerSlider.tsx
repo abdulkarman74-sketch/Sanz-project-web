@@ -25,7 +25,7 @@ const BannerSlider: React.FC = () => {
           className="absolute inset-0"
         >
           <img 
-            src={BANNER_SLIDES[currentSlide].image} 
+            src={BANNER_SLIDES[currentSlide].image || undefined} 
             alt={BANNER_SLIDES[currentSlide].title}
             className="w-full h-full object-cover"
           />

@@ -109,12 +109,18 @@ const ProductCard = memo(
           className="new-product-image-box cursor-pointer"
           onClick={() => onDetail?.(product)}
         >
-          <img
-            src={image}
-            alt={title}
-            className="new-product-image"
-            loading="lazy"
-          />
+          {image ? (
+            <img
+              src={image}
+              alt={title}
+              className="new-product-image"
+              loading="lazy"
+            />
+          ) : (
+            <div className="new-product-image-placeholder">
+              <span>✦</span>
+            </div>
+          )}
           <div className="new-product-image-badge">
             {category}
           </div>
