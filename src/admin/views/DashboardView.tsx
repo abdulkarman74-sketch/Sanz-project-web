@@ -63,35 +63,35 @@ export const DashboardView = ({
         <p>Jalan pintas ke pengaturan yang sering digunakan</p>
       </div>
       <div className="admin-quick-grid" style={{ marginBottom: '32px' }}>
-        <div className="admin-quick-card" onClick={() => setActiveMenu('branding')}>
+        <div className="admin-quick-card" onClick={() => setActiveMenu('branding-header')}>
            <div className="admin-quick-card-icon" style={{ background: "rgba(236, 72, 153, 0.12)", color: "#f472b6" }}>🏷️</div>
            <h3>Branding Web</h3>
            <p>Ganti nama toko dan logo</p>
         </div>
-        <div className="admin-quick-card" onClick={() => setActiveMenu('edit-menu-semua')}>
+        <div className="admin-quick-card" onClick={() => setActiveMenu('menu-semua')}>
            <div className="admin-quick-card-icon" style={{ background: "rgba(52, 211, 153, 0.12)", color: "#34d399" }}>🧩</div>
-           <h3>Edit Menu Semua</h3>
-           <p>Atur tata letak list menu</p>
+           <h3>Menu Semua</h3>
+           <p>Atur section layanan</p>
         </div>
-        <div className="admin-quick-card" onClick={() => setActiveMenu('add-product')}>
-           <div className="admin-quick-card-icon" style={{ background: "rgba(250, 204, 21, 0.12)", color: "#facc15" }}>➕</div>
-           <h3>Tambah Produk</h3>
-           <p>Upload game atau list baru</p>
+        <div className="admin-quick-card" onClick={() => setActiveMenu('produk')}>
+           <div className="admin-quick-card-icon" style={{ background: "rgba(250, 204, 21, 0.12)", color: "#facc15" }}>📦</div>
+           <h3>Kelola Produk</h3>
+           <p>Upload produk baru</p>
         </div>
-        <div className="admin-quick-card" onClick={() => setActiveMenu('contact')}>
-           <div className="admin-quick-card-icon" style={{ background: "rgba(56, 189, 248, 0.12)", color: "#38bdf8" }}>☎️</div>
-           <h3>Atur Order WhatsApp</h3>
-           <p>Ganti nomor WA tujuan</p>
+        <div className="admin-quick-card" onClick={() => setActiveMenu('kategori')}>
+           <div className="admin-quick-card-icon" style={{ background: "rgba(56, 189, 248, 0.12)", color: "#38bdf8" }}>🗂️</div>
+           <h3>Kelola Kategori</h3>
+           <p>Atur filter kategori</p>
         </div>
-        <div className="admin-quick-card" onClick={() => setActiveMenu('theme')}>
+        <div className="admin-quick-card" onClick={() => setActiveMenu('tema')}>
            <div className="admin-quick-card-icon" style={{ background: "rgba(167, 139, 250, 0.12)", color: "#a78bfa" }}>🎨</div>
            <h3>Ubah Tema Warna</h3>
            <p>Ganti warna web instan</p>
         </div>
-        <div className="admin-quick-card" onClick={() => setActiveMenu('settings-ai')}>
-           <div className="admin-quick-card-icon" style={{ background: "rgba(251, 146, 60, 0.12)", color: "#fb923c" }}>💬</div>
-           <h3>Pengaturan Elaina</h3>
-           <p>Atur cara bicara Assistant</p>
+        <div className="admin-quick-card" onClick={() => setActiveMenu('maintenance')}>
+           <div className="admin-quick-card-icon" style={{ background: "rgba(251, 146, 60, 0.12)", color: "#fb923c" }}>🛡️</div>
+           <h3>Maintenance</h3>
+           <p>Aktifkan mode perbaikan</p>
         </div>
       </div>
 

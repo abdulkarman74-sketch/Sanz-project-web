@@ -11,8 +11,63 @@ import { SlidesView } from "./views/SlidesView";
 import { BrandingView, LoadingView, ThemeView, AudioView, ContactView, FooterView, GeneralView, MaintenanceView, DebugFirebaseView, HeaderView, HeroView, CategoryTabsView, ServiceSectionView, StatsView, FlowView, BenefitsView } from "./views/SettingsViews";
 import { MenuSemuaView } from "./views/MenuSemuaView";
 import { SettingsAiView } from "./views/SettingsAiView";
-import { AddProductView } from "./views/AddProductView";
-import { AddCategoryView } from "./views/AddCategoryView";
+function EmptySafeAdminView({ title, description }: { title: string, description: string }) {
+  return (
+    <div className="admin-page">
+      <div className="admin-section-card">
+        <h2>{title}</h2>
+        <p>{description}</p>
+        <div style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', padding: '16px', borderRadius: '12px', marginTop: '16px' }}>
+          Menu ini sedang disiapkan. Tambahkan form setting di sini atau gabungkan ke menu lain.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const BrandingHeaderView = ({ settings }: any) => (
+  <>
+    <BrandingView settings={settings} />
+    <HeaderView settings={settings} />
+  </>
+);
+
+const HeroBannerView = ({ settings, slides }: any) => (
+  <>
+    <HeroView settings={settings} slides={slides} />
+    <SlidesView slides={slides} />
+  </>
+);
+
+const MenuSemuaAdminView = ({ settings }: any) => (
+  <>
+    <MenuSemuaView settings={settings} />
+    <CategoryTabsView settings={settings} />
+    <ServiceSectionView settings={settings} />
+    <StatsView settings={settings} />
+    <FlowView settings={settings} />
+    <BenefitsView settings={settings} />
+  </>
+);
+
+const ContactOrderView = ({ settings }: any) => (
+  <ContactView settings={settings} />
+);
+
+const LayoutAdminView = ({ settings }: any) => (
+  <EmptySafeAdminView 
+    title="Tampilan & Layout" 
+    description="Atur ukuran komponen, style card, animasi."
+  />
+);
+
+const WebSettingsAdminView = ({ settings }: any) => (
+  <>
+    <GeneralView settings={settings} />
+    <FooterView settings={settings} />
+    <DebugFirebaseView />
+  </>
+);
 
 interface AdminPanelProps {
   isAdminLoggedIn: boolean;
@@ -84,77 +139,74 @@ export default function AdminPanel({
     }
   }
 
-  const renderContent = () => {
-    switch (activeMenu) {
-      case "dashboard": return <DashboardView categories={localCategories} products={products} slides={slides} settings={siteSettings} setActiveMenu={handleMenuClick} />;
-      case "branding": return <BrandingView settings={siteSettings} />;
-      case "header": return <HeaderView settings={siteSettings} />;
-      case "hero": return <HeroView settings={siteSettings} slides={slides} />;
-      case "menu-semua": return <MenuSemuaView settings={siteSettings} />;
-      case "category-tabs": return <CategoryTabsView settings={siteSettings} />;
-      case "section-layanan": return <ServiceSectionView settings={siteSettings} />;
-      case "stats": return <StatsView settings={siteSettings} />;
-      case "flow": return <FlowView settings={siteSettings} />;
-      case "benefits": return <BenefitsView settings={siteSettings} />;
-      case "products": return <ProductsView products={products} categories={localCategories} />;
-      case "add-product": return <AddProductView categories={localCategories} onComplete={() => setActiveMenu("products")} />;
-      case "categories": return <CategoriesView categories={localCategories} />;
-      case "add-category": return <AddCategoryView onComplete={() => setActiveMenu("categories")} />;
-      case "contact": return <ContactView settings={siteSettings} />;
-      case "theme": return <ThemeView settings={siteSettings} />;
-      case "loading": return <LoadingView settings={siteSettings} />;
-      case "audio": return <AudioView settings={siteSettings} />;
-      case "settings-ai": return <SettingsAiView settings={siteSettings} />;
-      case "footer": return <FooterView settings={siteSettings} />;
-      case "maintenance": return <MaintenanceView settings={siteSettings} />;
-      case "general": return <GeneralView settings={siteSettings} />;
-      case "debug": return <DebugFirebaseView />;
-      default: return <DashboardView categories={localCategories} products={products} slides={slides} settings={siteSettings} setActiveMenu={handleMenuClick} />;
-    }
-  };
-
   const MENU_GROUPS = [
     {
       label: "Utama",
       items: [
-        { id: "dashboard", label: "Dashboard", desc: "Ringkasan web", icon: "📊" },
-        { id: "branding", label: "Branding Website", desc: "Nama & Logo", icon: "🏷️" },
-        { id: "header", label: "Header Atas", desc: "Tampilan atas", icon: "🔝" },
-        { id: "hero", label: "Hero / Banner", desc: "Teks & Gambar hero", icon: "🖼️" },
-        { id: "menu-semua", label: "Menu Semua", desc: "Service hub", icon: "🧩" },
-        { id: "category-tabs", label: "Tab Kategori", desc: "Filter kategori", icon: "📑" },
-        { id: "section-layanan", label: "Section Layanan", desc: "Pusat layanan", icon: "📂" },
-        { id: "stats", label: "Statistik Website", desc: "Card angka hemat", icon: "📈" },
-        { id: "flow", label: "Alur Layanan", desc: "Langkah order", icon: "🛤️" },
-        { id: "benefits", label: "Keunggulan / Benefit", desc: "Kenapa pilih kami", icon: "💎" }
+        { id: "dashboard", label: "Dashboard", desc: "Ringkasan web", icon: "📊" }
       ]
     },
     {
-      label: "Produk & Kategori",
+      label: "Tampilan",
       items: [
-        { id: "products", label: "Produk", desc: "Daftar produk", icon: "📦" },
-        { id: "add-product", label: "Tambah Produk", desc: "Produk baru", icon: "➕" },
-        { id: "categories", label: "Kategori", desc: "Daftar kategori", icon: "🗂️" },
-        { id: "add-category", label: "Tambah Kategori", desc: "Kategori baru", icon: "➕" }
+        { id: "branding-header", label: "Branding & Header", desc: "Nama store & header", icon: "🏷️" },
+        { id: "hero-banner", label: "Hero / Banner", desc: "Banner utama", icon: "🖼️" },
+        { id: "menu-semua", label: "Menu Semua", desc: "Section layanan", icon: "🧩" },
+        { id: "tema", label: "Tema Web", desc: "Warna & Style", icon: "🎨" },
+        { id: "layout", label: "Layout", desc: "Ukuran & Animasi", icon: "💎" }
       ]
     },
     {
-      label: "Sistem & Tampilan",
+      label: "Data Store",
       items: [
-        { id: "contact", label: "Kontak & Order", desc: "WA & Pesan", icon: "☎️" },
-        { id: "theme", label: "Tema Seluruh Web", desc: "Warna & Mode", icon: "🎨" },
-        { id: "loading", label: "Loading Screen", desc: "Animasi masuk", icon: "✨" },
-        { id: "audio", label: "Audio & Musik", desc: "Suara latar", icon: "🎧" },
-        { id: "settings-ai", label: "Chat AI / Elaina", desc: "Assistant Bot", icon: "💬" },
-        { id: "footer", label: "Footer", desc: "Bagian bawah", icon: "🧱" },
+        { id: "produk", label: "Produk", desc: "Kelola Produk", icon: "📦" },
+        { id: "kategori", label: "Kategori", desc: "Kelola Kategori", icon: "🗂️" }
+      ]
+    },
+    {
+      label: "Order",
+      items: [
+        { id: "kontak-order", label: "Kontak & Order", desc: "WA & Template", icon: "☎️" }
+      ]
+    },
+    {
+      label: "Fitur",
+      items: [
+        { id: "chet-global", label: "Chet Global", desc: "Chat Publik", icon: "💬" },
+        { id: "audio", label: "Audio & Musik", desc: "Suara latar", icon: "🎧" }
+      ]
+    },
+    {
+      label: "Sistem",
+      items: [
+        { id: "loading", label: "Loading Screen", desc: "Animasi masuk", icon: "⏳" },
         { id: "maintenance", label: "Maintenance", desc: "Mode perbaikan", icon: "🛡️" },
-        { id: "general", label: "Pengaturan Web", desc: "Server & Sistem", icon: "⚙️" },
-        { id: "debug", label: "Debug Firebase", desc: "Cek database", icon: "🔥" }
+        { id: "pengaturan-web", label: "Pengaturan Web", desc: "Toggle Fitur", icon: "⚙️" }
       ]
     }
   ];
 
   const flatMenuItems = MENU_GROUPS.flatMap(g => g.items);
+
+  const renderContent = () => {
+    switch (activeMenu) {
+      case "dashboard": return <DashboardView categories={localCategories} products={products} slides={slides} settings={siteSettings} setActiveMenu={handleMenuClick} />;
+      case "branding-header": return <BrandingHeaderView settings={siteSettings} />;
+      case "hero-banner": return <HeroBannerView settings={siteSettings} slides={slides} />;
+      case "menu-semua": return <MenuSemuaAdminView settings={siteSettings} />;
+      case "produk": return <ProductsView products={products} categories={localCategories} />;
+      case "kategori": return <CategoriesView categories={localCategories} />;
+      case "kontak-order": return <ContactOrderView settings={siteSettings} />;
+      case "tema": return <ThemeView settings={siteSettings} />;
+      case "layout": return <LayoutAdminView settings={siteSettings} />;
+      case "loading": return <LoadingView settings={siteSettings} />;
+      case "chet-global": return <SettingsAiView settings={siteSettings} />;
+      case "audio": return <AudioView settings={siteSettings} />;
+      case "maintenance": return <MaintenanceView settings={siteSettings} />;
+      case "pengaturan-web": return <WebSettingsAdminView settings={siteSettings} />;
+      default: return <DashboardView categories={localCategories} products={products} slides={slides} settings={siteSettings} setActiveMenu={handleMenuClick} />;
+    }
+  };
 
   return (
     <div className="admin-shell admin-panel">

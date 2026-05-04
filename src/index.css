@@ -6209,4 +6209,615 @@ select:focus {
   }
 }
 
+/* ================================================== */
+/* DYNAMIC THEME ENFORCEMENT FIX                      */
+/* ================================================== */
 
+body,
+.app,
+.store-app,
+.main-app {
+  background: var(--theme-bg-main) !important;
+  color: var(--theme-text-main) !important;
+}
+
+h1, h2, h3, h4,
+.section-title,
+.card-title,
+.store-title,
+.menu-title {
+  color: var(--theme-text-main) !important;
+}
+
+p,
+.subtitle,
+.description,
+.card-desc,
+.text-muted,
+small {
+  color: var(--theme-text-muted) !important;
+}
+
+.card,
+.section-card,
+.menu-card,
+.stat-card,
+.step-card,
+.feature-card,
+.new-product-card,
+.main-drawer-panel,
+.global-chat-panel,
+.admin-section-card,
+.admin-card {
+  background-color: var(--theme-bg-card) !important;
+  color: var(--theme-text-main) !important;
+  border-color: var(--theme-border) !important;
+}
+
+input,
+textarea,
+select {
+  background: var(--theme-input-bg) !important;
+  color: var(--theme-input-text) !important;
+  border-color: var(--theme-border) !important;
+}
+
+button,
+.primary-button,
+.admin-save-button,
+.new-product-buy-button {
+  color: var(--theme-button-text) !important;
+}
+
+.home-category-pill {
+  background: var(--theme-tab-bg) !important;
+  color: var(--theme-tab-text) !important;
+  border-color: var(--theme-tab-border) !important;
+}
+
+.home-category-pill.active {
+  background: linear-gradient(135deg, var(--theme-primary), var(--theme-secondary)) !important;
+  color: var(--theme-tab-active-text) !important;
+  border-color: var(--theme-primary) !important;
+}
+
+.badge,
+.chip,
+.info-chip,
+.hero-badge,
+.product-badge,
+.category-badge,
+.new-product-category {
+  background: var(--theme-chip-bg) !important;
+  color: var(--theme-chip-text) !important;
+  border-color: var(--theme-border) !important;
+}
+
+.hero-slide-overlay,
+.hero-overlay,
+.banner-overlay {
+  background:
+    linear-gradient(90deg, var(--theme-hero-overlay-start), var(--theme-hero-overlay-end), transparent),
+    linear-gradient(180deg, transparent, var(--theme-hero-overlay-end)) !important;
+}
+
+body[data-theme-mode="light"] {
+  background: var(--theme-bg-main, #f8fafc) !important;
+  color: #0f172a !important;
+}
+
+/* Semua card utama di mode light */
+body[data-theme-mode="light"] .new-product-card,
+body[data-theme-mode="light"] .menu-semua-card,
+body[data-theme-mode="light"] .service-section-card,
+body[data-theme-mode="light"] .digital-service-card,
+body[data-theme-mode="light"] .stat-card,
+body[data-theme-mode="light"] .service-stat-card,
+body[data-theme-mode="light"] .step-card,
+body[data-theme-mode="light"] .flow-step-card,
+body[data-theme-mode="light"] .alur-step-card,
+body[data-theme-mode="light"] .feature-card,
+body[data-theme-mode="light"] .benefit-card,
+body[data-theme-mode="light"] .section-card,
+body[data-theme-mode="light"] .menu-card,
+body[data-theme-mode="light"] .admin-card,
+body[data-theme-mode="light"] .admin-section-card,
+body[data-theme-mode="light"] .admin-stat-card,
+body[data-theme-mode="light"] .admin-quick-card,
+body[data-theme-mode="light"] .main-drawer-panel,
+body[data-theme-mode="light"] .global-chat-panel,
+body[data-theme-mode="light"] .web-settings-clean-card {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: rgba(15, 23, 42, 0.14) !important;
+}
+
+/* Judul di semua card mode light */
+body[data-theme-mode="light"] .new-product-card h1,
+body[data-theme-mode="light"] .new-product-card h2,
+body[data-theme-mode="light"] .new-product-card h3,
+body[data-theme-mode="light"] .new-product-title,
+body[data-theme-mode="light"] .product-title,
+body[data-theme-mode="light"] .product-name,
+body[data-theme-mode="light"] .nama-produk-kecil,
+body[data-theme-mode="light"] .only-product-name-size-fix,
+body[data-theme-mode="light"] .menu-semua-card h1,
+body[data-theme-mode="light"] .menu-semua-card h2,
+body[data-theme-mode="light"] .menu-semua-card h3,
+body[data-theme-mode="light"] .menu-semua-title,
+body[data-theme-mode="light"] .service-title,
+body[data-theme-mode="light"] h1,
+body[data-theme-mode="light"] h2,
+body[data-theme-mode="light"] h3,
+body[data-theme-mode="light"] h4,
+body[data-theme-mode="light"] .title,
+body[data-theme-mode="light"] .section-title,
+body[data-theme-mode="light"] .card-title,
+body[data-theme-mode="light"] .store-title,
+body[data-theme-mode="light"] .menu-title,
+body[data-theme-mode="light"] .stat-value,
+body[data-theme-mode="light"] .step-title,
+body[data-theme-mode="light"] .flow-step-title,
+body[data-theme-mode="light"] .alur-step-title,
+body[data-theme-mode="light"] .feature-title,
+body[data-theme-mode="light"] .benefit-title,
+body[data-theme-mode="light"] .admin-card h1,
+body[data-theme-mode="light"] .admin-card h2,
+body[data-theme-mode="light"] .admin-card h3,
+body[data-theme-mode="light"] .admin-section-card h1,
+body[data-theme-mode="light"] .admin-section-card h2,
+body[data-theme-mode="light"] .admin-section-card h3,
+body[data-theme-mode="light"] .main-drawer-text strong,
+body[data-theme-mode="light"] .global-chat-header h2,
+body[data-theme-mode="light"] .global-chat-current-user strong {
+  color: #0f172a !important;
+}
+
+/* Deskripsi/paragraf di semua card mode light */
+body[data-theme-mode="light"] .new-product-card p,
+body[data-theme-mode="light"] .new-product-description,
+body[data-theme-mode="light"] .product-description,
+body[data-theme-mode="light"] .product-desc,
+body[data-theme-mode="light"] .menu-semua-card p,
+body[data-theme-mode="light"] .menu-semua-desc,
+body[data-theme-mode="light"] .service-description,
+body[data-theme-mode="light"] p,
+body[data-theme-mode="light"] .section-description,
+body[data-theme-mode="light"] .stat-label,
+body[data-theme-mode="light"] .step-desc,
+body[data-theme-mode="light"] .flow-step-desc,
+body[data-theme-mode="light"] .alur-step-desc,
+body[data-theme-mode="light"] .feature-desc,
+body[data-theme-mode="light"] .benefit-desc,
+body[data-theme-mode="light"] .card-desc,
+body[data-theme-mode="light"] .description,
+body[data-theme-mode="light"] .subtitle,
+body[data-theme-mode="light"] .admin-card p,
+body[data-theme-mode="light"] .admin-card label,
+body[data-theme-mode="light"] .admin-section-card p,
+body[data-theme-mode="light"] .admin-section-card label,
+body[data-theme-mode="light"] .main-drawer-text small,
+body[data-theme-mode="light"] .global-chat-header p,
+body[data-theme-mode="light"] .global-chat-current-user span {
+  color: #334155 !important;
+}
+
+/* Teks kecil */
+body[data-theme-mode="light"] small,
+body[data-theme-mode="light"] .text-muted,
+body[data-theme-mode="light"] .muted,
+body[data-theme-mode="light"] .soft-text {
+  color: #475569 !important;
+}
+
+/* Harga dan label harga di card produk */
+body[data-theme-mode="light"] .new-product-price,
+body[data-theme-mode="light"] .product-price,
+body[data-theme-mode="light"] .price-text {
+  color: var(--theme-primary, #0f766e) !important;
+}
+
+body[data-theme-mode="light"] .new-product-price-label,
+body[data-theme-mode="light"] .price-label {
+  color: #64748b !important;
+}
+
+/* Badge/chip di produk dan Menu Semua */
+body[data-theme-mode="light"] .new-product-category,
+body[data-theme-mode="light"] .new-product-image-badge,
+body[data-theme-mode="light"] .badge,
+body[data-theme-mode="light"] .chip,
+body[data-theme-mode="light"] .info-chip,
+body[data-theme-mode="light"] .menu-chip,
+body[data-theme-mode="light"] .service-chip,
+body[data-theme-mode="light"] .hero-badge,
+body[data-theme-mode="light"] .category-badge,
+body[data-theme-mode="light"] .product-badge,
+body[data-theme-mode="light"] .section-badge {
+  background: rgba(15, 118, 110, 0.10) !important;
+  color: #0f766e !important;
+  border-color: rgba(15, 118, 110, 0.22) !important;
+}
+
+/* Badge di atas gambar tetap boleh gelap agar terbaca */
+body[data-theme-mode="light"] .new-product-image-badge {
+  background: rgba(15, 23, 42, 0.76) !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+}
+
+/* Icon/angka statistik */
+body[data-theme-mode="light"] .stat-icon,
+body[data-theme-mode="light"] .step-number,
+body[data-theme-mode="light"] .flow-step-number {
+  color: var(--theme-primary, #0f766e) !important;
+}
+
+/* Tombol */
+body[data-theme-mode="light"] button,
+body[data-theme-mode="light"] .new-product-buy-button,
+body[data-theme-mode="light"] .primary-button {
+  color: var(--theme-button-text, #ffffff) !important;
+}
+
+body[data-theme-mode="light"] .home-category-pill {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: rgba(15, 23, 42, 0.14) !important;
+}
+
+body[data-theme-mode="light"] .home-category-pill.active {
+  background: linear-gradient(135deg, var(--theme-primary, #0f766e), var(--theme-secondary, #0891b2)) !important;
+  color: #ffffff !important;
+  border-color: var(--theme-primary, #0f766e) !important;
+}
+
+body[data-theme-mode="light"] input,
+body[data-theme-mode="light"] textarea,
+body[data-theme-mode="light"] select {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: rgba(15, 23, 42, 0.14) !important;
+}
+
+body[data-theme-mode="light"] input::placeholder,
+body[data-theme-mode="light"] textarea::placeholder {
+  color: #64748b !important;
+}
+
+body[data-theme-mode="light"] .admin-panel,
+body[data-theme-mode="light"] .admin-main,
+body[data-theme-mode="light"] .admin-page {
+  background: var(--theme-bg-main, #f8fafc) !important;
+  color: #0f172a !important;
+}
+
+body[data-theme-mode="dark"] .new-product-card,
+body[data-theme-mode="dark"] .menu-card,
+body[data-theme-mode="dark"] .section-card,
+body[data-theme-mode="dark"] .stat-card,
+body[data-theme-mode="dark"] .step-card,
+body[data-theme-mode="dark"] .main-drawer-panel,
+body[data-theme-mode="dark"] .global-chat-panel,
+body[data-theme-mode="dark"] .admin-section-card,
+body[data-theme-mode="dark"] .admin-card {
+  background: var(--theme-bg-card) !important;
+  color: var(--theme-text-main) !important;
+}
+
+body[data-theme-mode="dark"] .new-product-description,
+body[data-theme-mode="dark"] .card-desc,
+body[data-theme-mode="dark"] .description,
+body[data-theme-mode="dark"] p {
+  color: var(--theme-text-muted) !important;
+}
+
+/* ====== ADMIN SIDEBAR SCROLL FIX FINAL ====== */
+.admin-sidebar {
+  height: 100dvh !important;
+  max-height: 100dvh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+.admin-nav,
+.admin-menu-list,
+.admin-sidebar-menu {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  padding-bottom: 120px !important;
+}
+
+.admin-nav-item,
+.admin-menu-item {
+  display: flex !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+/* ====== PREMIUM LOADING SCREEN ====== */
+.premium-loading-screen {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 999999 !important;
+  min-height: 100dvh !important;
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+  padding: 22px !important;
+  background:
+    radial-gradient(circle at top left, color-mix(in srgb, var(--theme-primary, #22d3ee) 22%, transparent), transparent 34%),
+    radial-gradient(circle at bottom right, color-mix(in srgb, var(--theme-secondary, #67e8f9) 18%, transparent), transparent 36%),
+    linear-gradient(135deg, var(--theme-bg-main, #020617), var(--theme-bg-surface, #0f172a)) !important;
+  color: var(--theme-text-main, #f8fafc) !important;
+  animation: premiumLoadingFadeIn 320ms cubic-bezier(0.22, 1, 0.36, 1) both !important;
+}
+
+.premium-loading-bg-glow {
+  position: absolute !important;
+  width: 260px !important;
+  height: 260px !important;
+  border-radius: 999px !important;
+  filter: blur(40px) !important;
+  opacity: 0.35 !important;
+  pointer-events: none !important;
+  animation: premiumLoadingFloat 5s ease-in-out infinite alternate !important;
+}
+
+.premium-loading-bg-glow-one {
+  top: 12% !important;
+  left: 8% !important;
+  background: var(--theme-primary, #22d3ee) !important;
+}
+
+.premium-loading-bg-glow-two {
+  right: 8% !important;
+  bottom: 12% !important;
+  background: var(--theme-secondary, #67e8f9) !important;
+  animation-delay: 800ms !important;
+}
+
+.premium-loading-card {
+  position: relative !important;
+  z-index: 2 !important;
+  width: min(90vw, 360px) !important;
+  padding: 30px 24px 26px !important;
+  border-radius: 30px !important;
+  text-align: center !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.075), rgba(255,255,255,0.025)),
+    color-mix(in srgb, var(--theme-bg-card, #111827) 88%, transparent) !important;
+  border: 1px solid color-mix(in srgb, var(--theme-primary, #22d3ee) 20%, var(--theme-border, rgba(148,163,184,0.18))) !important;
+  box-shadow:
+    0 28px 80px var(--theme-shadow, rgba(0,0,0,0.42)),
+    inset 0 0 0 1px rgba(255,255,255,0.045) !important;
+  backdrop-filter: blur(16px) !important;
+  transform: translateZ(0) !important;
+  animation: premiumLoadingCardIn 420ms cubic-bezier(0.22, 1, 0.36, 1) both !important;
+}
+
+.premium-loading-orb-wrap {
+  position: relative !important;
+  width: 82px !important;
+  height: 82px !important;
+  margin: 0 auto 18px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.premium-loading-ring {
+  position: absolute !important;
+  inset: 0 !important;
+  border-radius: 999px !important;
+  border: 2px solid color-mix(in srgb, var(--theme-primary, #22d3ee) 20%, transparent) !important;
+  border-top-color: var(--theme-primary, #22d3ee) !important;
+  border-right-color: var(--theme-secondary, #67e8f9) !important;
+  animation: premiumLoadingSpin 1.15s linear infinite !important;
+}
+
+.premium-loading-orb {
+  width: 58px !important;
+  height: 58px !important;
+  border-radius: 22px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background:
+    linear-gradient(135deg, var(--theme-primary, #22d3ee), var(--theme-secondary, #67e8f9)) !important;
+  color: var(--theme-button-text, #020617) !important;
+  box-shadow:
+    0 18px 36px color-mix(in srgb, var(--theme-primary, #22d3ee) 30%, transparent),
+    inset 0 0 0 1px rgba(255,255,255,0.25) !important;
+  animation: premiumLoadingPulse 1.8s ease-in-out infinite !important;
+}
+
+.premium-loading-orb span {
+  font-size: 24px !important;
+  line-height: 1 !important;
+}
+
+.premium-loading-title {
+  margin: 0 0 8px !important;
+  font-size: clamp(24px, 6vw, 34px) !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.045em !important;
+  background: linear-gradient(
+    135deg,
+    var(--theme-text-main, #ffffff) 0%,
+    var(--theme-secondary, #67e8f9) 45%,
+    var(--theme-primary, #22d3ee) 100%
+  ) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  color: transparent !important;
+}
+
+.premium-loading-subtitle {
+  margin: 0 auto 18px !important;
+  max-width: 280px !important;
+  color: var(--theme-text-muted, #cbd5e1) !important;
+  font-size: 12.5px !important;
+  line-height: 1.45 !important;
+  font-weight: 600 !important;
+}
+
+.premium-loading-progress {
+  position: relative !important;
+  width: 100% !important;
+  height: 7px !important;
+  overflow: hidden !important;
+  border-radius: 999px !important;
+  background: color-mix(in srgb, var(--theme-bg-soft, #1e293b) 70%, transparent) !important;
+  border: 1px solid var(--theme-border, rgba(148,163,184,0.18)) !important;
+}
+
+.premium-loading-progress-bar {
+  width: 45% !important;
+  height: 100% !important;
+  border-radius: inherit !important;
+  background: linear-gradient(90deg, var(--theme-primary, #22d3ee), var(--theme-secondary, #67e8f9), var(--theme-primary, #22d3ee)) !important;
+  box-shadow: 0 0 18px color-mix(in srgb, var(--theme-primary, #22d3ee) 45%, transparent) !important;
+  animation: premiumLoadingProgress 1.35s cubic-bezier(0.22, 1, 0.36, 1) infinite !important;
+}
+
+.premium-loading-status {
+  margin: 13px 0 0 !important;
+  color: var(--theme-text-soft, #94a3b8) !important;
+  font-size: 11.5px !important;
+  line-height: 1.35 !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.03em !important;
+}
+
+@keyframes premiumLoadingFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes premiumLoadingCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes premiumLoadingSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes premiumLoadingPulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  50% {
+    transform: scale(1.045);
+    filter: brightness(1.08);
+  }
+}
+
+@keyframes premiumLoadingProgress {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(245%);
+  }
+}
+
+@keyframes premiumLoadingFloat {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(18px, -16px, 0) scale(1.08);
+  }
+}
+
+@media (max-width: 768px) {
+  .premium-loading-screen {
+    padding: 16px !important;
+  }
+
+  .premium-loading-card {
+    width: min(90vw, 320px) !important;
+    padding: 24px 18px 22px !important;
+    border-radius: 24px !important;
+    backdrop-filter: blur(10px) !important;
+  }
+
+  .premium-loading-orb-wrap {
+    width: 70px !important;
+    height: 70px !important;
+    margin-bottom: 15px !important;
+  }
+
+  .premium-loading-orb {
+    width: 50px !important;
+    height: 50px !important;
+    border-radius: 18px !important;
+  }
+
+  .premium-loading-orb span {
+    font-size: 20px !important;
+  }
+
+  .premium-loading-title {
+    font-size: 24px !important;
+  }
+
+  .premium-loading-subtitle {
+    font-size: 11.5px !important;
+    margin-bottom: 15px !important;
+  }
+
+  .premium-loading-status {
+    font-size: 10.5px !important;
+  }
+
+  .premium-loading-bg-glow {
+    width: 190px !important;
+    height: 190px !important;
+    filter: blur(30px) !important;
+    opacity: 0.25 !important;
+  }
+}
+
+@media (max-width: 430px) {
+  .premium-loading-card {
+    width: min(88vw, 300px) !important;
+    padding: 22px 16px 20px !important;
+    border-radius: 22px !important;
+  }
+
+  .premium-loading-title {
+    font-size: 22px !important;
+  }
+
+  .premium-loading-subtitle {
+    font-size: 11px !important;
+  }
+
+  .premium-loading-progress {
+    height: 6px !important;
+  }
+}

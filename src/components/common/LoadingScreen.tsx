@@ -3,9 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, memo } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { Rocket as RocketIcon } from 'lucide-react';
+import React, { useEffect, memo } from 'react';
+import { motion } from 'motion/react';
 
 const LoadingScreen = ({
   onComplete,
@@ -20,65 +19,53 @@ const LoadingScreen = ({
   loadingSubtitle?: string;
   settings?: any;
 }) => {
-  const [progress, setProgress] = useState(0);
-
   useEffect(() => {
-    const duration = 1200; // Fast loading for better mobile UX
-    const intervalTime = 15;
-    const steps = duration / intervalTime;
-    const increment = 100 / steps;
+    let duration = settings?.duration ? Number(settings.duration) : 1200;
+    if (isNaN(duration)) duration = 1200;
+    
+    // Fast loading for better mobile UX
+    const timer = setTimeout(() => {
+      onComplete();
+    }, duration);
 
-    const timer = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(timer);
-          setTimeout(onComplete, 300);
-          return 100;
-        }
-        return prev + increment;
-      });
-    }, intervalTime);
+    return () => clearTimeout(timer);
+  }, [onComplete, settings]);
 
-    return () => clearInterval(timer);
-  }, [onComplete]);
+  const finalStoreName = loadingName || settings?.mainText || storeName || "SANZ STORE";
+  const finalLoadingSubText = loadingSubtitle || settings?.subText || "Preparing your digital experience...";
+  const finalLoadingText = settings?.text || "Memuat website...";
 
   return (
     <motion.div
-      exit={{ opacity: 0, scale: 1.1 }}
-      className="fixed inset-0 z-[1000] flex flex-col items-center justify-center p-6"
-      style={{ backgroundColor: settings?.bgColor || '#ffffff' }}
+      exit={{ opacity: 0 }}
+      className="premium-loading-screen"
     >
-      <div className="relative mb-12">
-        <motion.div
-          animate={{ scale: [1, 1.1, 1], opacity: [0.1, 0.3, 0.1] }}
-          transition={{ duration: 2, repeat: Infinity }}
-          className="absolute inset-0 bg-blue-100 blur-3xl rounded-full"
-        />
-        <div className="relative w-24 h-24 bg-white border border-slate-100 rounded-3xl flex items-center justify-center shadow-xl shadow-slate-200/50">
-          <RocketIcon className="w-12 h-12 text-slate-900" />
-        </div>
-      </div>
+      <div className="premium-loading-bg-glow premium-loading-bg-glow-one"></div>
+      <div className="premium-loading-bg-glow premium-loading-bg-glow-two"></div>
 
-      <div className="w-full max-w-xs space-y-4">
-        <div className="flex justify-between items-end">
-          <div className="space-y-1">
-            <h2 className="text-slate-900 font-black text-xs uppercase tracking-[0.4em]">
-              {loadingName || settings?.mainText || storeName || "Loading Store"}
-            </h2>
-            <p className="text-blue-600 text-[10px] font-mono uppercase tracking-widest animate-pulse">
-              {loadingSubtitle || settings?.subText || "Memuat Sistem..."}
-            </p>
+      <div className="premium-loading-card">
+        <div className="premium-loading-orb-wrap">
+          <div className="premium-loading-ring"></div>
+          <div className="premium-loading-orb">
+            <span>✦</span>
           </div>
-          <span className="text-slate-900 font-mono text-xl font-black">
-            {Math.round(progress)}%
-          </span>
         </div>
-        <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden border border-slate-200">
-          <motion.div
-            className="h-full bg-[var(--theme-bg-main)]"
-            style={{ width: `${progress}%` }}
-          />
+
+        <h1 className="premium-loading-title">
+          {finalStoreName}
+        </h1>
+
+        <p className="premium-loading-subtitle">
+          {finalLoadingSubText}
+        </p>
+
+        <div className="premium-loading-progress">
+          <div className="premium-loading-progress-bar"></div>
         </div>
+
+        <p className="premium-loading-status">
+          {finalLoadingText}
+        </p>
       </div>
     </motion.div>
   );

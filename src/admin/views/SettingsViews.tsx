@@ -304,39 +304,39 @@ export const ThemeView = ({ settings }: { settings: any }) => {
       tabBg: "rgba(15, 23, 42, 0.92)", tabText: "#e2e8f0", tabBorder: "rgba(148, 163, 184, 0.22)", tabActiveBg: "rgba(34, 211, 238, 0.15)", tabActiveText: "#020617", tabActiveBorder: "#22d3ee"
     },
     "light-clean": {
-      themeName: "light-clean", label: "Light Clean", mode: "light", primary: "#0891b2", secondary: "#0e7490", backgroundMain: "#f8fafc", backgroundSurface: "#ffffff", backgroundCard: "#ffffff", backgroundSoft: "#e2e8f0", textMain: "#0f172a", textMuted: "#334155", textSoft: "#64748b", borderColor: "rgba(15, 23, 42, 0.14)", buttonText: "#ffffff", chipBg: "rgba(8, 145, 178, 0.10)", chipText: "#0e7490", inputBg: "#ffffff", inputText: "#0f172a", heroOverlayStart: "rgba(255, 255, 255, 0.78)", heroOverlayEnd: "rgba(255, 255, 255, 0.26)", shadow: "rgba(15, 23, 42, 0.14)"
+      themeName: "light-clean", label: "Light Clean", mode: "light", primary: "#0f766e", secondary: "#0891b2", backgroundMain: "#f8fafc", backgroundSurface: "#ffffff", backgroundCard: "#ffffff", backgroundSoft: "#e2e8f0", textMain: "#0f172a", textMuted: "#334155", textSoft: "#64748b", borderColor: "rgba(15, 23, 42, 0.14)", buttonText: "#ffffff", chipBg: "rgba(15, 118, 110, 0.10)", chipText: "#0f766e", inputBg: "#ffffff", inputText: "#0f172a", heroOverlayStart: "rgba(255, 255, 255, 0.80)", heroOverlayEnd: "rgba(255, 255, 255, 0.28)", shadow: "rgba(15, 23, 42, 0.14)"
     ,
-      tabBg: "#ffffff", tabText: "#0f172a", tabBorder: "rgba(15, 23, 42, 0.14)", tabActiveBg: "#0891b2", tabActiveText: "#ffffff", tabActiveBorder: "#0891b2"
+      tabBg: "#ffffff", tabText: "#0f172a", tabBorder: "rgba(15, 23, 42, 0.14)", tabActiveText: "#ffffff"
     },
     "soft-pink": {
-      themeName: "soft-pink", label: "Soft Pink", mode: "light", primary: "#db2777", secondary: "#be185d", backgroundMain: "#fff7fb", backgroundSurface: "#ffffff", backgroundCard: "#ffffff", backgroundSoft: "#fce7f3", textMain: "#1f1720", textMuted: "#4a3340", textSoft: "#7a5a69", borderColor: "rgba(219, 39, 119, 0.18)", buttonText: "#ffffff", chipBg: "rgba(219, 39, 119, 0.10)", chipText: "#be185d", inputBg: "#ffffff", inputText: "#1f1720", heroOverlayStart: "rgba(255, 247, 251, 0.78)", heroOverlayEnd: "rgba(255, 247, 251, 0.24)", shadow: "rgba(219, 39, 119, 0.13)"
+      themeName: "soft-pink", label: "Soft Pink", mode: "light", primary: "#be185d", secondary: "#db2777", backgroundMain: "#fff7fb", backgroundSurface: "#ffffff", backgroundCard: "#ffffff", backgroundSoft: "#fce7f3", textMain: "#1f1720", textMuted: "#4a3340", textSoft: "#7a5a69", borderColor: "rgba(190, 24, 93, 0.18)", buttonText: "#ffffff", chipBg: "rgba(190, 24, 93, 0.10)", chipText: "#9d174d", inputBg: "#ffffff", inputText: "#1f1720", heroOverlayStart: "rgba(255, 247, 251, 0.82)", heroOverlayEnd: "rgba(255, 247, 251, 0.28)", shadow: "rgba(190, 24, 93, 0.13)"
     ,
-      tabBg: "#ffffff", tabText: "#1f1720", tabBorder: "rgba(219, 39, 119, 0.18)", tabActiveBg: "#db2777", tabActiveText: "#ffffff", tabActiveBorder: "#db2777"
-    },
-    "purple-night": {
-      themeName: "purple-night", label: "Purple Night", mode: "dark", primary: "#a855f7", secondary: "#c084fc", backgroundMain: "#0f0718", backgroundSurface: "#180f25", backgroundCard: "#211331", backgroundSoft: "#312047", textMain: "#faf5ff", textMuted: "#ddd6fe", textSoft: "#c4b5fd", borderColor: "rgba(168, 85, 247, 0.22)", buttonText: "#ffffff", chipBg: "rgba(168, 85, 247, 0.14)", chipText: "#e9d5ff", inputBg: "#13091f", inputText: "#faf5ff", heroOverlayStart: "rgba(15, 7, 24, 0.78)", heroOverlayEnd: "rgba(15, 7, 24, 0.30)", shadow: "rgba(0, 0, 0, 0.36)"
-    ,
-      tabBg: "rgba(24, 15, 37, 0.92)", tabText: "#e9d5ff", tabBorder: "rgba(168, 85, 247, 0.22)", tabActiveBg: "#a855f7", tabActiveText: "#ffffff", tabActiveBorder: "#a855f7"
+      tabBg: "#ffffff", tabText: "#1f1720", tabBorder: "rgba(190, 24, 93, 0.18)", tabActiveText: "#ffffff"
     },
     "emerald-fresh": {
-      themeName: "emerald-fresh", label: "Emerald Fresh", mode: "light", primary: "#059669", secondary: "#047857", backgroundMain: "#f0fdf4", backgroundSurface: "#ffffff", backgroundCard: "#ffffff", backgroundSoft: "#dcfce7", textMain: "#052e16", textMuted: "#14532d", textSoft: "#166534", borderColor: "rgba(5, 150, 105, 0.18)", buttonText: "#ffffff", chipBg: "rgba(5, 150, 105, 0.10)", chipText: "#047857", inputBg: "#ffffff", inputText: "#052e16", heroOverlayStart: "rgba(240, 253, 244, 0.78)", heroOverlayEnd: "rgba(240, 253, 244, 0.24)", shadow: "rgba(5, 150, 105, 0.13)"
+      themeName: "emerald-fresh", label: "Emerald Fresh", mode: "light", primary: "#047857", secondary: "#059669", backgroundMain: "#f0fdf4", backgroundSurface: "#ffffff", backgroundCard: "#ffffff", backgroundSoft: "#dcfce7", textMain: "#052e16", textMuted: "#14532d", textSoft: "#166534", borderColor: "rgba(4, 120, 87, 0.18)", buttonText: "#ffffff", chipBg: "rgba(4, 120, 87, 0.10)", chipText: "#047857", inputBg: "#ffffff", inputText: "#052e16", heroOverlayStart: "rgba(240, 253, 244, 0.82)", heroOverlayEnd: "rgba(240, 253, 244, 0.28)", shadow: "rgba(4, 120, 87, 0.13)"
     ,
-      tabBg: "#ffffff", tabText: "#052e16", tabBorder: "rgba(5, 150, 105, 0.18)", tabActiveBg: "#059669", tabActiveText: "#ffffff", tabActiveBorder: "#059669"
+      tabBg: "#ffffff", tabText: "#052e16", tabBorder: "rgba(4, 120, 87, 0.18)", tabActiveText: "#ffffff"
+    },
+    "purple-night": {
+      themeName: "purple-night", label: "Purple Night", mode: "dark", primary: "#c084fc", secondary: "#a855f7", backgroundMain: "#0f0718", backgroundSurface: "#180f25", backgroundCard: "#211331", backgroundSoft: "#312047", textMain: "#faf5ff", textMuted: "#ddd6fe", textSoft: "#c4b5fd", borderColor: "rgba(192, 132, 252, 0.22)", buttonText: "#1f0b33", chipBg: "rgba(192, 132, 252, 0.14)", chipText: "#e9d5ff", inputBg: "#13091f", inputText: "#faf5ff", heroOverlayStart: "rgba(15, 7, 24, 0.80)", heroOverlayEnd: "rgba(15, 7, 24, 0.32)", shadow: "rgba(0, 0, 0, 0.36)"
+    ,
+      tabBg: "#211331", tabText: "#f3e8ff", tabBorder: "rgba(192, 132, 252, 0.22)", tabActiveText: "#1f0b33"
     },
     "red-velvet": {
-      themeName: "red-velvet", label: "Red Velvet", mode: "dark", primary: "#f43f5e", secondary: "#fb7185", backgroundMain: "#16070b", backgroundSurface: "#240d13", backgroundCard: "#301018", backgroundSoft: "#4a1d2a", textMain: "#fff1f2", textMuted: "#fecdd3", textSoft: "#fda4af", borderColor: "rgba(244, 63, 94, 0.22)", buttonText: "#ffffff", chipBg: "rgba(244, 63, 94, 0.14)", chipText: "#fecdd3", inputBg: "#18070b", inputText: "#fff1f2", heroOverlayStart: "rgba(22, 7, 11, 0.78)", heroOverlayEnd: "rgba(22, 7, 11, 0.30)", shadow: "rgba(0, 0, 0, 0.36)"
+      themeName: "red-velvet", label: "Red Velvet", mode: "dark", primary: "#fb7185", secondary: "#f43f5e", backgroundMain: "#16070b", backgroundSurface: "#240d13", backgroundCard: "#301018", backgroundSoft: "#4a1d2a", textMain: "#fff1f2", textMuted: "#fecdd3", textSoft: "#fda4af", borderColor: "rgba(251, 113, 133, 0.22)", buttonText: "#2a0a10", chipBg: "rgba(251, 113, 133, 0.14)", chipText: "#ffe4e6", inputBg: "#18070b", inputText: "#fff1f2", heroOverlayStart: "rgba(22, 7, 11, 0.80)", heroOverlayEnd: "rgba(22, 7, 11, 0.32)", shadow: "rgba(0, 0, 0, 0.36)"
     ,
-      tabBg: "rgba(36, 13, 19, 0.92)", tabText: "#fecdd3", tabBorder: "rgba(244, 63, 94, 0.22)", tabActiveBg: "#f43f5e", tabActiveText: "#ffffff", tabActiveBorder: "#f43f5e"
+      tabBg: "#301018", tabText: "#ffe4e6", tabBorder: "rgba(251, 113, 133, 0.22)", tabActiveText: "#2a0a10"
     },
     "blue-ocean": {
-      themeName: "blue-ocean", label: "Blue Ocean", mode: "dark", primary: "#3b82f6", secondary: "#60a5fa", backgroundMain: "#061226", backgroundSurface: "#0b1d3a", backgroundCard: "#10284d", backgroundSoft: "#1e3a5f", textMain: "#eff6ff", textMuted: "#bfdbfe", textSoft: "#93c5fd", borderColor: "rgba(59, 130, 246, 0.22)", buttonText: "#ffffff", chipBg: "rgba(59, 130, 246, 0.14)", chipText: "#dbeafe", inputBg: "#07172e", inputText: "#eff6ff", heroOverlayStart: "rgba(6, 18, 38, 0.78)", heroOverlayEnd: "rgba(6, 18, 38, 0.30)", shadow: "rgba(0, 0, 0, 0.36)"
+      themeName: "blue-ocean", label: "Blue Ocean", mode: "dark", primary: "#60a5fa", secondary: "#3b82f6", backgroundMain: "#061226", backgroundSurface: "#0b1d3a", backgroundCard: "#10284d", backgroundSoft: "#1e3a5f", textMain: "#eff6ff", textMuted: "#bfdbfe", textSoft: "#93c5fd", borderColor: "rgba(96, 165, 250, 0.22)", buttonText: "#061226", chipBg: "rgba(96, 165, 250, 0.14)", chipText: "#dbeafe", inputBg: "#07172e", inputText: "#eff6ff", heroOverlayStart: "rgba(6, 18, 38, 0.80)", heroOverlayEnd: "rgba(6, 18, 38, 0.32)", shadow: "rgba(0, 0, 0, 0.36)"
     ,
-      tabBg: "rgba(11, 29, 58, 0.92)", tabText: "#dbeafe", tabBorder: "rgba(59, 130, 246, 0.22)", tabActiveBg: "#3b82f6", tabActiveText: "#ffffff", tabActiveBorder: "#3b82f6"
+      tabBg: "#10284d", tabText: "#dbeafe", tabBorder: "rgba(96, 165, 250, 0.22)", tabActiveText: "#061226"
     },
     "gold-luxury": {
-      themeName: "gold-luxury", label: "Gold Luxury", mode: "dark", primary: "#f59e0b", secondary: "#fbbf24", backgroundMain: "#120d05", backgroundSurface: "#1f1608", backgroundCard: "#2a1f0d", backgroundSoft: "#3b2a12", textMain: "#fffbeb", textMuted: "#fde68a", textSoft: "#fbbf24", borderColor: "rgba(245, 158, 11, 0.24)", buttonText: "#120d05", chipBg: "rgba(245, 158, 11, 0.14)", chipText: "#fde68a", inputBg: "#171006", inputText: "#fffbeb", heroOverlayStart: "rgba(18, 13, 5, 0.78)", heroOverlayEnd: "rgba(18, 13, 5, 0.30)", shadow: "rgba(0, 0, 0, 0.36)"
+      themeName: "gold-luxury", label: "Gold Luxury", mode: "dark", primary: "#facc15", secondary: "#f59e0b", backgroundMain: "#120d05", backgroundSurface: "#1f1608", backgroundCard: "#2a1f0d", backgroundSoft: "#3b2a12", textMain: "#fffbeb", textMuted: "#fde68a", textSoft: "#fbbf24", borderColor: "rgba(250, 204, 21, 0.24)", buttonText: "#120d05", chipBg: "rgba(250, 204, 21, 0.14)", chipText: "#fef3c7", inputBg: "#171006", inputText: "#fffbeb", heroOverlayStart: "rgba(18, 13, 5, 0.80)", heroOverlayEnd: "rgba(18, 13, 5, 0.32)", shadow: "rgba(0, 0, 0, 0.36)"
     ,
-      tabBg: "rgba(31, 22, 8, 0.92)", tabText: "#fde68a", tabBorder: "rgba(245, 158, 11, 0.24)", tabActiveBg: "#f59e0b", tabActiveText: "#120d05", tabActiveBorder: "#f59e0b"
+      tabBg: "#2a1f0d", tabText: "#fef3c7", tabBorder: "rgba(250, 204, 21, 0.24)", tabActiveText: "#120d05"
     }
   };
 
@@ -386,11 +386,13 @@ export const ThemeView = ({ settings }: { settings: any }) => {
 
       const presetBase = PRESETS[themeForm.themeName] || PRESETS["dark-cyan"];
 
-      const cleanTheme = {
+      const tmpCleanTheme: any = {
         ...presetBase,
         ...themeForm,
         updatedAt: serverTimestamp()
       };
+
+      const cleanTheme = removeUndefinedDeep(tmpCleanTheme);
 
       await setDoc(doc(db, "settings", "theme"), cleanTheme, { merge: false });
 
@@ -1248,10 +1250,10 @@ export const HeaderView = ({ settings }: { settings: any }) => {
         toast.error("Firebase belum aktif");
         return;
       }
-      await setDoc(doc(db, "settings", "header"), {
+      await setDoc(doc(db, "settings", "header"), removeUndefinedDeep({
         ...payload,
         updatedAt: serverTimestamp()
-      }, { merge: true });
+      }), { merge: true });
       toast.success("Pengaturan header berhasil disimpan");
     } catch (error: any) {
       toast.error("Gagal menyimpan header: " + error.message);
@@ -1376,10 +1378,10 @@ export const HeroView = ({ settings, slides }: { settings: any, slides: any[] })
         toast.error("Firebase belum aktif");
         return;
       }
-      await setDoc(doc(db, "settings", "hero"), {
+      await setDoc(doc(db, "settings", "hero"), removeUndefinedDeep({
         ...payload,
         updatedAt: serverTimestamp()
-      }, { merge: true });
+      }), { merge: true });
       toast.success("Pengaturan hero berhasil disimpan");
     } catch (error: any) {
       toast.error("Gagal menyimpan hero: " + error.message);
@@ -1475,10 +1477,10 @@ export const CategoryTabsView = ({ settings }: { settings: any }) => {
     if (saving) return;
     try {
       setSaving(true);
-      await setDoc(doc(db, "settings", "categoryTabs"), {
+      await setDoc(doc(db, "settings", "categoryTabs"), removeUndefinedDeep({
         ...payload,
         updatedAt: serverTimestamp()
-      }, { merge: true });
+      }), { merge: true });
       toast.success("Tab kategori berhasil disimpan");
     } catch (error: any) {
       toast.error("Gagal menyimpan tab");
@@ -1543,10 +1545,10 @@ export const ServiceSectionView = ({ settings }: { settings: any }) => {
     if (saving) return;
     try {
       setSaving(true);
-      await setDoc(doc(db, "settings", "serviceSection"), {
+      await setDoc(doc(db, "settings", "serviceSection"), removeUndefinedDeep({
         ...payload,
         updatedAt: serverTimestamp()
-      }, { merge: true });
+      }), { merge: true });
       toast.success("Section layanan berhasil disimpan");
     } catch (error: any) {
       toast.error("Gagal menyimpan section");
@@ -1597,10 +1599,10 @@ export const StatsView = ({ settings }: { settings: any }) => {
   const handleSave = async () => {
     try {
       setSaving(true);
-      await setDoc(doc(db, "settings", "statsSection"), {
+      await setDoc(doc(db, "settings", "statsSection"), removeUndefinedDeep({
         stats: payload,
         updatedAt: serverTimestamp()
-      }, { merge: true });
+      }), { merge: true });
       toast.success("Statistik berhasil disimpan");
     } catch (e) {
       toast.error("Gagal simpan statistik");
@@ -1660,9 +1662,9 @@ export const FlowView = ({ settings }: { settings: any }) => {
   const handleSave = async () => {
     try {
       setSaving(true);
-      await setDoc(doc(db, "settings", "flowSection"), {
+      await setDoc(doc(db, "settings", "flowSection"), removeUndefinedDeep({
         title, description: desc, steps, updatedAt: serverTimestamp()
-      }, { merge: true });
+      }), { merge: true });
       toast.success("Alur layanan disimpan");
     } catch (e) { toast.error("Gagal simpan alur"); } finally { setSaving(false); }
   };
@@ -1699,9 +1701,9 @@ export const BenefitsView = ({ settings }: { settings: any }) => {
   const handleSave = async () => {
     try {
       setSaving(true);
-      await setDoc(doc(db, "settings", "benefitsSection"), {
+      await setDoc(doc(db, "settings", "benefitsSection"), removeUndefinedDeep({
         title, description: desc, benefits, updatedAt: serverTimestamp()
-      }, { merge: true });
+      }), { merge: true });
       toast.success("Benefit disimpan");
     } catch (e) { toast.error("Gagal simpan benefit"); } finally { setSaving(false); }
   };
