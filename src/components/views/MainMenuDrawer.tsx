@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface MainMenuDrawerProps {
   open: boolean;
@@ -19,7 +19,26 @@ export default function MainMenuDrawer({
   onVideoGame, 
   onVideo 
 }: MainMenuDrawerProps) {
-  if (!open) return null;
+  const [mounted, setMounted] = useState(false);
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setMounted(true);
+      // Give browser time to process mount
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setShow(true);
+        });
+      });
+    } else {
+      setShow(false);
+      const timer = setTimeout(() => setMounted(false), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [open]);
+
+  if (!mounted) return null;
 
   const items = [
     { id: "home", label: "Beranda", icon: "🏠", action: onHome },
@@ -42,9 +61,9 @@ export default function MainMenuDrawer({
 
   return (
     <>
-      <div className="main-menu-clean-backdrop" onClick={onClose} />
+      <div className={`main-menu-clean-backdrop ${show ? 'open' : ''}`} onClick={onClose} />
 
-      <aside className="main-menu-clean-drawer">
+      <aside className={`main-menu-clean-drawer ${show ? 'open' : ''}`}>
         <div className="main-menu-clean-header">
           <div>
             <h2>Menu Utama</h2>

@@ -44,14 +44,14 @@ const ScriptBotView: React.FC<ScriptBotProps> = ({ product, settings }) => {
               <div>
                 <span className="inline-block px-4 py-1.5 bg-blue-50 border border-blue-100 text-blue-600 text-[10px] font-bold uppercase tracking-[0.3em] rounded-full mb-6">Premium Release</span>
                 <h2 className="text-5xl md:text-7xl font-display font-black text-slate-900 tracking-tighter leading-none mb-6 uppercase">{data.name}</h2>
-                <p className="text-slate-500 text-lg md:text-xl leading-relaxed max-w-xl">{data.description}</p>
+                <p className="text-[var(--theme-text-soft)] text-lg md:text-xl leading-relaxed max-w-xl">{data.description}</p>
               </div>
               <div className="flex flex-wrap gap-4">
-                <button onClick={handleBuy} className="h-16 px-10 bg-slate-900 hover:bg-black text-white font-bold uppercase tracking-widest rounded-2xl transition-all flex items-center gap-3 shadow-lg shadow-slate-900/10">
+                <button onClick={handleBuy} className="h-16 px-10 bg-[var(--theme-bg-main)] hover:bg-black text-[var(--theme-text-main)] font-bold uppercase tracking-widest rounded-2xl transition-all flex items-center gap-3 shadow-lg shadow-slate-900/10">
                   <ShoppingCart className="w-5 h-5" /> Pesan Sekarang
                 </button>
                 <div className="h-16 px-8 flex items-center gap-2 text-slate-800 bg-white border border-slate-200 rounded-2xl shadow-sm">
-                  <span className="text-slate-400 font-mono text-sm">IDR</span> <span className="text-2xl font-black">{data.price}</span>
+                  <span className="text-[var(--theme-text-soft)] font-mono text-sm">IDR</span> <span className="text-2xl font-black">{data.price}</span>
                 </div>
               </div>
             </div>
@@ -60,7 +60,7 @@ const ScriptBotView: React.FC<ScriptBotProps> = ({ product, settings }) => {
                 <div className="h-full flex flex-col justify-between">
                   <div className="flex justify-between items-start">
                     <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center border border-blue-100"><Smartphone className="w-8 h-8 text-blue-600" /></div>
-                    <div className="text-right text-[10px] font-mono text-slate-400 uppercase tracking-widest"><p>Version 10.5.0</p><p className="text-blue-500 font-bold mt-1">Latest Build</p></div>
+                    <div className="text-right text-[10px] font-mono text-[var(--theme-text-soft)] uppercase tracking-widest"><p>Version 10.5.0</p><p className="text-blue-500 font-bold mt-1">Latest Build</p></div>
                   </div>
                   <div className="space-y-4">
                     {data.benefits.map((benefit, i) => (

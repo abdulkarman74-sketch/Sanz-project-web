@@ -91,7 +91,7 @@ export default function CategoryPopup({
 
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 w-9 h-9 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-black/60 transition-colors z-20"
+              className="absolute top-4 right-4 w-9 h-9 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-[var(--theme-text-main)] hover:bg-black/60 transition-colors z-20"
             >
               <X className="w-5 h-5" />
             </button>

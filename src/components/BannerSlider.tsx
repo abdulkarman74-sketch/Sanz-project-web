@@ -18,10 +18,10 @@ const BannerSlider: React.FC = () => {
       <AnimatePresence mode="wait">
         <motion.div
           key={currentSlide}
-          initial={{ opacity: 0, scale: 1.1 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
           className="absolute inset-0"
         >
           <img 
@@ -42,7 +42,7 @@ const BannerSlider: React.FC = () => {
                 <RocketIcon className="w-3 h-3" />
                 Featured Product
               </div>
-              <h2 className="text-4xl md:text-7xl font-black text-white mb-4 leading-tight tracking-tighter">
+              <h2 className="text-4xl md:text-7xl font-black text-[var(--theme-text-main)] mb-4 leading-tight tracking-tighter">
                 {BANNER_SLIDES[currentSlide].title}
               </h2>
               <p className="text-zinc-400 text-sm md:text-xl font-medium mb-8 max-w-md leading-relaxed">
@@ -70,13 +70,13 @@ const BannerSlider: React.FC = () => {
 
       <button 
         onClick={() => setCurrentSlide((prev) => (prev - 1 + BANNER_SLIDES.length) % BANNER_SLIDES.length)}
-        className="absolute left-6 top-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-black/20 backdrop-blur-md border border-white/10 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-emerald-500 hover:text-black"
+        className="absolute left-6 top-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-black/20 backdrop-blur-md border border-white/10 flex items-center justify-center text-[var(--theme-text-main)] opacity-0 group-hover:opacity-100 transition-all hover:bg-emerald-500 hover:text-black"
       >
         <ChevronLeft className="w-6 h-6" />
       </button>
       <button 
         onClick={() => setCurrentSlide((prev) => (prev + 1) % BANNER_SLIDES.length)}
-        className="absolute right-6 top-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-black/20 backdrop-blur-md border border-white/10 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-emerald-500 hover:text-black"
+        className="absolute right-6 top-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-black/20 backdrop-blur-md border border-white/10 flex items-center justify-center text-[var(--theme-text-main)] opacity-0 group-hover:opacity-100 transition-all hover:bg-emerald-500 hover:text-black"
       >
         <ChevronRight className="w-6 h-6" />
       </button>

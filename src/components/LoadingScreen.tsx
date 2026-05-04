@@ -28,7 +28,7 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ progress }) => {
         <div className="absolute -inset-4 bg-emerald-500/20 blur-2xl rounded-full animate-pulse" />
       </motion.div>
       
-      <div className="w-64 h-1.5 bg-zinc-900 rounded-full overflow-hidden border border-white/5">
+      <div className="w-64 h-1.5 bg-[var(--theme-bg-main)] rounded-full overflow-hidden border border-white/5">
         <motion.div 
           className="h-full bg-gradient-to-r from-emerald-600 to-emerald-400"
           initial={{ width: 0 }}

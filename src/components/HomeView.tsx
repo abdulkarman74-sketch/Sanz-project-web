@@ -22,23 +22,21 @@ const HomeView: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 mt-8">
         {/* Horizontal Category Menu */}
         <div className="relative mb-8">
-          <div className="flex items-center gap-2 overflow-x-auto pb-4 scrollbar-hide no-scrollbar -mx-4 px-4">
-            {['Semua', 'Panel', 'Sewa Bot', 'Source Code', 'App Premium'].map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`whitespace-nowrap px-6 py-2.5 rounded-full text-sm font-bold transition-all duration-300 border ${
-                  selectedCategory === cat
-                    ? 'bg-blue-500 text-black border-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.4)]'
-                    : 'bg-white/5 text-gray-400 border-white/10 hover:border-blue-500/50 hover:text-blue-400'
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
+          <div className="home-category-shell">
+            <div className="home-category-track">
+              {['Semua', 'Panel', 'Sewa Bot', 'Source Code', 'App Premium'].map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`home-category-pill ${
+                    selectedCategory === cat ? 'active' : ''
+                  }`}
+                >
+                  <span className="home-category-pill-label">{cat}</span>
+                </button>
+              ))}
+            </div>
           </div>
-          {/* Gradient Fade Indicators */}
-          <div className="absolute right-0 top-0 bottom-4 w-12 bg-gradient-to-l from-black to-transparent pointer-events-none md:hidden" />
         </div>
 
         {/* Product Grid */}

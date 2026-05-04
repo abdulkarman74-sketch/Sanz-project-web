@@ -76,7 +76,7 @@ export const SettingsAiView = ({ settings }: { settings: any }) => {
 
   const renderInputGroup = (label: string, name: keyof typeof DEFAULT_ELAINA_SETTINGS, isTextarea: boolean = false) => (
     <div className="mb-4" key={name}>
-      <label className="block text-sm font-medium text-slate-300 mb-1">{label}</label>
+      <label className="block text-sm font-medium text-[var(--theme-text-muted)] mb-1">{label}</label>
       {isTextarea ? (
         <textarea
           name={name}
@@ -84,7 +84,7 @@ export const SettingsAiView = ({ settings }: { settings: any }) => {
           value={payload[name] || ""}
           onChange={handleChange}
           rows={3}
-          className="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 text-sm"
+          className="w-full bg-[var(--theme-bg-surface)] border border-[var(--theme-border)] rounded-xl px-4 py-2.5 text-[var(--theme-text-main)] placeholder-[var(--theme-text-soft)] focus:outline-none focus:ring-2 focus:ring-cyan-500/50 text-sm"
         />
       ) : (
         <AdminInput
@@ -204,7 +204,7 @@ export const SettingsAiView = ({ settings }: { settings: any }) => {
                       type="checkbox" 
                       checked={payload.allowRomanticRole} 
                       onChange={(e) => { setIsEditing(true); setPayload(p => ({ ...p, allowRomanticRole: e.target.checked })); }}
-                      className="w-5 h-5 accent-[#22d3ee] rounded cursor-pointer" 
+                      className="w-5 h-5 accent-[var(--theme-primary)] rounded cursor-pointer" 
                     />
                   </label>
               </div>

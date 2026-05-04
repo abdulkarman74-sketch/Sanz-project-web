@@ -121,7 +121,7 @@ export default function AdminPanel({
         { id: "branding", label: "Branding Website", desc: "Logo & Teks", icon: "🏷️" },
         { id: "edit-menu-semua", label: "Edit Menu Semua", desc: "Menu web", icon: "🧩" },
         { id: "slides", label: "Banner Slider", desc: "Gambar promo", icon: "🖼️" },
-        { id: "theme", label: "Tema Warna", desc: "Ganti warna web", icon: "🎨" },
+        { id: "theme", label: "Tema Seluruh Web", desc: "Ubah warna global", icon: "🎨" },
         { id: "audio", label: "Audio & Musik", desc: "Suara web", icon: "🎧" },
         { id: "footer", label: "Footer", desc: "Teks bawah", icon: "🧱" }
       ]

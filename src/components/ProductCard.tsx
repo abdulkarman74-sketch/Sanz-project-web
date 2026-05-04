@@ -42,7 +42,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onDetail }) => {
           </div>
         )}
         
-        <button className="absolute top-4 right-4 w-10 h-10 rounded-xl bg-black/20 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:text-theme-accent transition-all group-hover:bg-theme-card/60">
+        <button className="absolute top-4 right-4 w-10 h-10 rounded-xl bg-black/20 backdrop-blur-md border border-white/10 flex items-center justify-center text-[var(--theme-text-main)] hover:text-theme-accent transition-all group-hover:bg-theme-card/60">
           <Heart className="w-5 h-5 transition-transform group-hover:scale-110" />
         </button>
       </div>

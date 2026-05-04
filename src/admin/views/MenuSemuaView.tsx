@@ -62,14 +62,14 @@ export const MenuSemuaView = ({ settings }: { settings: any }) => {
 
   const renderInputGroup = (label: string, name: keyof typeof DEFAULT_MENU_SEMUA, isTextarea: boolean = false) => (
     <div className="mb-4" key={name}>
-      <label className="block text-sm font-medium text-slate-300 mb-1">{label}</label>
+      <label className="block text-sm font-medium text-[var(--theme-text-muted)] mb-1">{label}</label>
       {isTextarea ? (
         <textarea
           name={name}
           value={payload[name] || ""}
           onChange={handleChange}
           rows={3}
-          className="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 text-sm"
+          className="w-full bg-[var(--theme-bg-surface)] border border-[var(--theme-border)] rounded-xl px-4 py-2.5 text-[var(--theme-text-main)] placeholder-[var(--theme-text-soft)] focus:outline-none focus:ring-2 focus:ring-cyan-500/50 text-sm"
         />
       ) : (
         <AdminInput
@@ -86,8 +86,8 @@ export const MenuSemuaView = ({ settings }: { settings: any }) => {
     <div className="">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h2 className="text-xl font-bold tracking-tight text-white">Edit Menu Semua</h2>
-          <p className="text-sm text-slate-400 mt-1">Ubah semua teks yang tampil di layar utama (Tab Semua).</p>
+          <h2 className="text-xl font-bold tracking-tight text-[var(--theme-text-main)]">Edit Menu Semua</h2>
+          <p className="text-sm text-[var(--theme-text-soft)] mt-1">Ubah semua teks yang tampil di layar utama (Tab Semua).</p>
         </div>
         <div className="flex gap-2">
           <AdminButton onClick={handleReset} variant="outline">Reset Default</AdminButton>
@@ -98,7 +98,7 @@ export const MenuSemuaView = ({ settings }: { settings: any }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Card 1: Hero */}
         <div className="admin-card">
-          <h3 className="text-lg font-semibold text-white mb-4 border-b border-slate-700/50 pb-2">1. Hero Menu Semua</h3>
+          <h3 className="text-lg font-semibold text-[var(--theme-text-main)] mb-4 border-b border-[var(--theme-border)] pb-2">1. Hero Menu Semua</h3>
           {renderInputGroup("Badge Text", "badgeText")}
           {renderInputGroup("Judul Hero", "heroTitle")}
           {renderInputGroup("Subtitle Hero", "heroSubtitle", true)}
@@ -111,27 +111,27 @@ export const MenuSemuaView = ({ settings }: { settings: any }) => {
 
         {/* Card 2: Alur Layanan */}
         <div className="admin-card">
-          <h3 className="text-lg font-semibold text-white mb-4 border-b border-slate-700/50 pb-2">2. Alur Layanan</h3>
+          <h3 className="text-lg font-semibold text-[var(--theme-text-main)] mb-4 border-b border-[var(--theme-border)] pb-2">2. Alur Layanan</h3>
           {renderInputGroup("Judul Section", "flowTitle")}
           {renderInputGroup("Subtitle Section", "flowSubtitle", true)}
           
           <div className="grid grid-cols-2 gap-4 mt-2">
-            <div className="bg-slate-800/50 p-3 rounded-xl border border-slate-700/50">
+            <div className="bg-[var(--theme-bg-surface)] p-3 rounded-xl border border-[var(--theme-border)]">
               <span className="text-xs font-bold text-cyan-400 mb-2 block">Step 1</span>
               {renderInputGroup("Title", "step1Title")}
               {renderInputGroup("Deskripsi", "step1Desc", true)}
             </div>
-            <div className="bg-slate-800/50 p-3 rounded-xl border border-slate-700/50">
+            <div className="bg-[var(--theme-bg-surface)] p-3 rounded-xl border border-[var(--theme-border)]">
               <span className="text-xs font-bold text-cyan-400 mb-2 block">Step 2</span>
               {renderInputGroup("Title", "step2Title")}
               {renderInputGroup("Deskripsi", "step2Desc", true)}
             </div>
-            <div className="bg-slate-800/50 p-3 rounded-xl border border-slate-700/50">
+            <div className="bg-[var(--theme-bg-surface)] p-3 rounded-xl border border-[var(--theme-border)]">
               <span className="text-xs font-bold text-cyan-400 mb-2 block">Step 3</span>
               {renderInputGroup("Title", "step3Title")}
               {renderInputGroup("Deskripsi", "step3Desc", true)}
             </div>
-            <div className="bg-slate-800/50 p-3 rounded-xl border border-slate-700/50">
+            <div className="bg-[var(--theme-bg-surface)] p-3 rounded-xl border border-[var(--theme-border)]">
               <span className="text-xs font-bold text-cyan-400 mb-2 block">Step 4</span>
               {renderInputGroup("Title", "step4Title")}
               {renderInputGroup("Deskripsi", "step4Desc", true)}
@@ -141,7 +141,7 @@ export const MenuSemuaView = ({ settings }: { settings: any }) => {
 
         {/* Card 3: Trust */}
         <div className="admin-card">
-          <h3 className="text-lg font-semibold text-white mb-4 border-b border-slate-700/50 pb-2">3. Trust / Keamanan</h3>
+          <h3 className="text-lg font-semibold text-[var(--theme-text-main)] mb-4 border-b border-[var(--theme-border)] pb-2">3. Trust / Keamanan</h3>
           {renderInputGroup("Judul Trust", "trustTitle")}
           {renderInputGroup("Subtitle Trust", "trustSubtitle", true)}
           {renderInputGroup("Point 1", "trustPoint1")}
@@ -154,12 +154,12 @@ export const MenuSemuaView = ({ settings }: { settings: any }) => {
         {/* Card 4, 6: Highlight & CTA */}
         <div className="flex flex-col gap-6">
           <div className="admin-card">
-            <h3 className="text-lg font-semibold text-white mb-4 border-b border-slate-700/50 pb-2">4. Highlight Banner</h3>
+            <h3 className="text-lg font-semibold text-[var(--theme-text-main)] mb-4 border-b border-[var(--theme-border)] pb-2">4. Highlight Banner</h3>
             {renderInputGroup("Teks Highlight", "highlightText", true)}
           </div>
 
           <div className="admin-card">
-            <h3 className="text-lg font-semibold text-white mb-4 border-b border-slate-700/50 pb-2">6. CTA Penutup</h3>
+            <h3 className="text-lg font-semibold text-[var(--theme-text-main)] mb-4 border-b border-[var(--theme-border)] pb-2">6. CTA Penutup</h3>
             {renderInputGroup("CTA Title", "ctaTitle")}
             {renderInputGroup("CTA Subtitle", "ctaSubtitle", true)}
           </div>
@@ -167,49 +167,49 @@ export const MenuSemuaView = ({ settings }: { settings: any }) => {
 
         {/* Card 5: Feature Grid */}
         <div className="admin-card md:col-span-2">
-          <h3 className="text-lg font-semibold text-white mb-4 border-b border-slate-700/50 pb-2">5. Feature Grid (8 Item)</h3>
+          <h3 className="text-lg font-semibold text-[var(--theme-text-main)] mb-4 border-b border-[var(--theme-border)] pb-2">5. Feature Grid (8 Item)</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             {renderInputGroup("Judul Feature", "featureTitle")}
             {renderInputGroup("Subtitle Feature", "featureSubtitle")}
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-slate-800/50 p-3 rounded-xl border border-slate-700/50">
+            <div className="bg-[var(--theme-bg-surface)] p-3 rounded-xl border border-[var(--theme-border)]">
               <span className="text-xs font-bold text-cyan-400 mb-2 block">Feature 1</span>
               {renderInputGroup("Title 1", "feature1Title")}
               {renderInputGroup("Desc 1", "feature1Desc", true)}
             </div>
-            <div className="bg-slate-800/50 p-3 rounded-xl border border-slate-700/50">
+            <div className="bg-[var(--theme-bg-surface)] p-3 rounded-xl border border-[var(--theme-border)]">
               <span className="text-xs font-bold text-cyan-400 mb-2 block">Feature 2</span>
               {renderInputGroup("Title 2", "feature2Title")}
               {renderInputGroup("Desc 2", "feature2Desc", true)}
             </div>
-            <div className="bg-slate-800/50 p-3 rounded-xl border border-slate-700/50">
+            <div className="bg-[var(--theme-bg-surface)] p-3 rounded-xl border border-[var(--theme-border)]">
               <span className="text-xs font-bold text-cyan-400 mb-2 block">Feature 3</span>
               {renderInputGroup("Title 3", "feature3Title")}
               {renderInputGroup("Desc 3", "feature3Desc", true)}
             </div>
-            <div className="bg-slate-800/50 p-3 rounded-xl border border-slate-700/50">
+            <div className="bg-[var(--theme-bg-surface)] p-3 rounded-xl border border-[var(--theme-border)]">
               <span className="text-xs font-bold text-cyan-400 mb-2 block">Feature 4</span>
               {renderInputGroup("Title 4", "feature4Title")}
               {renderInputGroup("Desc 4", "feature4Desc", true)}
             </div>
-            <div className="bg-slate-800/50 p-3 rounded-xl border border-slate-700/50">
+            <div className="bg-[var(--theme-bg-surface)] p-3 rounded-xl border border-[var(--theme-border)]">
               <span className="text-xs font-bold text-cyan-400 mb-2 block">Feature 5</span>
               {renderInputGroup("Title 5", "feature5Title")}
               {renderInputGroup("Desc 5", "feature5Desc", true)}
             </div>
-            <div className="bg-slate-800/50 p-3 rounded-xl border border-slate-700/50">
+            <div className="bg-[var(--theme-bg-surface)] p-3 rounded-xl border border-[var(--theme-border)]">
               <span className="text-xs font-bold text-cyan-400 mb-2 block">Feature 6</span>
               {renderInputGroup("Title 6", "feature6Title")}
               {renderInputGroup("Desc 6", "feature6Desc", true)}
             </div>
-            <div className="bg-slate-800/50 p-3 rounded-xl border border-slate-700/50">
+            <div className="bg-[var(--theme-bg-surface)] p-3 rounded-xl border border-[var(--theme-border)]">
               <span className="text-xs font-bold text-cyan-400 mb-2 block">Feature 7</span>
               {renderInputGroup("Title 7", "feature7Title")}
               {renderInputGroup("Desc 7", "feature7Desc", true)}
             </div>
-            <div className="bg-slate-800/50 p-3 rounded-xl border border-slate-700/50">
+            <div className="bg-[var(--theme-bg-surface)] p-3 rounded-xl border border-[var(--theme-border)]">
               <span className="text-xs font-bold text-cyan-400 mb-2 block">Feature 8</span>
               {renderInputGroup("Title 8", "feature8Title")}
               {renderInputGroup("Desc 8", "feature8Desc", true)}

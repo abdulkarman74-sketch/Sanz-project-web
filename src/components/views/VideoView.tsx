@@ -52,7 +52,7 @@ const VideoShort = memo(({ url, title, storeName }: { url: string; title: string
         <div className="bg-white/90 backdrop-blur-md p-4 rounded-2xl border border-slate-100 shadow-lg">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center shadow-md">
-              <RocketIcon className="w-4 h-4 text-white" />
+              <RocketIcon className="w-4 h-4 text-[var(--theme-text-main)]" />
             </div>
             <span className="text-slate-900 font-bold text-sm">{storeName || "Store"}</span>
           </div>
@@ -62,7 +62,7 @@ const VideoShort = memo(({ url, title, storeName }: { url: string; title: string
       {!isPlaying && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
           <div className="w-20 h-20 bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/50 shadow-xl">
-            <Play className="w-10 h-10 text-white fill-white ml-2" />
+            <Play className="w-10 h-10 text-[var(--theme-text-main)] fill-white ml-2" />
           </div>
         </div>
       )}
@@ -141,7 +141,7 @@ const DownloaderView = () => {
     <div className="max-w-3xl mx-auto px-6 py-12">
       <div className="text-center mb-10">
         <h2 className="text-3xl font-display font-black text-slate-900 uppercase tracking-tighter mb-4">Sosmed Downloader</h2>
-        <p className="text-slate-500 text-sm max-w-lg mx-auto">Download video dari TikTok, Instagram Reels, YouTube Shorts, X/Twitter, dan Facebook tanpa watermark dengan cepat.</p>
+        <p className="text-[var(--theme-text-soft)] text-sm max-w-lg mx-auto">Download video dari TikTok, Instagram Reels, YouTube Shorts, X/Twitter, dan Facebook tanpa watermark dengan cepat.</p>
       </div>
 
       <div className="flex flex-wrap gap-2 justify-center mb-8">
@@ -149,7 +149,7 @@ const DownloaderView = () => {
           <button
             key={service}
             onClick={() => setCurrentService(service)}
-            className={`px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all ${currentService === service ? 'bg-slate-900 text-white shadow-md' : 'bg-white text-slate-500 border border-slate-200 hover:border-slate-400'}`}
+            className={`px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all ${currentService === service ? 'bg-[var(--theme-bg-main)] text-[var(--theme-text-main)] shadow-md' : 'bg-white text-[var(--theme-text-soft)] border border-slate-200 hover:border-slate-400'}`}
           >
             {service}
           </button>
@@ -158,7 +158,7 @@ const DownloaderView = () => {
 
       <form onSubmit={handleDownload} className="relative mb-8 group">
         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-          <Search className="h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+          <Search className="h-5 w-5 text-[var(--theme-text-soft)] group-focus-within:text-blue-500 transition-colors" />
         </div>
         <input
           type="url"
@@ -171,7 +171,7 @@ const DownloaderView = () => {
         <button
           type="submit"
           disabled={loading || !url}
-          className="absolute inset-y-2 right-2 px-6 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white font-bold uppercase tracking-widest text-[10px] rounded-xl transition-all shadow-md shadow-blue-600/20 disabled:shadow-none flex items-center justify-center min-w-[120px]"
+          className="absolute inset-y-2 right-2 px-6 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-[var(--theme-text-main)] font-bold uppercase tracking-widest text-[10px] rounded-xl transition-all shadow-md shadow-blue-600/20 disabled:shadow-none flex items-center justify-center min-w-[120px]"
         >
           {loading ? (
              <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
@@ -205,7 +205,7 @@ const DownloaderView = () => {
             </div>
             <div className="flex-1 flex flex-col w-full text-center md:text-left">
               <h3 className="text-lg font-bold text-slate-800 mb-2 truncate max-w-full">{result.title}</h3>
-              <p className="text-slate-500 text-sm mb-6 flex items-center justify-center md:justify-start gap-2">
+              <p className="text-[var(--theme-text-soft)] text-sm mb-6 flex items-center justify-center md:justify-start gap-2">
                  <span className="w-2 h-2 rounded-full bg-blue-500 inline-block" /> Oleh: {result.author}
               </p>
               
@@ -214,7 +214,7 @@ const DownloaderView = () => {
                   href={result.videoUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="w-full h-14 bg-slate-900 hover:bg-black text-white font-bold uppercase tracking-widest rounded-xl transition-all shadow-md flex items-center justify-center gap-2 text-xs"
+                  className="w-full h-14 bg-[var(--theme-bg-main)] hover:bg-black text-[var(--theme-text-main)] font-bold uppercase tracking-widest rounded-xl transition-all shadow-md flex items-center justify-center gap-2 text-xs"
                 >
                   <Download className="w-4 h-4" /> Download Video
                 </a>
@@ -249,13 +249,13 @@ const VideoView: React.FC<VideoViewProps> = ({ videoData = [], storeName }) => {
         <div className="bg-white/80 backdrop-blur-md p-1.5 rounded-full flex gap-2 border border-slate-200 shadow-sm">
           <button
             onClick={() => setActiveTab('downloader')}
-            className={`px-8 py-3 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all ${activeTab === 'downloader' ? 'bg-slate-900 text-white shadow-md' : 'text-slate-500 hover:text-slate-800'}`}
+            className={`px-8 py-3 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all ${activeTab === 'downloader' ? 'bg-[var(--theme-bg-main)] text-[var(--theme-text-main)] shadow-md' : 'text-[var(--theme-text-soft)] hover:text-slate-800'}`}
           >
             Downloader
           </button>
           <button
             onClick={() => setActiveTab('shorts')}
-            className={`px-8 py-3 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all ${activeTab === 'shorts' ? 'bg-slate-900 text-white shadow-md' : 'text-slate-500 hover:text-slate-800'}`}
+            className={`px-8 py-3 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all ${activeTab === 'shorts' ? 'bg-[var(--theme-bg-main)] text-[var(--theme-text-main)] shadow-md' : 'text-[var(--theme-text-soft)] hover:text-slate-800'}`}
           >
             Shorts
           </button>
@@ -274,7 +274,7 @@ const VideoView: React.FC<VideoViewProps> = ({ videoData = [], storeName }) => {
                     <VideoShort key={i} url={v.url} title={v.title} storeName={storeName} />
                  ))
              ) : (
-                 <div className="w-full text-center py-20 text-slate-400">Belum ada video pendek tersedia.</div>
+                 <div className="w-full text-center py-20 text-[var(--theme-text-soft)]">Belum ada video pendek tersedia.</div>
              )}
           </motion.div>
         )}

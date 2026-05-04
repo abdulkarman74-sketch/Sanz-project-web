@@ -312,52 +312,12 @@ export default function App() {
 
   useEffect(() => {
     if (!siteSettings?.theme) return;
-    const root = document.documentElement;
-
-    root.style.setProperty(
-      "--bg-main",
-      siteSettings.theme.backgroundColor || "#050816",
-    );
-    root.style.setProperty(
-      "--bg-card",
-      siteSettings.theme.cardColor || "#0b1220",
-    );
-    root.style.setProperty(
-      "--bg-surface",
-      siteSettings.theme.surfaceColor || "#111827",
-    );
-    root.style.setProperty(
-      "--text-main",
-      siteSettings.theme.textColor || "#f8fafc",
-    );
-    root.style.setProperty(
-      "--text-muted",
-      siteSettings.theme.mutedColor || "#94a3b8",
-    );
-    root.style.setProperty(
-      "--accent",
-      siteSettings.theme.primaryColor || "#22d3ee",
-    );
-    root.style.setProperty(
-      "--accent-sec",
-      siteSettings.theme.accentSecColor || "#2dd4bf",
-    );
-    root.style.setProperty(
-      "--accent-glow",
-      `${siteSettings.theme.primaryColor || "#22d3ee"}33`,
-    ); // add 20% opacity
-    root.style.setProperty(
-      "--border-refined",
-      siteSettings.theme.borderColor ||
-        siteSettings.theme.surfaceColor ||
-        "#1f2937",
-    );
-    root.style.setProperty(
-      "--footer-bg",
-      siteSettings.theme.footerColor ||
-        siteSettings.theme.backgroundColor ||
-        "#03050c",
-    );
+    
+    import('./utils/theme').then(({ applyGlobalTheme }) => {
+      // Map old standard colors if new structure is absent
+      const themeData = siteSettings.theme;
+      applyGlobalTheme(themeData);
+    });
   }, [siteSettings?.theme]);
 
   const [activeCategory, setActiveCategory] = useState<Category | null>(null);
@@ -413,63 +373,7 @@ export default function App() {
   };
 
   useEffect(() => {
-    const root = document.documentElement;
-    if (siteSettings.theme) {
-      root.style.setProperty(
-        "--site-primary",
-        siteSettings.theme.primaryColor || "#22d3ee",
-      );
-      root.style.setProperty(
-        "--site-bg",
-        siteSettings.theme.backgroundColor || "#050816",
-      );
-      root.style.setProperty(
-        "--site-card",
-        siteSettings.theme.cardColor || "#0b1220",
-      );
-      root.style.setProperty(
-        "--site-text",
-        siteSettings.theme.textColor || "#f8fafc",
-      );
-
-      root.style.setProperty(
-        "--bg-main",
-        siteSettings.theme.backgroundColor || "#050816",
-      );
-      root.style.setProperty(
-        "--bg-card",
-        siteSettings.theme.cardColor || "#0b1220",
-      );
-      root.style.setProperty(
-        "--bg-surface",
-        siteSettings.theme.surfaceColor || "#111827",
-      );
-      root.style.setProperty(
-        "--text-main",
-        siteSettings.theme.textColor || "#f8fafc",
-      );
-      root.style.setProperty(
-        "--text-muted",
-        siteSettings.theme.mutedColor || "#94a3b8",
-      );
-      root.style.setProperty(
-        "--accent",
-        siteSettings.theme.primaryColor || "#22d3ee",
-      );
-      root.style.setProperty(
-        "--accent-sec",
-        siteSettings.theme.accentSecColor || "#2dd4bf",
-      );
-      root.style.setProperty("--accent-glow", `rgba(255,255,255,0.1)`); // Will refactor this later if needed
-      root.style.setProperty(
-        "--border-refined",
-        siteSettings.theme.borderColor || "#1f2937",
-      );
-      root.style.setProperty(
-        "--footer-bg",
-        siteSettings.theme.footerColor || "#03050c",
-      );
-    }
+    // This unused old effect is now replaced by the one above.
   }, [siteSettings.theme]);
 
   useEffect(() => {
@@ -633,22 +537,19 @@ export default function App() {
                       </div>
                     )}
 
-                    <div
-                      className="overflow-x-auto no-scrollbar py-2 mb-4 md:mb-6 select-none relative"
-                      style={{ WebkitOverflowScrolling: "touch" }}
-                    >
-                      <div className="flex gap-2 min-w-max px-4">
+                    <div className="home-category-shell">
+                      <div className="home-category-track">
                         {[{ id: "Semua", title: "Semua", name: "Semua" }, ...localCategories].map((cat) => (
                           <button
                             key={cat.id || cat.name || cat.title}
                             onClick={() => setSelectedCategory(cat.id || (cat as any).name || (cat as any).title || "Semua")}
-                            className={`relative px-4 md:px-6 py-2.5 rounded-xl text-[11px] md:text-xs font-bold uppercase tracking-widest transition-all duration-300 whitespace-nowrap ${
+                            className={`home-category-pill ${
                               selectedCategory === (cat.id || (cat as any).name || (cat as any).title || "Semua")
-                                ? "text-theme-bg bg-theme-accent shadow-lg shadow-theme-accent/20 scale-105 transform"
-                                : "text-theme-muted bg-theme-surface border border-theme-border hover:border-theme-muted hover:text-theme-text"
+                                ? "active"
+                                : ""
                             }`}
                           >
-                            {(cat.title || (cat as any).name || cat.id).replace(/-/g, " ")}
+                            <span className="home-category-pill-label">{(cat.title || (cat as any).name || cat.id).replace(/-/g, " ")}</span>
                           </button>
                         ))}
                       </div>

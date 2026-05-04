@@ -96,7 +96,7 @@ export const AddProductView = ({ categories, onComplete }: { categories: Categor
 
   return (
     <div className="admin-card">
-      <h2 className="text-xl font-bold text-white mb-6">Tambah Produk Baru</h2>
+      <h2 className="text-xl font-bold text-[var(--theme-text-main)] mb-6">Tambah Produk Baru</h2>
       <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
          <AdminInput label="Nama Produk *" value={form.name || ""} onChange={e => setForm({...form, name: e.target.value})} autoFocus className="lg:col-span-2" />
          <AdminSelect label="Kategori *" value={form.categoryId || ""} onChange={e => setForm({...form, categoryId: e.target.value})} options={visibleCategories.map(c => ({ 
@@ -123,24 +123,24 @@ export const AddProductView = ({ categories, onComplete }: { categories: Categor
          </div>
 
          <div className="lg:col-span-3">
-           <label className="text-sm font-medium text-white block mb-1.5">Daftar Benefit / Keuntungan</label>
-           <div className="flex flex-col gap-2 bg-[#020617] border border-[#334155] rounded-xl p-4">
+           <label className="text-sm font-medium text-[var(--theme-text-main)] block mb-1.5">Daftar Benefit / Keuntungan</label>
+           <div className="flex flex-col gap-2 bg-[var(--theme-bg-main)] border border-[var(--theme-border)] rounded-xl p-4">
               {(form.benefits || []).map((b, idx) => (
-                 <div key={idx} className="benefit-item flex justify-between items-center bg-[#111827] px-3 py-2 rounded-lg border border-[#334155]">
-                    <span className="text-[#f8fafc] text-sm">{b}</span>
+                 <div key={idx} className="benefit-item flex justify-between items-center bg-[var(--theme-bg-card)] px-3 py-2 rounded-lg border border-[var(--theme-border)]">
+                    <span className="text-[var(--theme-text-main)] text-sm">{b}</span>
                     <button type="button" onClick={() => handleRemoveBenefit(idx)} className="benefit-delete text-red-400 hover:text-red-300 px-2 py-1 text-sm font-bold">X</button>
                  </div>
               ))}
               <div className="flex gap-2 mt-2">
-                 <input type="text" value={benefitInput} onChange={e => setBenefitInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), handleAddBenefit())} placeholder="Ketik benefit baru lalu tambah..." className="w-full bg-[#111827] text-[#f8fafc] border border-[#334155] rounded-lg px-3 py-2 outline-none focus:border-[#22d3ee] text-sm" />
-                 <button type="button" onClick={handleAddBenefit} className="bg-[#22d3ee] text-slate-900 px-4 py-2 rounded-lg font-bold text-sm whitespace-nowrap">Tambah</button>
+                 <input type="text" value={benefitInput} onChange={e => setBenefitInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), handleAddBenefit())} placeholder="Ketik benefit baru lalu tambah..." className="w-full bg-[var(--theme-bg-card)] text-[var(--theme-text-main)] border border-[var(--theme-border)] rounded-lg px-3 py-2 outline-none focus:border-[var(--theme-primary)] text-sm" />
+                 <button type="button" onClick={handleAddBenefit} className="bg-[var(--theme-primary)] text-slate-900 px-4 py-2 rounded-lg font-bold text-sm whitespace-nowrap">Tambah</button>
               </div>
            </div>
          </div>
          
          <div className="lg:col-span-3 flex items-center gap-3">
-          <input type="checkbox" id="prodActive" checked={form.active} onChange={e => setForm({...form, active: e.target.checked})} className="w-5 h-5 accent-[#22d3ee] rounded" />
-          <label htmlFor="prodActive" className="checkbox-label text-white cursor-pointer select-none">Produk Aktif (Bisa Dibeli)</label>
+          <input type="checkbox" id="prodActive" checked={form.active} onChange={e => setForm({...form, active: e.target.checked})} className="w-5 h-5 accent-[var(--theme-primary)] rounded" />
+          <label htmlFor="prodActive" className="checkbox-label text-[var(--theme-text-main)] cursor-pointer select-none">Produk Aktif (Bisa Dibeli)</label>
          </div>
          
          <div className="lg:col-span-3 pt-4 flex gap-4">

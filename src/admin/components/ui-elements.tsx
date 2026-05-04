@@ -8,9 +8,9 @@ interface AdminInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 export const AdminInput: React.FC<AdminInputProps> = ({ label, error, className = "", ...props }) => {
   return (
     <div className={`flex flex-col gap-1.5 ${className}`}>
-      <label className="text-sm font-medium text-white">{label}</label>
+      <label className="text-sm font-medium text-[var(--theme-text-main)]">{label}</label>
       <input
-        className="w-full bg-[#020617] text-[#f8fafc] border border-[#334155] rounded-xl px-4 py-2.5 outline-none focus:border-[#22d3ee] focus:ring-1 focus:ring-[#22d3ee] transition-colors caret-[#22d3ee] placeholder-[#64748b]"
+        className="w-full bg-[var(--theme-bg-main)] text-[var(--theme-text-main)] border border-[var(--theme-border)] rounded-xl px-4 py-2.5 outline-none focus:border-[var(--theme-primary)] focus:ring-1 focus:ring-[var(--theme-primary)] transition-colors caret-[var(--theme-primary)] placeholder-[#64748b]"
         {...props}
       />
       {error && <span className="text-xs text-red-500">{error}</span>}
@@ -21,9 +21,9 @@ export const AdminInput: React.FC<AdminInputProps> = ({ label, error, className 
 export const AdminTextarea: React.FC<React.TextareaHTMLAttributes<HTMLTextAreaElement> & { label: string, error?: string }> = ({ label, error, className = "", ...props }) => {
   return (
     <div className={`flex flex-col gap-1.5 ${className}`}>
-      <label className="text-sm font-medium text-white">{label}</label>
+      <label className="text-sm font-medium text-[var(--theme-text-main)]">{label}</label>
       <textarea
-        className="w-full bg-[#020617] text-[#f8fafc] border border-[#334155] rounded-xl px-4 py-2.5 outline-none focus:border-[#22d3ee] focus:ring-1 focus:ring-[#22d3ee] transition-colors caret-[#22d3ee] placeholder-[#64748b] min-h-[100px] resize-y"
+        className="w-full bg-[var(--theme-bg-main)] text-[var(--theme-text-main)] border border-[var(--theme-border)] rounded-xl px-4 py-2.5 outline-none focus:border-[var(--theme-primary)] focus:ring-1 focus:ring-[var(--theme-primary)] transition-colors caret-[var(--theme-primary)] placeholder-[#64748b] min-h-[100px] resize-y"
         {...props}
       />
       {error && <span className="text-xs text-red-500">{error}</span>}
@@ -34,14 +34,14 @@ export const AdminTextarea: React.FC<React.TextareaHTMLAttributes<HTMLTextAreaEl
 export const AdminSelect: React.FC<React.SelectHTMLAttributes<HTMLSelectElement> & { label: string, error?: string, options: {value: string, label: string}[] }> = ({ label, error, options, className = "", ...props }) => {
   return (
     <div className={`flex flex-col gap-1.5 ${className}`}>
-      <label className="text-sm font-medium text-white">{label}</label>
+      <label className="text-sm font-medium text-[var(--theme-text-main)]">{label}</label>
       <select
-        className="w-full bg-[#020617] text-[#f8fafc] border border-[#334155] rounded-xl px-4 py-2.5 outline-none focus:border-[#22d3ee] focus:ring-1 focus:ring-[#22d3ee] transition-colors"
+        className="w-full bg-[var(--theme-bg-main)] text-[var(--theme-text-main)] border border-[var(--theme-border)] rounded-xl px-4 py-2.5 outline-none focus:border-[var(--theme-primary)] focus:ring-1 focus:ring-[var(--theme-primary)] transition-colors"
         {...props}
       >
-        <option value="" disabled className="text-[#64748b] bg-[#020617]">Pilih salah satu</option>
+        <option value="" disabled className="text-[#64748b] bg-[var(--theme-bg-main)]">Pilih salah satu</option>
         {options.map(o => (
-          <option key={o.value} value={o.value} className="bg-[#020617] text-[#f8fafc]">{o.label}</option>
+          <option key={o.value} value={o.value} className="bg-[var(--theme-bg-main)] text-[var(--theme-text-main)]">{o.label}</option>
         ))}
       </select>
       {error && <span className="text-xs text-red-500">{error}</span>}
@@ -51,9 +51,9 @@ export const AdminSelect: React.FC<React.SelectHTMLAttributes<HTMLSelectElement>
 
 export const AdminButton: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'danger' | 'ghost' }> = ({ children, variant = 'primary', className = "", disabled, ...props }) => {
   const baseColors = {
-    primary: "bg-[#22d3ee] text-slate-900 border border-transparent hover:bg-cyan-300",
+    primary: "bg-[var(--theme-primary)] text-[var(--theme-button-text)] border border-transparent hover:opacity-80 transition-opacity",
     danger: "bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20",
-    ghost: "bg-transparent text-[#94a3b8] border border-transparent hover:text-white hover:bg-[#1e293b]"
+    ghost: "bg-transparent text-[var(--theme-text-soft)] border border-transparent hover:text-[var(--theme-text-main)] hover:bg-[#1e293b]"
   };
 
   return (

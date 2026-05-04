@@ -105,21 +105,21 @@ const HeroSection: React.FC<HeroSectionProps> = ({ settings }) => {
           {slides.map((slide, index) => (
             <div 
               key={slide.id || index}
-              className={`absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out ${
-                index === currentIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'
+              className={`absolute inset-0 w-full h-full hero-slide ${
+                index === currentIndex ? 'active z-10' : 'z-0'
               }`}
             >
               <img
                 src={slide.image}
                 alt={slide.title || "Banner"}
-                className="hero-slide-image"
+                className="hero-slide-image w-full h-full object-cover"
                 loading={index === 0 ? "eager" : "lazy"}
               />
 
-              <div className="hero-slide-overlay"></div>
-              <div className="hero-slide-glow"></div>
+              <div className="hero-slide-overlay absolute inset-0"></div>
+              <div className="hero-slide-glow absolute inset-0"></div>
 
-              <div className="hero-slide-content">
+              <div className="hero-slide-content relative z-20">
                 <div className="hero-slide-badge">
                   ✦ Premium Digital Store
                 </div>

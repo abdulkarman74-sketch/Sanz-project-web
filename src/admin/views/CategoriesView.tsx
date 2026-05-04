@@ -141,15 +141,15 @@ export const CategoriesView = ({ categories }: { categories: Category[] }) => {
   if (editingId) {
     return (
       <div className="admin-card">
-        <h2 className="text-xl font-bold text-white mb-6">Edit Kategori</h2>
+        <h2 className="text-xl font-bold text-[var(--theme-text-main)] mb-6">Edit Kategori</h2>
         <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="grid grid-cols-1 md:grid-cols-2 gap-6">
            <AdminInput label="Nama Kategori" value={form.name} onChange={e => setForm({...form, name: e.target.value})} autoFocus />
            <AdminInput label="URL Slug (Otomatis jika kosong)" value={form.slug} onChange={e => setForm({...form, slug: e.target.value})} />
            <AdminInput label="Urutan" type="number" value={form.order} onChange={e => setForm({...form, order: parseInt(e.target.value)})} />
            
            <div className="flex items-center gap-3 mt-8">
-            <input type="checkbox" id="catActive" checked={form.active} onChange={e => setForm({...form, active: e.target.checked})} className="w-5 h-5 accent-[#22d3ee] rounded" />
-            <label htmlFor="catActive" className="checkbox-label text-white cursor-pointer select-none">Aktif (Tampil di Frontend)</label>
+            <input type="checkbox" id="catActive" checked={form.active} onChange={e => setForm({...form, active: e.target.checked})} className="w-5 h-5 accent-[var(--theme-primary)] rounded" />
+            <label htmlFor="catActive" className="checkbox-label text-[var(--theme-text-main)] cursor-pointer select-none">Aktif (Tampil di Frontend)</label>
            </div>
            
            <div className="md:col-span-2 pt-4 flex gap-4">
@@ -176,7 +176,7 @@ export const CategoriesView = ({ categories }: { categories: Category[] }) => {
   return (
     <div className="admin-card">
        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold text-white">Kelola Kategori</h2>
+          <h2 className="text-xl font-bold text-[var(--theme-text-main)]">Kelola Kategori</h2>
           <AdminButton onClick={() => startEdit()} className="py-2.5">
              Tambah Kategori
           </AdminButton>
@@ -185,7 +185,7 @@ export const CategoriesView = ({ categories }: { categories: Category[] }) => {
        <div className="overflow-x-auto">
          <table className="w-full text-left border-collapse category-table">
            <thead>
-             <tr className="border-b border-[#334155] text-[#94a3b8] text-sm">
+             <tr className="border-b border-[var(--theme-border)] text-[var(--theme-text-soft)] text-sm">
                 <th className="pb-3 px-2 font-medium">Urutan</th>
                 <th className="pb-3 px-2 font-medium">Nama</th>
                 <th className="pb-3 px-2 font-medium hidden sm:table-cell">Slug</th>
@@ -196,14 +196,14 @@ export const CategoriesView = ({ categories }: { categories: Category[] }) => {
            </thead>
            <tbody>
              {visibleCategories.length === 0 ? (
-               <tr><td colSpan={6} className="text-center py-6 text-[#94a3b8]">Belum ada data</td></tr>
+               <tr><td colSpan={6} className="text-center py-6 text-[var(--theme-text-soft)]">Belum ada data</td></tr>
              ) : visibleCategories.map(cat => (
                <tr key={cat.id} className="border-b border-white/5 hover:bg-white/5 transition-colors category-row">
-                 <td className="py-3 px-2 text-white">{cat.order || 0}</td>
-                 <td className="py-3 px-2 font-medium text-white category-name">{getCategoryName(cat)}</td>
-                 <td className="py-3 px-2 text-[#94a3b8] text-sm hidden sm:table-cell">{cat.slug}</td>
+                 <td className="py-3 px-2 text-[var(--theme-text-main)]">{cat.order || 0}</td>
+                 <td className="py-3 px-2 font-medium text-[var(--theme-text-main)] category-name">{getCategoryName(cat)}</td>
+                 <td className="py-3 px-2 text-[var(--theme-text-soft)] text-sm hidden sm:table-cell">{cat.slug}</td>
                  <td className="py-3 px-2">
-                   <span className="bg-[#020617] text-[#22d3ee] border border-[#22d3ee]/20 px-2.5 py-1 rounded-full text-xs font-semibold">
+                   <span className="bg-[var(--theme-bg-main)] text-[var(--theme-primary)] border border-[var(--theme-primary)]/20 px-2.5 py-1 rounded-full text-xs font-semibold">
                       {cat.products?.length || 0}
                    </span>
                  </td>
@@ -212,8 +212,8 @@ export const CategoriesView = ({ categories }: { categories: Category[] }) => {
                  </td>
                  <td className="py-3 px-2 text-right">
                    <div className="flex items-center justify-end gap-2 category-actions">
-                     <button type="button" onClick={() => startEdit(cat)} className="text-[#94a3b8] hover:text-[#22d3ee] text-sm font-medium px-2 py-1">Edit</button>
-                     <button type="button" onClick={() => handleDeleteCategory(cat)} className="text-[#94a3b8] hover:text-red-400 text-sm font-medium px-2 py-1 btn-danger">Hapus</button>
+                     <button type="button" onClick={() => startEdit(cat)} className="text-[var(--theme-text-soft)] hover:text-[var(--theme-primary)] text-sm font-medium px-2 py-1">Edit</button>
+                     <button type="button" onClick={() => handleDeleteCategory(cat)} className="text-[var(--theme-text-soft)] hover:text-red-400 text-sm font-medium px-2 py-1 btn-danger">Hapus</button>
                    </div>
                  </td>
                </tr>

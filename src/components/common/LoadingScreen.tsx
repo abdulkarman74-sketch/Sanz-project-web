@@ -75,7 +75,7 @@ const LoadingScreen = ({
         </div>
         <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden border border-slate-200">
           <motion.div
-            className="h-full bg-slate-900"
+            className="h-full bg-[var(--theme-bg-main)]"
             style={{ width: `${progress}%` }}
           />
         </div>

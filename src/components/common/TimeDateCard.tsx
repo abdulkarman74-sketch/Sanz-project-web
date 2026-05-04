@@ -67,7 +67,7 @@ const TimeDateCard = ({ siteSettings }: { siteSettings?: SiteSettings }) => {
             </div>
 
             {/* Date Section */}
-            <div className="flex-1 bg-theme-bg rounded-2xl p-5 sm:p-6 md:p-8 border border-theme-border text-white relative overflow-hidden flex flex-col justify-center shadow-inner group">
+            <div className="flex-1 bg-theme-bg rounded-2xl p-5 sm:p-6 md:p-8 border border-theme-border text-[var(--theme-text-main)] relative overflow-hidden flex flex-col justify-center shadow-inner group">
               <div className="absolute top-0 right-0 w-32 h-32 bg-theme-accent/10 rounded-full blur-3xl pointer-events-none"></div>
               
               <div className="relative z-10">

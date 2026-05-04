@@ -238,10 +238,10 @@ export const LoadingView = ({ settings }: { settings: any }) => {
 
   return (
     <div className="admin-card">
-      <h2 className="text-xl font-bold text-white mb-6">Loading Screen</h2>
+      <h2 className="text-xl font-bold text-[var(--theme-text-main)] mb-6">Loading Screen</h2>
       <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <label className="flex items-center gap-3 cursor-pointer md:col-span-2 text-white">
-          <input type="checkbox" checked={payload.enabled} onChange={e => setPayload({...payload, enabled: e.target.checked})} className="w-5 h-5 accent-[#22d3ee] rounded" />
+        <label className="flex items-center gap-3 cursor-pointer md:col-span-2 text-[var(--theme-text-main)]">
+          <input type="checkbox" checked={payload.enabled} onChange={e => setPayload({...payload, enabled: e.target.checked})} className="w-5 h-5 accent-[var(--theme-primary)] rounded" />
           Aktifkan Loading Screen
         </label>
         
@@ -262,204 +262,324 @@ export const LoadingView = ({ settings }: { settings: any }) => {
 
 // --- THEME VIEW ---
 export const ThemeView = ({ settings }: { settings: any }) => {
-  const [payload, setPayload] = useState({
-    primaryColor: "",
-    backgroundColor: "",
-    cardColor: "",
-    surfaceColor: "",
-    textColor: "",
-    mutedColor: "",
-    borderColor: "",
-    footerColor: "",
-  });
-  const [saving, setSaving] = useState(false);
+  const [themeForm, setThemeForm] = useState<any>({});
+  const [savingTheme, setSavingTheme] = useState(false);
 
   useEffect(() => {
-    setPayload({
-      primaryColor: settings?.theme?.primaryColor || "",
-      backgroundColor: settings?.theme?.backgroundColor || "",
-      cardColor: settings?.theme?.cardColor || "",
-      surfaceColor: settings?.theme?.surfaceColor || "",
-      textColor: settings?.theme?.textColor || "",
-      mutedColor: settings?.theme?.mutedColor || "",
-      borderColor: settings?.theme?.borderColor || "",
-      footerColor: settings?.theme?.footerColor || "",
-    });
+    // Import dynamically to avoid top-level import issues if not already there,
+    // but assuming THEME_PRESETS can be imported or re-declared here for simplicity.
+    // For now, I'll copy the THEME_PRESETS locally just for the UI choices,
+    // though the real ones are in utils/theme.ts
+    if (settings?.theme) {
+      setThemeForm(settings.theme);
+    } else {
+      // Default fallback
+      setThemeForm({
+        themeName: "dark-cyan",
+        mode: "dark",
+        primary: "#22d3ee",
+        secondary: "#67e8f9",
+        backgroundMain: "#020617",
+        backgroundSurface: "#0f172a",
+        backgroundCard: "#111827",
+        backgroundSoft: "#1e293b",
+        textMain: "#f8fafc",
+        textMuted: "#cbd5e1",
+        textSoft: "#94a3b8",
+        borderColor: "rgba(148, 163, 184, 0.18)",
+        buttonText: "#020617",
+        success: "#22c55e",
+        danger: "#fb7185",
+        warning: "#facc15",
+        shadow: "rgba(0, 0, 0, 0.32)"
+      });
+    }
   }, [settings]);
 
-  const handleSave = async () => {
-    if (saving) return;
-    try {
-      setSaving(true);
-      
-      console.log("SAVE CLICKED");
-      console.log("firebaseReady:", firebaseReady);
-      console.log("db:", db);
-
-      if (!firebaseReady || !db) {
-        toast.error("Firebase belum aktif. Cek setting.js");
-        return;
-      }
-
-      const cleanPayload = removeUndefinedDeep(payload);
-      console.log("payload:", cleanPayload);
-      await setDoc(doc(db, "settings", "theme"), cleanPayload, { merge: true });
-      toast.success("Tema berhasil disimpan");
-    } catch (error: any) {
-      console.error("SAVE ERROR:", error);
-      safeToastError(error, "Gagal menyimpan");
-    } finally {
-      setSaving(false);
+  // Keep a local copy of presets for the grid
+  const PRESETS: Record<string, any> = {
+    "dark-cyan": {
+      themeName: "dark-cyan", label: "Dark Cyan", mode: "dark", primary: "#22d3ee", secondary: "#67e8f9", backgroundMain: "#020617", backgroundSurface: "#0b1220", backgroundCard: "#111827", backgroundSoft: "#1e293b", textMain: "#f8fafc", textMuted: "#cbd5e1", textSoft: "#94a3b8", borderColor: "rgba(148, 163, 184, 0.18)", buttonText: "#020617", chipBg: "rgba(34, 211, 238, 0.12)", chipText: "#67e8f9", inputBg: "#020617", inputText: "#f8fafc", heroOverlayStart: "rgba(2, 6, 23, 0.76)", heroOverlayEnd: "rgba(2, 6, 23, 0.28)", shadow: "rgba(0, 0, 0, 0.34)"
+    ,
+      tabBg: "rgba(15, 23, 42, 0.92)", tabText: "#e2e8f0", tabBorder: "rgba(148, 163, 184, 0.22)", tabActiveBg: "rgba(34, 211, 238, 0.15)", tabActiveText: "#020617", tabActiveBorder: "#22d3ee"
+    },
+    "light-clean": {
+      themeName: "light-clean", label: "Light Clean", mode: "light", primary: "#0891b2", secondary: "#0e7490", backgroundMain: "#f8fafc", backgroundSurface: "#ffffff", backgroundCard: "#ffffff", backgroundSoft: "#e2e8f0", textMain: "#0f172a", textMuted: "#334155", textSoft: "#64748b", borderColor: "rgba(15, 23, 42, 0.14)", buttonText: "#ffffff", chipBg: "rgba(8, 145, 178, 0.10)", chipText: "#0e7490", inputBg: "#ffffff", inputText: "#0f172a", heroOverlayStart: "rgba(255, 255, 255, 0.78)", heroOverlayEnd: "rgba(255, 255, 255, 0.26)", shadow: "rgba(15, 23, 42, 0.14)"
+    ,
+      tabBg: "#ffffff", tabText: "#0f172a", tabBorder: "rgba(15, 23, 42, 0.14)", tabActiveBg: "#0891b2", tabActiveText: "#ffffff", tabActiveBorder: "#0891b2"
+    },
+    "soft-pink": {
+      themeName: "soft-pink", label: "Soft Pink", mode: "light", primary: "#db2777", secondary: "#be185d", backgroundMain: "#fff7fb", backgroundSurface: "#ffffff", backgroundCard: "#ffffff", backgroundSoft: "#fce7f3", textMain: "#1f1720", textMuted: "#4a3340", textSoft: "#7a5a69", borderColor: "rgba(219, 39, 119, 0.18)", buttonText: "#ffffff", chipBg: "rgba(219, 39, 119, 0.10)", chipText: "#be185d", inputBg: "#ffffff", inputText: "#1f1720", heroOverlayStart: "rgba(255, 247, 251, 0.78)", heroOverlayEnd: "rgba(255, 247, 251, 0.24)", shadow: "rgba(219, 39, 119, 0.13)"
+    ,
+      tabBg: "#ffffff", tabText: "#1f1720", tabBorder: "rgba(219, 39, 119, 0.18)", tabActiveBg: "#db2777", tabActiveText: "#ffffff", tabActiveBorder: "#db2777"
+    },
+    "purple-night": {
+      themeName: "purple-night", label: "Purple Night", mode: "dark", primary: "#a855f7", secondary: "#c084fc", backgroundMain: "#0f0718", backgroundSurface: "#180f25", backgroundCard: "#211331", backgroundSoft: "#312047", textMain: "#faf5ff", textMuted: "#ddd6fe", textSoft: "#c4b5fd", borderColor: "rgba(168, 85, 247, 0.22)", buttonText: "#ffffff", chipBg: "rgba(168, 85, 247, 0.14)", chipText: "#e9d5ff", inputBg: "#13091f", inputText: "#faf5ff", heroOverlayStart: "rgba(15, 7, 24, 0.78)", heroOverlayEnd: "rgba(15, 7, 24, 0.30)", shadow: "rgba(0, 0, 0, 0.36)"
+    ,
+      tabBg: "rgba(24, 15, 37, 0.92)", tabText: "#e9d5ff", tabBorder: "rgba(168, 85, 247, 0.22)", tabActiveBg: "#a855f7", tabActiveText: "#ffffff", tabActiveBorder: "#a855f7"
+    },
+    "emerald-fresh": {
+      themeName: "emerald-fresh", label: "Emerald Fresh", mode: "light", primary: "#059669", secondary: "#047857", backgroundMain: "#f0fdf4", backgroundSurface: "#ffffff", backgroundCard: "#ffffff", backgroundSoft: "#dcfce7", textMain: "#052e16", textMuted: "#14532d", textSoft: "#166534", borderColor: "rgba(5, 150, 105, 0.18)", buttonText: "#ffffff", chipBg: "rgba(5, 150, 105, 0.10)", chipText: "#047857", inputBg: "#ffffff", inputText: "#052e16", heroOverlayStart: "rgba(240, 253, 244, 0.78)", heroOverlayEnd: "rgba(240, 253, 244, 0.24)", shadow: "rgba(5, 150, 105, 0.13)"
+    ,
+      tabBg: "#ffffff", tabText: "#052e16", tabBorder: "rgba(5, 150, 105, 0.18)", tabActiveBg: "#059669", tabActiveText: "#ffffff", tabActiveBorder: "#059669"
+    },
+    "red-velvet": {
+      themeName: "red-velvet", label: "Red Velvet", mode: "dark", primary: "#f43f5e", secondary: "#fb7185", backgroundMain: "#16070b", backgroundSurface: "#240d13", backgroundCard: "#301018", backgroundSoft: "#4a1d2a", textMain: "#fff1f2", textMuted: "#fecdd3", textSoft: "#fda4af", borderColor: "rgba(244, 63, 94, 0.22)", buttonText: "#ffffff", chipBg: "rgba(244, 63, 94, 0.14)", chipText: "#fecdd3", inputBg: "#18070b", inputText: "#fff1f2", heroOverlayStart: "rgba(22, 7, 11, 0.78)", heroOverlayEnd: "rgba(22, 7, 11, 0.30)", shadow: "rgba(0, 0, 0, 0.36)"
+    ,
+      tabBg: "rgba(36, 13, 19, 0.92)", tabText: "#fecdd3", tabBorder: "rgba(244, 63, 94, 0.22)", tabActiveBg: "#f43f5e", tabActiveText: "#ffffff", tabActiveBorder: "#f43f5e"
+    },
+    "blue-ocean": {
+      themeName: "blue-ocean", label: "Blue Ocean", mode: "dark", primary: "#3b82f6", secondary: "#60a5fa", backgroundMain: "#061226", backgroundSurface: "#0b1d3a", backgroundCard: "#10284d", backgroundSoft: "#1e3a5f", textMain: "#eff6ff", textMuted: "#bfdbfe", textSoft: "#93c5fd", borderColor: "rgba(59, 130, 246, 0.22)", buttonText: "#ffffff", chipBg: "rgba(59, 130, 246, 0.14)", chipText: "#dbeafe", inputBg: "#07172e", inputText: "#eff6ff", heroOverlayStart: "rgba(6, 18, 38, 0.78)", heroOverlayEnd: "rgba(6, 18, 38, 0.30)", shadow: "rgba(0, 0, 0, 0.36)"
+    ,
+      tabBg: "rgba(11, 29, 58, 0.92)", tabText: "#dbeafe", tabBorder: "rgba(59, 130, 246, 0.22)", tabActiveBg: "#3b82f6", tabActiveText: "#ffffff", tabActiveBorder: "#3b82f6"
+    },
+    "gold-luxury": {
+      themeName: "gold-luxury", label: "Gold Luxury", mode: "dark", primary: "#f59e0b", secondary: "#fbbf24", backgroundMain: "#120d05", backgroundSurface: "#1f1608", backgroundCard: "#2a1f0d", backgroundSoft: "#3b2a12", textMain: "#fffbeb", textMuted: "#fde68a", textSoft: "#fbbf24", borderColor: "rgba(245, 158, 11, 0.24)", buttonText: "#120d05", chipBg: "rgba(245, 158, 11, 0.14)", chipText: "#fde68a", inputBg: "#171006", inputText: "#fffbeb", heroOverlayStart: "rgba(18, 13, 5, 0.78)", heroOverlayEnd: "rgba(18, 13, 5, 0.30)", shadow: "rgba(0, 0, 0, 0.36)"
+    ,
+      tabBg: "rgba(31, 22, 8, 0.92)", tabText: "#fde68a", tabBorder: "rgba(245, 158, 11, 0.24)", tabActiveBg: "#f59e0b", tabActiveText: "#120d05", tabActiveBorder: "#f59e0b"
     }
   };
 
+  const handleSelectPreset = async (key: string) => {
+    const preset = PRESETS[key] || PRESETS["dark-cyan"];
+    setThemeForm({ ...preset });
+    if (typeof window !== "undefined") {
+      const { applyGlobalTheme } = await import("../../utils/theme");
+      applyGlobalTheme(preset);
+    }
+  };
+
+  const resetToSafeDefaultTheme = async () => {
+    try {
+      setSavingTheme(true);
+      const safeTheme = PRESETS["dark-cyan"];
+
+      if (firebaseReady && db) {
+        await setDoc(doc(db, "settings", "theme"), {
+          ...safeTheme,
+          updatedAt: serverTimestamp()
+        }, { merge: false });
+      }
+
+      setThemeForm(safeTheme);
+      if (typeof window !== "undefined") {
+        const { applyGlobalTheme } = await import("../../utils/theme");
+        applyGlobalTheme(safeTheme);
+      }
+
+      toast.success("Tema dikembalikan ke Dark Cyan aman");
+    } catch (error: any) {
+      toast.error("Gagal reset tema: " + error.message);
+    } finally {
+      setSavingTheme(false);
+    }
+  };
+
+  const handleSaveTheme = async () => {
+    if (savingTheme) return;
+    try {
+      setSavingTheme(true);
+      if (!firebaseReady || !db) {
+        toast.error("Firebase belum aktif");
+        return;
+      }
+
+      const presetBase = PRESETS[themeForm.themeName] || PRESETS["dark-cyan"];
+
+      const cleanTheme = {
+        ...presetBase,
+        ...themeForm,
+        updatedAt: serverTimestamp()
+      };
+
+      await setDoc(doc(db, "settings", "theme"), cleanTheme, { merge: false });
+
+      // Apply dynamically so admin sees it right away
+      if (typeof window !== "undefined") {
+        const applyGlobalTheme = (await import("../../utils/theme")).applyGlobalTheme;
+        applyGlobalTheme(cleanTheme);
+      }
+
+      toast.success("Tema seluruh web berhasil disimpan");
+    } catch (error: any) {
+      console.error(error);
+      toast.error("Gagal menyimpan tema: " + error.message);
+    } finally {
+      setSavingTheme(false);
+    }
+  };
+
+  const previewTheme = async () => {
+    if (typeof window !== "undefined") {
+      const applyGlobalTheme = (await import("../../utils/theme")).applyGlobalTheme;
+      applyGlobalTheme(themeForm);
+      toast.success("Preview tema diterapkan sementara");
+    }
+  };
+
+  const autoFixContrast = async () => {
+    if (typeof window !== "undefined") {
+      const { getAutoTextColor, getAutoMutedTextColor, getBrightness } = await import("../../utils/theme");
+      setThemeForm((prev: any) => ({
+        ...prev,
+        textMain: getAutoTextColor(prev.backgroundMain),
+        textMuted: getAutoMutedTextColor(prev.backgroundMain),
+        buttonText: getBrightness(prev.primary) > 0.55 ? "#0f172a" : "#ffffff"
+      }));
+      toast.success("Kontras disesuaikan otomatis");
+    }
+  };
+
+  const resetToDefault = () => {
+    handleSelectPreset("dark-cyan");
+  };
+
   return (
-    <div className="admin-page">
-      <div className="admin-page-header">
-        <h1>Tema Warna</h1>
-        <p>Sesuaikan warna utama dan latar web</p>
-      </div>
-
-      <div className="admin-help-box">
-        <strong>Info Tema Warna</strong>
-        <p>Ganti warna utama dan background dari website tanpa perlu koding. Gunakan format HEX (contoh: #0f172a).</p>
-      </div>
-
-      <div className="admin-two-column-grid">
-        {/* KOLOM KIRI = FORM WARNA */}
+    <div className="web-settings-clean-page">
+      <div className="web-settings-clean-header">
         <div>
-          <div className="admin-section-card" style={{ marginBottom: "20px" }}>
-            <div className="admin-section-header">
-              <h2>Warna Utama (Primary)</h2>
-              <p>Warna dominan untuk tombol dan aksen</p>
-            </div>
-            <div className="admin-form-grid full">
-              <div className="admin-form-field full">
-                <label>Warna Aksen / Primary</label>
-                <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-                  <input type="color" value={payload.primaryColor} onChange={e => setPayload({...payload, primaryColor: e.target.value})} style={{ height: '48px', padding: '4px', width: "60px", flexShrink: 0 }} />
-                  <input type="text" value={payload.primaryColor} onChange={e => setPayload({...payload, primaryColor: e.target.value})} placeholder="#000000" />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="admin-section-card" style={{ marginBottom: "20px" }}>
-            <div className="admin-section-header">
-              <h2>Warna Latar (Background)</h2>
-              <p>Warna dasar untuk berbagai bagian website</p>
-            </div>
-            <div className="admin-form-grid full">
-              <div className="admin-form-field full">
-                <label>Background Main (Web)</label>
-                <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-                  <input type="color" value={payload.backgroundColor} onChange={e => setPayload({...payload, backgroundColor: e.target.value})} style={{ height: '48px', padding: '4px', width: "60px", flexShrink: 0 }} />
-                  <input type="text" value={payload.backgroundColor} onChange={e => setPayload({...payload, backgroundColor: e.target.value})} placeholder="#000000" />
-                </div>
-              </div>
-              <div className="admin-form-field full">
-                <label>Background Card (Kotak)</label>
-                <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-                  <input type="color" value={payload.cardColor} onChange={e => setPayload({...payload, cardColor: e.target.value})} style={{ height: '48px', padding: '4px', width: "60px", flexShrink: 0 }} />
-                  <input type="text" value={payload.cardColor} onChange={e => setPayload({...payload, cardColor: e.target.value})} placeholder="#000000" />
-                </div>
-              </div>
-              <div className="admin-form-field full">
-                <label>Background Surface</label>
-                <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-                  <input type="color" value={payload.surfaceColor} onChange={e => setPayload({...payload, surfaceColor: e.target.value})} style={{ height: '48px', padding: '4px', width: "60px", flexShrink: 0 }} />
-                  <input type="text" value={payload.surfaceColor} onChange={e => setPayload({...payload, surfaceColor: e.target.value})} placeholder="#000000" />
-                </div>
-              </div>
-              <div className="admin-form-field full">
-                <label>Background Footer</label>
-                <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-                  <input type="color" value={payload.footerColor} onChange={e => setPayload({...payload, footerColor: e.target.value})} style={{ height: '48px', padding: '4px', width: "60px", flexShrink: 0 }} />
-                  <input type="text" value={payload.footerColor} onChange={e => setPayload({...payload, footerColor: e.target.value})} placeholder="#000000" />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="admin-section-card" style={{ marginBottom: "0" }}>
-            <div className="admin-section-header">
-              <h2>Warna Teks & Garis</h2>
-              <p>Warna tulisan dan pembatas</p>
-            </div>
-            <div className="admin-form-grid full">
-              <div className="admin-form-field full">
-                <label>Text Utama</label>
-                <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-                  <input type="color" value={payload.textColor} onChange={e => setPayload({...payload, textColor: e.target.value})} style={{ height: '48px', padding: '4px', width: "60px", flexShrink: 0 }} />
-                  <input type="text" value={payload.textColor} onChange={e => setPayload({...payload, textColor: e.target.value})} placeholder="#000000" />
-                </div>
-              </div>
-              <div className="admin-form-field full">
-                <label>Text Redup (Muted)</label>
-                <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-                  <input type="color" value={payload.mutedColor} onChange={e => setPayload({...payload, mutedColor: e.target.value})} style={{ height: '48px', padding: '4px', width: "60px", flexShrink: 0 }} />
-                  <input type="text" value={payload.mutedColor} onChange={e => setPayload({...payload, mutedColor: e.target.value})} placeholder="#000000" />
-                </div>
-              </div>
-              <div className="admin-form-field full">
-                <label>Warna Border/Garis</label>
-                <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-                  <input type="color" value={payload.borderColor} onChange={e => setPayload({...payload, borderColor: e.target.value})} style={{ height: '48px', padding: '4px', width: "60px", flexShrink: 0 }} />
-                  <input type="text" value={payload.borderColor} onChange={e => setPayload({...payload, borderColor: e.target.value})} placeholder="#000000" />
-                </div>
-              </div>
-            </div>
-          </div>
+          <span className="web-settings-clean-badge">TEMA & WARNA</span>
+          <h1>Tema Seluruh Web</h1>
+          <p>Ubah warna dan mode seluruh tampilan website.</p>
         </div>
+      </div>
 
-        {/* KOLOM KANAN = PREVIEW & ACTIONS */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "20px", position: "sticky", top: "20px" }}>
-          
-          <div className="admin-section-card" style={{
-            backgroundColor: payload.backgroundColor || '#020617',
-            borderColor: payload.borderColor || '#334155',
-            margin: 0
-          }}>
-            <div className="admin-section-header">
-              <h2 style={{ color: payload.textColor || '#ffffff' }}>Live Preview</h2>
-              <p style={{ color: payload.mutedColor || '#94a3b8' }}>Melihat hasil kombinasi warna</p>
-            </div>
-            
-            <div style={{
-              backgroundColor: payload.cardColor || '#0f172a',
-              padding: '24px',
-              borderRadius: '20px',
-              border: `1px solid ${payload.borderColor || '#334155'}`,
-              marginTop: '16px'
-            }}>
-              <h3 style={{ color: payload.textColor || '#ffffff', marginBottom: '8px', fontSize: '18px', fontWeight: 800 }}>Sample Content Card</h3>
-              <p style={{ color: payload.mutedColor || '#94a3b8', fontSize: '13px', lineHeight: 1.5, marginBottom: '20px' }}>
-                Ini adalah contoh tulisan redup yang sering digunakan pada deksripsi sebuah list barang atau produk.
-              </p>
+      <div className="web-settings-clean-info">
+        Fitur ini mengubah tema global secara instan. Pastikan warna teks bisa dibaca di atas warna background.
+      </div>
+
+      {/* PRESETS GRID */}
+      <section className="web-settings-clean-card">
+        <div className="web-settings-clean-card-head">
+          <h2>Preset Tema</h2>
+          <p>Pilih kombinasi warna yang sudah disediakan.</p>
+        </div>
+        <div className="theme-preset-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px' }}>
+          {Object.entries(PRESETS).map(([key, preset]) => (
+            <div 
+              key={key} 
+              className={`theme-preset-card ${themeForm.themeName === key ? 'active' : ''}`}
+              onClick={() => handleSelectPreset(key)}
+              style={{
+                padding: '16px',
+                borderRadius: '20px',
+                background: 'var(--theme-bg-card)',
+                border: themeForm.themeName === key ? '2px solid var(--theme-primary)' : '1px solid var(--theme-border)',
+                cursor: 'pointer',
+                position: 'relative',
+                overflow: 'hidden'
+              }}
+            >
+              <h3 style={{ margin: '0 0 4px', fontSize: '15px', fontWeight: 800, color: 'var(--theme-text-main)' }}>{preset.label}</h3>
+              <p style={{ margin: 0, fontSize: '12px', color: 'var(--theme-text-muted)' }}>Mode: {preset.mode}</p>
               
-              <button style={{
-                  backgroundColor: payload.primaryColor || '#22d3ee',
-                  color: '#020617',
-                  padding: '12px 24px',
+              <div style={{ display: 'flex', gap: '6px', marginTop: '12px' }}>
+                <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: preset.backgroundMain, border: '1px solid rgba(255,255,255,0.2)' }} />
+                <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: preset.primary, border: '1px solid rgba(255,255,255,0.2)' }} />
+                <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: preset.textMain, border: '1px solid rgba(255,255,255,0.2)' }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* CUSTOM EDITOR & PREVIEW */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
+        <section className="web-settings-clean-card" style={{ flex: '1 1 500px' }}>
+          <div className="web-settings-clean-card-head">
+            <h2>Custom Theme Editor</h2>
+            <p>Atur warna satuan sesuai keinginan.</p>
+          </div>
+          
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            {['primary', 'backgroundMain', 'backgroundSurface', 'backgroundCard', 'textMain', 'textMuted'].map((field) => (
+              <div key={field} style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <label style={{ fontSize: '12px', color: 'var(--theme-text-muted)', textTransform: 'capitalize' }}>
+                  {field.replace(/([A-Z])/g, ' $1').trim()}
+                </label>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <input 
+                    type="color" 
+                    value={themeForm[field] || '#000000'} 
+                    onChange={e => setThemeForm({ ...themeForm, [field]: e.target.value, themeName: 'custom' })}
+                    style={{ width: '44px', height: '44px', padding: 0, border: 'none', borderRadius: '8px', cursor: 'pointer' }}
+                  />
+                  <input 
+                    type="text" 
+                    value={themeForm[field] || ''} 
+                    onChange={e => setThemeForm({ ...themeForm, [field]: e.target.value, themeName: 'custom' })}
+                    style={{ flex: 1, height: '44px', padding: '0 12px', borderRadius: '8px', border: '1px solid var(--theme-border)', background: 'rgba(0,0,0,0.2)', color: 'var(--theme-text-main)' }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
+             <button type="button" onClick={autoFixContrast} style={{ padding: '8px 16px', background: 'rgba(255,255,255,0.1)', border: '1px solid var(--theme-border)', borderRadius: '8px', color: 'var(--theme-text-main)', cursor: 'pointer', fontSize: '13px' }}>
+               Sesuaikan Kontras Otomatis
+             </button>
+             <select 
+                value={themeForm.mode || 'dark'} 
+                onChange={e => setThemeForm({ ...themeForm, mode: e.target.value, themeName: 'custom' })}
+                style={{ padding: '8px 16px', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--theme-border)', borderRadius: '8px', color: 'var(--theme-text-main)', outline: 'none' }}
+              >
+               <option value="dark">Mode Gelap</option>
+               <option value="light">Mode Terang</option>
+             </select>
+          </div>
+        </section>
+
+        <section className="web-settings-clean-card" style={{ flex: '1 1 300px' }}>
+          <div className="web-settings-clean-card-head">
+            <h2>Live Preview Warna</h2>
+            <p>Contoh tampilan dengan warna saat ini.</p>
+          </div>
+          
+          <div style={{
+            background: themeForm.backgroundMain,
+            padding: '24px',
+            borderRadius: '16px',
+            border: `1px solid ${themeForm.borderColor || 'transparent'}`
+          }}>
+             <div style={{
+               background: themeForm.backgroundCard,
+               padding: '20px',
+               borderRadius: '16px',
+               border: `1px solid ${themeForm.borderColor || 'transparent'}`,
+               boxShadow: `0 10px 20px ${themeForm.shadow || 'rgba(0,0,0,0)'}`
+             }}>
+                <h4 style={{ color: themeForm.textMain, margin: '0 0 8px', fontSize: '18px' }}>Text Utama</h4>
+                <p style={{ color: themeForm.textMuted, margin: '0 0 20px', fontSize: '14px', lineHeight: 1.5 }}>
+                  Ini adalah contoh warna text redup / muted yang biasa dipakai untuk deskripsi agar tidak terlalu mencolok.
+                </p>
+                <button style={{
+                  background: themeForm.primary,
+                  color: themeForm.buttonText,
+                  width: '100%',
+                  padding: '12px',
                   borderRadius: '12px',
                   border: 'none',
-                  fontWeight: 900,
-                  width: '100%',
-                  cursor: 'pointer',
-                  textAlign: 'center'
-              }}>
-                Simulasi Action Primary
-              </button>
-            </div>
+                  fontWeight: 'bold',
+                  cursor: 'pointer'
+                }}>
+                  Contoh Tombol Primary
+                </button>
+             </div>
           </div>
+        </section>
+      </div>
 
-          <div className="admin-save-row" style={{ border: 'none', padding: 0, margin: 0, justifyContent: 'flex-start', flexDirection: 'column' }}>
-            <button className="admin-save-button" onClick={handleSave} disabled={saving} type="button" style={{ width: '100%' }}>
-              {saving ? "Menyimpan..." : "Simpan Tema Web"}
-            </button>
-          </div>
-
-        </div>
+      <div className="web-settings-clean-save-row" style={{ gap: '12px' }}>
+        <button type="button" onClick={resetToSafeDefaultTheme} style={{ padding: '0 24px', background: 'transparent', border: '1px solid var(--theme-border)', borderRadius: '16px', color: 'var(--theme-text-muted)', cursor: 'pointer', fontWeight: 600 }}>
+          Reset ke Dark Cyan Aman
+        </button>
+        <button type="button" onClick={previewTheme} style={{ padding: '0 24px', background: 'rgba(255,255,255,0.1)', border: '1px solid var(--theme-border)', borderRadius: '16px', color: 'var(--theme-text-main)', cursor: 'pointer', fontWeight: 600 }}>
+          Preview Sementara
+        </button>
+        <button type="button" className="web-settings-clean-save-button" onClick={handleSaveTheme} disabled={savingTheme}>
+          {savingTheme ? "Menyimpan..." : "Simpan Tema Web"}
+        </button>
       </div>
     </div>
   );
@@ -538,14 +658,14 @@ export const AudioView = ({ settings }: { settings: any }) => {
               <h4>Autoplay Audio</h4>
               <p>Mulai memutar saat website dibuka</p>
             </div>
-            <input type="checkbox" checked={payload.autoplay} onChange={e => setPayload({...payload, autoplay: e.target.checked})} className="w-5 h-5 accent-[#22d3ee] rounded cursor-pointer" />
+            <input type="checkbox" checked={payload.autoplay} onChange={e => setPayload({...payload, autoplay: e.target.checked})} className="w-5 h-5 accent-[var(--theme-primary)] rounded cursor-pointer" />
           </label>
           <label className="admin-toggle-card cursor-pointer">
             <div>
               <h4>Loop Audio</h4>
               <p>Ulangi lagu saat sudah selesai</p>
             </div>
-            <input type="checkbox" checked={payload.loop} onChange={e => setPayload({...payload, loop: e.target.checked})} className="w-5 h-5 accent-[#22d3ee] rounded cursor-pointer" />
+            <input type="checkbox" checked={payload.loop} onChange={e => setPayload({...payload, loop: e.target.checked})} className="w-5 h-5 accent-[var(--theme-primary)] rounded cursor-pointer" />
           </label>
         </div>
       </div>
@@ -783,7 +903,7 @@ export const FooterView = ({ settings }: { settings: any }) => {
               <h4>Tampilkan Footer Utama</h4>
               <p>Aktifkan agar bagian footer terlihat di bawah halaman utama.</p>
             </div>
-            <input type="checkbox" checked={payload.showFooter} onChange={e => setPayload({...payload, showFooter: e.target.checked})} className="w-5 h-5 accent-[#22d3ee] rounded cursor-pointer" />
+            <input type="checkbox" checked={payload.showFooter} onChange={e => setPayload({...payload, showFooter: e.target.checked})} className="w-5 h-5 accent-[var(--theme-primary)] rounded cursor-pointer" />
           </label>
         </div>
       </div>
@@ -923,8 +1043,8 @@ export const MaintenanceView = ({ settings }: { settings: any }) => {
               <textarea value={payload.maintenanceText} onChange={(e) => setPayload({ ...payload, maintenanceText: e.target.value })} rows={3} placeholder="Mohon maaf atas ketidaknyamanannya" />
             </div>
             <div className="admin-form-field full" style={{ marginTop: '10px' }}>
-              <label className="flex items-center gap-3 cursor-pointer text-white">
-                <input type="checkbox" checked={payload.contactButton} onChange={e => setPayload({...payload, contactButton: e.target.checked})} className="w-5 h-5 accent-[#22d3ee] rounded cursor-pointer" />
+              <label className="flex items-center gap-3 cursor-pointer text-[var(--theme-text-main)]">
+                <input type="checkbox" checked={payload.contactButton} onChange={e => setPayload({...payload, contactButton: e.target.checked})} className="w-5 h-5 accent-[var(--theme-primary)] rounded cursor-pointer" />
                 Tampilkan Tombol Kontak Admin Saat Maintenance
               </label>
             </div>
@@ -985,90 +1105,107 @@ export const GeneralView = ({ settings }: { settings: any }) => {
   };
 
   return (
-    <div className="admin-page">
-      <div className="admin-page-header">
-        <h1>Pengaturan Web</h1>
-        <p>Fitur on/off utama website</p>
+    <div className="web-settings-clean-page">
+      <div className="web-settings-clean-header">
+        <div>
+          <span className="web-settings-clean-badge">SERVER & WEB</span>
+          <h1>Pengaturan Web</h1>
+          <p>Atur fitur utama website yang ingin ditampilkan atau disembunyikan.</p>
+        </div>
       </div>
 
-      <div className="admin-help-box">
-        <strong>Info Pengaturan Web</strong>
-        <p>Atur fitur yang ingin ditampilkan atau disembunyikan di front-end website secara instan.</p>
+      <div className="web-settings-clean-info">
+        Pengaturan ini hanya mempengaruhi tampilan website publik. Admin Panel tetap harus selalu terlihat jelas dan bisa diedit.
       </div>
 
-      <div className="admin-section-card">
-        <div className="admin-section-header">
+      <section className="web-settings-clean-card">
+        <div className="web-settings-clean-card-head">
           <h2>Toggle Fitur Utama</h2>
-          <p>Fitur on/off untuk publik</p>
+          <p>Aktifkan atau nonaktifkan fitur utama di website.</p>
         </div>
-        <div className="admin-toggle-grid">
-          
-          <label className="admin-toggle-card cursor-pointer">
+
+        <div className="web-settings-clean-toggle-grid">
+          <label className="web-settings-clean-toggle-card">
             <div>
-              <h4>Website Aktif</h4>
-              <p>Biarkan user mengakses web</p>
+              <h3>Website Aktif</h3>
+              <p>Biarkan user mengakses website publik.</p>
             </div>
-            <input type="checkbox" checked={payload.websiteEnabled} onChange={e => setPayload({...payload, websiteEnabled: e.target.checked})} className="w-5 h-5 accent-[#22d3ee] rounded cursor-pointer" />
+            <input
+              type="checkbox"
+              checked={payload.websiteEnabled}
+              onChange={(e) => setPayload(prev => ({ ...prev, websiteEnabled: e.target.checked }))}
+            />
           </label>
 
-          <label className="admin-toggle-card cursor-pointer">
+          <label className="web-settings-clean-toggle-card">
             <div>
-              <h4>Tampilkan Slider</h4>
-              <p>Banner promosi di beranda</p>
+              <h3>Tampilkan Slider</h3>
+              <p>Banner promosi di beranda.</p>
             </div>
-            <input type="checkbox" checked={payload.showSlider} onChange={e => setPayload({...payload, showSlider: e.target.checked})} className="w-5 h-5 accent-[#22d3ee] rounded cursor-pointer" />
+            <input
+              type="checkbox"
+              checked={payload.showSlider}
+              onChange={(e) => setPayload(prev => ({ ...prev, showSlider: e.target.checked }))}
+            />
           </label>
 
-          <label className="admin-toggle-card cursor-pointer">
+          <label className="web-settings-clean-toggle-card">
             <div>
-              <h4>Tampilkan Audio</h4>
-              <p>Tombol musik di pojok kanan</p>
+              <h3>Tampilkan Audio</h3>
+              <p>Tombol musik di pojok kanan.</p>
             </div>
-            <input type="checkbox" checked={payload.showAudioBtn} onChange={e => setPayload({...payload, showAudioBtn: e.target.checked})} className="w-5 h-5 accent-[#22d3ee] rounded cursor-pointer" />
+            <input
+              type="checkbox"
+              checked={payload.showAudioBtn}
+              onChange={(e) => setPayload(prev => ({ ...prev, showAudioBtn: e.target.checked }))}
+            />
           </label>
 
-          <label className="admin-toggle-card cursor-pointer">
+          <label className="web-settings-clean-toggle-card">
             <div>
-              <h4>Tampilkan Footer</h4>
-              <p>Info di paling bawah website</p>
+              <h3>Tampilkan Footer</h3>
+              <p>Info di paling bawah website.</p>
             </div>
-            <input type="checkbox" checked={payload.showFooter} onChange={e => setPayload({...payload, showFooter: e.target.checked})} className="w-5 h-5 accent-[#22d3ee] rounded cursor-pointer" />
+            <input
+              type="checkbox"
+              checked={payload.showFooter}
+              onChange={(e) => setPayload(prev => ({ ...prev, showFooter: e.target.checked }))}
+            />
           </label>
 
-          <label className="admin-toggle-card cursor-pointer">
+          <label className="web-settings-clean-toggle-card">
             <div>
-              <h4>Tombol WhatsApp</h4>
-              <p>Tombol share/order ke WA</p>
+              <h3>Tombol WhatsApp</h3>
+              <p>Tombol share/order ke WA.</p>
             </div>
-            <input type="checkbox" checked={payload.showWaBtn} onChange={e => setPayload({...payload, showWaBtn: e.target.checked})} className="w-5 h-5 accent-[#22d3ee] rounded cursor-pointer" />
+            <input
+              type="checkbox"
+              checked={payload.showWaBtn}
+              onChange={(e) => setPayload(prev => ({ ...prev, showWaBtn: e.target.checked }))}
+            />
           </label>
-
         </div>
-      </div>
+      </section>
 
-      <div className="admin-section-card">
-        <div className="admin-section-header">
+      <section className="web-settings-clean-card">
+        <div className="web-settings-clean-card-head">
           <h2>Mode Info Homepage</h2>
-          <p>Teks info kecil di bawah nama store</p>
+          <p>Atur teks info kecil di halaman utama.</p>
         </div>
-        <div className="admin-form-grid full">
-          <div className="admin-form-field full">
-            <select
-              value={payload.infoDisplayMode}
-              onChange={e => setPayload({...payload, infoDisplayMode: e.target.value})}
-              className="admin-panel mt-1"
-            >
-              <option value="runtime">Tampilkan Server Status Saja</option>
-              <option value="datetime">Tampilkan Jam & Waktu Saja</option>
-              <option value="both">Tampilkan Keduannya</option>
-              <option value="hidden">Sembunyikan Semua Info</option>
-            </select>
-          </div>
-        </div>
-      </div>
 
-      <div className="admin-save-row">
-        <button className="admin-save-button" onClick={handleSave} disabled={saving} type="button">
+        <select
+          value={payload.infoDisplayMode}
+          onChange={e => setPayload({...payload, infoDisplayMode: e.target.value})}
+        >
+          <option value="runtime">Tampilkan Server Status Saja</option>
+          <option value="datetime">Tampilkan Jam & Waktu Saja</option>
+          <option value="both">Tampilkan Keduannya</option>
+          <option value="hidden">Sembunyikan Semua Info</option>
+        </select>
+      </section>
+
+      <div className="web-settings-clean-save-row">
+        <button type="button" className="web-settings-clean-save-button" onClick={handleSave} disabled={saving}>
           {saving ? "Menyimpan..." : "Simpan Pengaturan"}
         </button>
       </div>
@@ -1110,17 +1247,17 @@ export const DebugFirebaseView = () => {
 
   return (
     <div className="admin-card">
-      <h2 className="text-xl font-bold text-white mb-6">Debug Firebase</h2>
+      <h2 className="text-xl font-bold text-[var(--theme-text-main)] mb-6">Debug Firebase</h2>
       <div className="flex flex-col gap-4">
-        <div className="p-4 bg-[#0f172a] rounded-xl border border-[#1e293b] flex flex-col gap-2">
+        <div className="p-4 bg-[var(--theme-bg-surface)] rounded-xl border border-[#1e293b] flex flex-col gap-2">
            <div className="flex justify-between items-center text-sm">
-             <span className="text-slate-400">Firebase Ready</span>
+             <span className="text-[var(--theme-text-soft)]">Firebase Ready</span>
              <span className={`font-bold ${firebaseReady ? 'text-emerald-400' : 'text-red-400'}`}>
                {firebaseReady ? 'TRUE' : 'FALSE'}
              </span>
            </div>
            <div className="flex justify-between items-center text-sm">
-             <span className="text-slate-400">Firestore Instance</span>
+             <span className="text-[var(--theme-text-soft)]">Firestore Instance</span>
              <span className={`font-bold ${db ? 'text-emerald-400' : 'text-red-400'}`}>
                {db ? 'INITIALIZED' : 'NULL'}
              </span>

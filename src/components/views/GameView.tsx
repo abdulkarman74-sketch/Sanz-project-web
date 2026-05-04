@@ -94,12 +94,12 @@ const GameView = () => {
       <div className="w-full max-w-lg">
         <div className="flex justify-between items-center mb-6">
           <div className="bg-white px-6 py-3 border border-slate-200 rounded-2xl shadow-sm text-center">
-            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest block mb-1">Score</span>
+            <span className="text-[10px] text-[var(--theme-text-soft)] font-bold uppercase tracking-widest block mb-1">Score</span>
             <span className="text-xl font-display font-black text-slate-800">{score}</span>
           </div>
           <div className="bg-gradient-to-r from-yellow-500 to-amber-500 px-6 py-3 rounded-2xl shadow-md text-center border border-yellow-400">
             <span className="text-[10px] text-yellow-100 font-bold uppercase tracking-widest flex items-center gap-1 justify-center mb-1"><Trophy className="w-3 h-3" /> Best</span>
-            <span className="text-xl font-display font-black text-white">{highScore}</span>
+            <span className="text-xl font-display font-black text-[var(--theme-text-main)]">{highScore}</span>
           </div>
         </div>
 
@@ -110,7 +110,7 @@ const GameView = () => {
             ))}
 
             {snake.map((segment, i) => (
-              <div key={i} className={`${i === 0 ? 'bg-slate-900 rounded-sm' : 'bg-slate-700/80 rounded-sm'}`} style={{ gridColumnStart: segment.x + 1, gridRowStart: segment.y + 1, transform: i === 0 ? 'scale(1.1)' : 'scale(0.9)', zIndex: i === 0 ? 10 : 5 }} />
+              <div key={i} className={`${i === 0 ? 'bg-[var(--theme-bg-main)] rounded-sm' : 'bg-[var(--theme-bg-soft)] rounded-sm'}`} style={{ gridColumnStart: segment.x + 1, gridRowStart: segment.y + 1, transform: i === 0 ? 'scale(1.1)' : 'scale(0.9)', zIndex: i === 0 ? 10 : 5 }} />
             ))}
             <div className="bg-red-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(239,68,68,0.5)]" style={{ gridColumnStart: food.x + 1, gridRowStart: food.y + 1, transform: 'scale(0.8)' }} />
           </div>
@@ -119,8 +119,8 @@ const GameView = () => {
             <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center rounded-[2rem] z-20">
               <div className="text-center">
                 <h3 className="text-3xl font-display font-black text-slate-800 mb-2 uppercase tracking-tighter">{gameOver ? 'Game Over' : 'Classic Snake'}</h3>
-                {gameOver && <p className="text-slate-500 font-mono text-sm mb-6">Final Score: {score}</p>}
-                <button onClick={resetGame} className="h-14 px-8 bg-slate-900 hover:bg-black text-white font-bold uppercase tracking-widest rounded-xl transition-all shadow-lg flex items-center gap-3 w-full justify-center">
+                {gameOver && <p className="text-[var(--theme-text-soft)] font-mono text-sm mb-6">Final Score: {score}</p>}
+                <button onClick={resetGame} className="h-14 px-8 bg-[var(--theme-bg-main)] hover:bg-black text-[var(--theme-text-main)] font-bold uppercase tracking-widest rounded-xl transition-all shadow-lg flex items-center gap-3 w-full justify-center">
                   {gameOver ? <RotateCcw className="w-5 h-5" /> : <Play className="w-5 h-5 fill-white" />} {gameOver ? 'Play Again' : 'Start Game'}
                 </button>
               </div>

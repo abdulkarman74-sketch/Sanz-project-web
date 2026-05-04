@@ -120,7 +120,7 @@ const GameView = () => {
     >
       <div className="max-w-7xl mx-auto w-full flex flex-col items-center">
         <div className="mb-8 text-center">
-          <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white mb-2 italic">
+          <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-[var(--theme-text-main)] mb-2 italic">
             SNAKE <span className="text-cyan-400">GAME</span>
           </h2>
           <p className="text-gray-400 font-mono text-xs uppercase tracking-[0.3em]">Classic Arcade Experience</p>
@@ -225,7 +225,7 @@ const GameView = () => {
                   className="absolute inset-0 z-20 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center"
                 >
                   <Play className="w-12 h-12 text-cyan-400 mb-4 animate-pulse" />
-                  <h3 className="text-white font-bold text-xl mb-4">READY TO PLAY?</h3>
+                  <h3 className="text-[var(--theme-text-main)] font-bold text-xl mb-4">READY TO PLAY?</h3>
                   <button 
                     onClick={() => setIsPaused(false)}
                     className="px-8 py-3 bg-cyan-500 hover:bg-cyan-400 text-black font-black rounded-xl transition-all uppercase tracking-widest text-sm"
@@ -242,11 +242,11 @@ const GameView = () => {
                   className="absolute inset-0 z-20 bg-black/80 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center"
                 >
                   <Flame className="w-12 h-12 text-red-500 mb-4" />
-                  <h3 className="text-white font-black text-3xl mb-2 italic">GAME OVER</h3>
+                  <h3 className="text-[var(--theme-text-main)] font-black text-3xl mb-2 italic">GAME OVER</h3>
                   <p className="text-gray-400 font-mono text-xs mb-6 uppercase tracking-widest">Final Score: {score}</p>
                   <button 
                     onClick={resetGame}
-                    className="px-8 py-3 bg-red-500 hover:bg-red-400 text-white font-black rounded-xl transition-all uppercase tracking-widest text-sm shadow-[0_0_20px_rgba(239,68,68,0.4)]"
+                    className="px-8 py-3 bg-red-500 hover:bg-red-400 text-[var(--theme-text-main)] font-black rounded-xl transition-all uppercase tracking-widest text-sm shadow-[0_0_20px_rgba(239,68,68,0.4)]"
                   >
                     Try Again
                   </button>
@@ -262,26 +262,26 @@ const GameView = () => {
               onClick={() => direction.y === 0 && setDirection({ x: 0, y: -1 })}
               className="w-14 h-14 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center active:bg-cyan-500/20 active:border-cyan-500/40"
             >
-              <ChevronLeft className="w-6 h-6 rotate-90 text-white" />
+              <ChevronLeft className="w-6 h-6 rotate-90 text-[var(--theme-text-main)]" />
             </button>
             <div />
             <button 
               onClick={() => direction.x === 0 && setDirection({ x: -1, y: 0 })}
               className="w-14 h-14 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center active:bg-cyan-500/20 active:border-cyan-500/40"
             >
-              <ChevronLeft className="w-6 h-6 text-white" />
+              <ChevronLeft className="w-6 h-6 text-[var(--theme-text-main)]" />
             </button>
             <button 
               onClick={() => direction.y === 0 && setDirection({ x: 0, y: 1 })}
               className="w-14 h-14 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center active:bg-cyan-500/20 active:border-cyan-500/40"
             >
-              <ChevronLeft className="w-6 h-6 -rotate-90 text-white" />
+              <ChevronLeft className="w-6 h-6 -rotate-90 text-[var(--theme-text-main)]" />
             </button>
             <button 
               onClick={() => direction.x === 0 && setDirection({ x: 1, y: 0 })}
               className="w-14 h-14 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center active:bg-cyan-500/20 active:border-cyan-500/40"
             >
-              <ChevronLeft className="w-6 h-6 rotate-180 text-white" />
+              <ChevronLeft className="w-6 h-6 rotate-180 text-[var(--theme-text-main)]" />
             </button>
           </div>
 

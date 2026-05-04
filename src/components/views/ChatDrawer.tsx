@@ -359,29 +359,29 @@ Aturan:
             animate={{ x: 0 }}
             exit={{ x: '-100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed top-0 left-0 bottom-0 w-[90vw] md:w-[400px] bg-[#020617] text-[#f8fafc] border-r border-[#22d3ee]/20 z-[9999] flex flex-col shadow-2xl"
+            className="fixed top-0 left-0 bottom-0 w-[90vw] md:w-[400px] bg-[var(--theme-bg-main)] text-[var(--theme-text-main)] border-r border-[var(--theme-primary)]/20 z-[9999] flex flex-col shadow-2xl"
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-[#22d3ee]/10 bg-[#020617]">
+            <div className="flex items-center justify-between p-4 border-b border-[var(--theme-primary)]/10 bg-[var(--theme-bg-main)]">
               {!hasRegistered ? (
                 <div className="flex items-center gap-2">
-                  <span className="font-bold text-white">Daftar Chat</span>
+                  <span className="font-bold text-[var(--theme-text-main)]">Daftar Chat</span>
                 </div>
               ) : isSettingsOpen ? (
                 <div className="flex items-center gap-2">
-                  <button onClick={() => setIsSettingsOpen(false)} className="p-2 -ml-2 text-slate-400 hover:text-white">
+                  <button onClick={() => setIsSettingsOpen(false)} className="p-2 -ml-2 text-[var(--theme-text-soft)] hover:text-[var(--theme-text-main)]">
                     <ChevronLeft className="w-5 h-5" />
                   </button>
-                  <span className="font-bold text-white">Pengaturan Chat</span>
+                  <span className="font-bold text-[var(--theme-text-main)]">Pengaturan Chat</span>
                 </div>
               ) : (
                 <div className="flex items-center gap-3">
                   <div className="relative">
-                    <img src={aiAvatar} alt={aiName} className="w-10 h-10 rounded-full bg-slate-800 border border-[#22d3ee]/30 object-cover" />
+                    <img src={aiAvatar} alt={aiName} className="w-10 h-10 rounded-full bg-[var(--theme-bg-surface)] border border-[var(--theme-primary)]/30 object-cover" />
                     <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-slate-900"></div>
                   </div>
                   <div>
-                    <h3 className="font-bold text-white text-sm">{aiName}</h3>
+                    <h3 className="font-bold text-[var(--theme-text-main)] text-sm">{aiName}</h3>
                     <span className="text-xs text-emerald-400">Online &middot; {currentRoleName}</span>
                   </div>
                 </div>
@@ -389,11 +389,11 @@ Aturan:
               
               <div className="flex items-center gap-1">
                 {hasRegistered && !isSettingsOpen && (
-                  <button onClick={() => setIsSettingsOpen(true)} className="p-2 text-slate-400 hover:text-cyan-400 hover:bg-slate-800 rounded-lg transition-colors text-xs flex flex-col items-center">
+                  <button onClick={() => setIsSettingsOpen(true)} className="p-2 text-[var(--theme-text-soft)] hover:text-cyan-400 hover:bg-[var(--theme-bg-surface)] rounded-lg transition-colors text-xs flex flex-col items-center">
                     <Settings className="w-4 h-4" />
                   </button>
                 )}
-                <button onClick={onClose} className="p-2 text-slate-400 hover:text-red-400 hover:bg-slate-800 rounded-lg transition-colors ml-1">
+                <button onClick={onClose} className="p-2 text-[var(--theme-text-soft)] hover:text-red-400 hover:bg-[var(--theme-bg-surface)] rounded-lg transition-colors ml-1">
                   <X className="w-5 h-5" />
                 </button>
               </div>
@@ -401,15 +401,15 @@ Aturan:
 
             {/* Body */}
             {!hasRegistered ? (
-              <div className="flex-1 flex flex-col items-center justify-center p-6 bg-[#020617] bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]">
-                <div className="bg-slate-800/90 backdrop-blur-md border border-slate-700/50 rounded-2xl p-6 w-full max-w-sm shadow-xl relative overflow-hidden">
+              <div className="flex-1 flex flex-col items-center justify-center p-6 bg-[var(--theme-bg-main)] bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]">
+                <div className="bg-[var(--theme-bg-surface)] backdrop-blur-md border border-[var(--theme-border)] rounded-2xl p-6 w-full max-w-sm shadow-xl relative overflow-hidden">
                   <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-cyan-400 to-emerald-400"></div>
                   <div className="text-center mb-6 mt-2">
-                    <div className="w-16 h-16 bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-4 border border-cyan-500/30 shadow-[0_0_15px_rgba(34,211,238,0.2)]">
+                    <div className="w-16 h-16 bg-[var(--theme-bg-main)] rounded-full flex items-center justify-center mx-auto mb-4 border border-cyan-500/30 shadow-[0_0_15px_rgba(34,211,238,0.2)]">
                       <User className="w-8 h-8 text-cyan-400" />
                     </div>
-                    <h3 className="text-xl font-bold text-white tracking-tight">Daftar Chat</h3>
-                    <p className="text-sm text-slate-400 mt-2">Masukkan nama kamu sebelum mulai chat.</p>
+                    <h3 className="text-xl font-bold text-[var(--theme-text-main)] tracking-tight">Daftar Chat</h3>
+                    <p className="text-sm text-[var(--theme-text-soft)] mt-2">Masukkan nama kamu sebelum mulai chat.</p>
                   </div>
                   <form onSubmit={handleRegister} className="space-y-5">
                     <div>
@@ -418,13 +418,13 @@ Aturan:
                         value={registerName}
                         onChange={(e) => setRegisterName(e.target.value)}
                         placeholder="Nama Kamu (Cth: Budi)"
-                        className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all text-sm text-center"
+                        className="w-full bg-[var(--theme-bg-main)] border border-[var(--theme-border)] rounded-xl px-4 py-3 text-[var(--theme-text-main)] focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all text-sm text-center"
                       />
                     </div>
                     <button 
                       type="submit"
                       disabled={!registerName.trim()}
-                      className="w-full bg-gradient-to-r from-cyan-500 to-sky-500 hover:from-cyan-400 hover:to-sky-400 disabled:from-slate-700 disabled:to-slate-700 disabled:text-slate-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-cyan-500/20 active:scale-[0.98]"
+                      className="w-full bg-gradient-to-r from-cyan-500 to-sky-500 hover:from-cyan-400 hover:to-sky-400 disabled:from-slate-700 disabled:to-slate-700 disabled:text-[var(--theme-text-soft)] text-[var(--theme-text-main)] font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-cyan-500/20 active:scale-[0.98]"
                     >
                       Mulai Chat
                     </button>
@@ -432,38 +432,38 @@ Aturan:
                 </div>
               </div>
             ) : isSettingsOpen ? (
-              <div className="flex-1 overflow-y-auto p-5 scrollbar-none bg-[#020617]">
+              <div className="flex-1 overflow-y-auto p-5 scrollbar-none bg-[var(--theme-bg-main)]">
                 <div className="space-y-4">
                   <div>
-                    <label className="text-xs font-bold text-slate-400 mb-1 block">Nama Kamu</label>
+                    <label className="text-xs font-bold text-[var(--theme-text-soft)] mb-1 block">Nama Kamu</label>
                     <input 
                       type="text" 
                       value={profileName} 
                       onChange={(e) => setProfileName(e.target.value)}
-                      className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500 text-sm"
+                      className="w-full bg-[var(--theme-bg-surface)] border border-[var(--theme-border)] rounded-xl px-4 py-2.5 text-[var(--theme-text-main)] focus:outline-none focus:border-cyan-500 text-sm"
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-bold text-slate-400 mb-1 block">Nama AI</label>
+                    <label className="text-xs font-bold text-[var(--theme-text-soft)] mb-1 block">Nama AI</label>
                     <input 
                       type="text" 
                       value={aiName} 
                       onChange={(e) => setAiName(e.target.value)}
-                      className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500 text-sm"
+                      className="w-full bg-[var(--theme-bg-surface)] border border-[var(--theme-border)] rounded-xl px-4 py-2.5 text-[var(--theme-text-main)] focus:outline-none focus:border-cyan-500 text-sm"
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-bold text-slate-400 mb-1 block">Avatar AI (URL Foto)</label>
+                    <label className="text-xs font-bold text-[var(--theme-text-soft)] mb-1 block">Avatar AI (URL Foto)</label>
                     <input 
                       type="text" 
                       value={aiAvatar} 
                       onChange={(e) => setAiAvatar(e.target.value)}
-                      className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-cyan-500 text-sm"
+                      className="w-full bg-[var(--theme-bg-surface)] border border-[var(--theme-border)] rounded-xl px-4 py-2.5 text-[var(--theme-text-main)] focus:outline-none focus:border-cyan-500 text-sm"
                     />
                   </div>
                   <button 
                     onClick={saveUserSettings}
-                    className="w-full bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 rounded-xl transition-colors mt-4"
+                    className="w-full bg-cyan-500 hover:bg-cyan-600 text-[var(--theme-text-main)] font-bold py-3 rounded-xl transition-colors mt-4"
                   >
                     Simpan Pengaturan
                   </button>
@@ -471,13 +471,13 @@ Aturan:
               </div>
             ) : (
               <>
-                <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-none bg-[#020617]">
+                <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-none bg-[var(--theme-bg-main)]">
                   {messages.length === 0 && (
                      <div className="text-center mt-10">
-                      <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <div className="w-16 h-16 bg-[var(--theme-bg-surface)] rounded-full flex items-center justify-center mx-auto mb-3">
                         <Bot className="w-8 h-8 text-cyan-400" />
                       </div>
-                      <p className="text-slate-400 text-sm">{finalWelcomeMessage}</p>
+                      <p className="text-[var(--theme-text-soft)] text-sm">{finalWelcomeMessage}</p>
                     </div>
                   )}
 
@@ -492,10 +492,10 @@ Aturan:
                       <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 ${
                         msg.role === 'user' 
                           ? 'bg-[#06b6d4] text-[#02111f] rounded-br-sm' 
-                          : 'bg-[#0f172a] text-[#f8fafc] border border-[#22d3ee]/25 rounded-bl-sm'
+                          : 'bg-[var(--theme-bg-surface)] text-[var(--theme-text-main)] border border-[var(--theme-primary)]/25 rounded-bl-sm'
                       }`}>
                         <p className="text-sm whitespace-pre-wrap">{msg.text}</p>
-                        <span className={`text-[11px] mt-1 block opacity-100 ${msg.role === 'user' ? 'text-[#02111f]/70' : 'text-[#94a3b8]'}`}>
+                        <span className={`text-[11px] mt-1 block opacity-100 ${msg.role === 'user' ? 'text-[#02111f]/70' : 'text-[var(--theme-text-soft)]'}`}>
                           {msg.createdAt?.toDate ? msg.createdAt.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '...'}
                         </span>
                       </div>
@@ -504,9 +504,9 @@ Aturan:
                   
                   {loadingAi && (
                     <div className="flex justify-start">
-                      <div className="max-w-[85%] rounded-2xl px-4 py-2.5 bg-[#0f172a] text-[#f8fafc] border border-[#22d3ee]/25 rounded-bl-sm flex items-center gap-2">
+                      <div className="max-w-[85%] rounded-2xl px-4 py-2.5 bg-[var(--theme-bg-surface)] text-[var(--theme-text-main)] border border-[var(--theme-primary)]/25 rounded-bl-sm flex items-center gap-2">
                         <Loader2 className="w-4 h-4 text-cyan-400 animate-spin" />
-                        <span className="text-sm text-slate-400">Sedang mengetik...</span>
+                        <span className="text-sm text-[var(--theme-text-soft)]">Sedang mengetik...</span>
                       </div>
                     </div>
                   )}
@@ -515,20 +515,20 @@ Aturan:
                 </div>
 
                 {/* Footer Input */}
-                <div className="p-3 border-t border-slate-400/20 bg-[#020617] pb-safe">
+                <div className="p-3 border-t border-slate-400/20 bg-[var(--theme-bg-main)] pb-safe">
                   <form onSubmit={handleSendMessage} className="flex gap-2">
                     <input
                       type="text"
                       value={inputText}
                       onChange={(e) => setInputText(e.target.value)}
                       placeholder="Ketik pesan..."
-                      className="flex-1 bg-[#0f172a] text-[#f8fafc] border border-slate-400/35 placeholder:text-[#94a3b8] rounded-full px-4 py-2 focus:outline-none focus:border-cyan-500 text-sm"
+                      className="flex-1 bg-[var(--theme-bg-surface)] text-[var(--theme-text-main)] border border-slate-400/35 placeholder:text-[var(--theme-text-soft)] rounded-full px-4 py-2 focus:outline-none focus:border-cyan-500 text-sm"
                       disabled={loadingAi}
                     />
                     <button 
                       type="submit" 
                       disabled={!inputText.trim() || loadingAi}
-                      className="w-10 h-10 rounded-full bg-cyan-500 hover:bg-cyan-600 disabled:bg-slate-700 disabled:text-slate-500 text-white flex items-center justify-center transition-colors flex-shrink-0"
+                      className="w-10 h-10 rounded-full bg-cyan-500 hover:bg-cyan-600 disabled:bg-[var(--theme-bg-soft)] disabled:text-[var(--theme-text-soft)] text-[var(--theme-text-main)] flex items-center justify-center transition-colors flex-shrink-0"
                     >
                       <Send className="w-4 h-4 ml-0.5" />
                     </button>

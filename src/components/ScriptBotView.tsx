@@ -20,7 +20,7 @@ const ScriptBotView: React.FC = () => {
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative rounded-3xl overflow-hidden bg-zinc-900/50 border border-white/10 mb-8"
+          className="relative rounded-3xl overflow-hidden bg-[var(--theme-bg-main)] border border-white/10 mb-8"
         >
           <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-transparent to-purple-500/10" />
           <div className="relative p-8 md:p-12 flex flex-col md:flex-row gap-8 items-center">
@@ -29,7 +29,7 @@ const ScriptBotView: React.FC = () => {
                 <Zap className="w-3 h-3" />
                 PREMIUM SCRIPT
               </div>
-              <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">Cyrene MD <span className="text-emerald-500">v10.5.0</span></h1>
+              <h1 className="text-4xl md:text-5xl font-bold text-[var(--theme-text-main)] mb-4">Cyrene MD <span className="text-emerald-500">v10.5.0</span></h1>
               <p className="text-zinc-400 text-lg mb-8 max-w-xl">
                 Script bot WhatsApp tercanggih dengan fitur terlengkap di kelasnya. 
                 Didesain untuk performa tinggi dan kemudahan penggunaan.
@@ -48,7 +48,7 @@ const ScriptBotView: React.FC = () => {
                   href="https://whatsapp.com/channel/0029Vajm76q6BIEfP78FvX3p"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-8 py-4 bg-zinc-800 hover:bg-zinc-700 text-white font-bold rounded-2xl transition-all border border-white/5"
+                  className="flex items-center gap-2 px-8 py-4 bg-[var(--theme-bg-surface)] hover:bg-[var(--theme-bg-soft)] text-[var(--theme-text-main)] font-bold rounded-2xl transition-all border border-white/5"
                 >
                   <ExternalLink className="w-5 h-5" />
                   Demo Bot
@@ -70,17 +70,17 @@ const ScriptBotView: React.FC = () => {
                   className="w-full h-full object-cover"
                 />
               </motion.div>
-              <div className="absolute -bottom-4 -right-4 bg-zinc-900 border border-white/10 p-4 rounded-2xl shadow-xl">
+              <div className="absolute -bottom-4 -right-4 bg-[var(--theme-bg-main)] border border-white/10 p-4 rounded-2xl shadow-xl">
                 <div className="flex items-center gap-3">
                   <div className="flex -space-x-2">
                     {[1,2,3].map(i => (
-                      <div key={i} className="w-8 h-8 rounded-full border-2 border-zinc-900 bg-zinc-800 flex items-center justify-center text-[10px] font-bold text-white">
+                      <div key={i} className="w-8 h-8 rounded-full border-2 border-zinc-900 bg-[var(--theme-bg-surface)] flex items-center justify-center text-[10px] font-bold text-[var(--theme-text-main)]">
                         U{i}
                       </div>
                     ))}
                   </div>
                   <div className="text-xs">
-                    <div className="text-white font-bold">500+</div>
+                    <div className="text-[var(--theme-text-main)] font-bold">500+</div>
                     <div className="text-zinc-500 text-[10px]">Users Active</div>
                   </div>
                 </div>
@@ -97,12 +97,12 @@ const ScriptBotView: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1 }}
-              className="p-6 rounded-3xl bg-zinc-900/30 border border-white/5 hover:border-emerald-500/30 transition-all group"
+              className="p-6 rounded-3xl bg-[var(--theme-bg-main)] border border-white/5 hover:border-emerald-500/30 transition-all group"
             >
-              <div className="w-12 h-12 rounded-2xl bg-zinc-800 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <div className="w-12 h-12 rounded-2xl bg-[var(--theme-bg-surface)] flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                 {f.icon}
               </div>
-              <h3 className="text-white font-bold mb-2">{f.title}</h3>
+              <h3 className="text-[var(--theme-text-main)] font-bold mb-2">{f.title}</h3>
               <p className="text-zinc-500 text-sm leading-relaxed">{f.desc}</p>
             </motion.div>
           ))}
@@ -113,9 +113,9 @@ const ScriptBotView: React.FC = () => {
           <motion.div 
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="p-8 rounded-3xl bg-zinc-900/50 border border-white/10"
+            className="p-8 rounded-3xl bg-[var(--theme-bg-main)] border border-white/10"
           >
-            <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+            <h3 className="text-xl font-bold text-[var(--theme-text-main)] mb-6 flex items-center gap-2">
               <CheckCircle2 className="w-6 h-6 text-emerald-500" />
               Apa yang Anda dapatkan?
             </h3>
@@ -142,9 +142,9 @@ const ScriptBotView: React.FC = () => {
             className="p-8 rounded-3xl bg-gradient-to-br from-emerald-500/20 to-transparent border border-emerald-500/20 relative overflow-hidden"
           >
             <div className="relative z-10">
-              <h3 className="text-xl font-bold text-white mb-2">Harga Spesial</h3>
+              <h3 className="text-xl font-bold text-[var(--theme-text-main)] mb-2">Harga Spesial</h3>
               <div className="flex items-baseline gap-2 mb-6">
-                <span className="text-4xl font-bold text-white">Rp 70.000</span>
+                <span className="text-4xl font-bold text-[var(--theme-text-main)]">Rp 70.000</span>
                 <span className="text-zinc-500 line-through">Rp 150.000</span>
               </div>
               <p className="text-zinc-400 text-sm mb-8">

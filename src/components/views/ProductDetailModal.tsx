@@ -83,7 +83,7 @@ const ProductDetailModal = ({
         className="relative w-full max-w-xl bg-theme-card border border-theme-border rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
-        <button onClick={onClose} className="absolute top-4 right-4 z-20 p-2.5 bg-theme-bg/40 backdrop-blur-md hover:bg-theme-bg/60 rounded-full border border-white/10 transition-all text-white"><X className="w-5 h-5" /></button>
+        <button onClick={onClose} className="absolute top-4 right-4 z-20 p-2.5 bg-theme-bg/40 backdrop-blur-md hover:bg-theme-bg/60 rounded-full border border-white/10 transition-all text-[var(--theme-text-main)]"><X className="w-5 h-5" /></button>
         
         {/* Image 16:9 always on top */}
         <div className="w-full aspect-[16/9] relative bg-theme-bg shrink-0">
@@ -114,7 +114,7 @@ const ProductDetailModal = ({
                     <button 
                       key={v.id} 
                       onClick={() => setSelectedVariant(v)} 
-                      className={`flex items-center justify-between p-3.5 rounded-xl border transition-all ${currentProduct.id === v.id ? 'bg-theme-border border-theme-accent/50 shadow-[0_0_20px_rgba(34,211,238,0.15)] ring-1 ring-theme-accent/20' : 'bg-theme-surface border-theme-border hover:border-[#334155] hover:bg-theme-surface/80'}`}
+                      className={`flex items-center justify-between p-3.5 rounded-xl border transition-all ${currentProduct.id === v.id ? 'bg-theme-border border-theme-accent/50 shadow-[0_0_20px_rgba(34,211,238,0.15)] ring-1 ring-theme-accent/20' : 'bg-theme-surface border-theme-border hover:border-[var(--theme-border)] hover:bg-theme-surface/80'}`}
                     >
                       <span className={`${currentProduct.id === v.id ? 'text-theme-accent font-bold' : 'text-theme-text font-medium'} text-sm text-left line-clamp-1`}>{v.name}</span>
                       <span className={`${currentProduct.id === v.id ? 'text-theme-accent-sec bg-theme-accent-sec/10 border-theme-accent-sec/20 px-2.5 py-1 rounded-md' : 'text-theme-muted'} text-xs font-bold border border-transparent transition-all shrink-0 ml-2`}>Rp {v.price}</span>
@@ -146,7 +146,7 @@ const ProductDetailModal = ({
               {featureList.map((item, i) => (
                 <div key={i} className="flex gap-3 items-start p-3 bg-theme-surface/50 rounded-xl border border-theme-border/50">
                   <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-theme-accent shrink-0 mt-0.5" />
-                  <p className="text-xs sm:text-sm text-[#cbd5e1] leading-relaxed">{item}</p>
+                  <p className="text-xs sm:text-sm text-[var(--theme-text-muted)] leading-relaxed">{item}</p>
                 </div>
               ))}
             </div>
@@ -172,7 +172,7 @@ const ProductDetailModal = ({
                 return <p className={`text-[10px] font-mono font-bold uppercase tracking-widest px-3 py-1.5 rounded-md border ${badge.color}`}>{badge.text}</p>;
               })()}
             </div>
-            <button onClick={handleOrder} className="w-full h-12 bg-gradient-to-br from-[#0891b2] to-theme-accent hover:from-[#0e7490] hover:to-[#06b6d4] text-white font-bold uppercase tracking-widest rounded-xl transition-all shadow-[0_4px_15px_rgba(34,211,238,0.3)] hover:shadow-[0_6px_20px_rgba(34,211,238,0.5)] flex items-center justify-center gap-2 text-sm"><ShoppingCart className="w-4 h-4" /> BELI SEKARANG</button>
+            <button onClick={handleOrder} className="w-full h-12 bg-gradient-to-br from-[#0891b2] to-theme-accent hover:from-[#0e7490] hover:to-[#06b6d4] text-[var(--theme-text-main)] font-bold uppercase tracking-widest rounded-xl transition-all shadow-[0_4px_15px_rgba(34,211,238,0.3)] hover:shadow-[0_6px_20px_rgba(34,211,238,0.5)] flex items-center justify-center gap-2 text-sm"><ShoppingCart className="w-4 h-4" /> BELI SEKARANG</button>
           </div>
         </div>
       </motion.div>

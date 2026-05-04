@@ -114,12 +114,12 @@ export const SlidesView = ({ slides }: { slides: HeroSlide[] }) => {
   if (editingId) {
     return (
       <div className="admin-card">
-        <h2 className="text-xl font-bold text-white mb-6">{editingId === "new" ? "Tambah" : "Edit"} Slide</h2>
+        <h2 className="text-xl font-bold text-[var(--theme-text-main)] mb-6">{editingId === "new" ? "Tambah" : "Edit"} Slide</h2>
         
         {form.image && (
-          <div className="mb-6 aspect-video bg-[#020617] rounded-xl overflow-hidden border border-[#334155] max-w-lg mx-auto relative">
+          <div className="mb-6 aspect-video bg-[var(--theme-bg-main)] rounded-xl overflow-hidden border border-[var(--theme-border)] max-w-lg mx-auto relative">
              <img src={form.image} alt="Preview" className="w-full h-full object-cover" onError={(e) => (e.currentTarget.style.display = 'none')} onLoad={(e) => (e.currentTarget.style.display = 'block')} />
-             <div className="absolute inset-0 flex items-center justify-center text-[#64748b] bg-[#020617] -z-10 text-sm">Preview Gambar</div>
+             <div className="absolute inset-0 flex items-center justify-center text-[#64748b] bg-[var(--theme-bg-main)] -z-10 text-sm">Preview Gambar</div>
           </div>
         )}
 
@@ -132,8 +132,8 @@ export const SlidesView = ({ slides }: { slides: HeroSlide[] }) => {
            <AdminInput label="Urutan" type="number" value={form.order} onChange={e => setForm({...form, order: parseInt(e.target.value)})} />
            
            <div className="flex items-center gap-3 md:mt-8">
-            <input type="checkbox" id="slideActive" checked={form.enabled} onChange={e => setForm({...form, enabled: e.target.checked})} className="w-5 h-5 accent-[#22d3ee] rounded" />
-            <label htmlFor="slideActive" className="checkbox-label text-white cursor-pointer select-none">Aktif (Tampil di Frontend)</label>
+            <input type="checkbox" id="slideActive" checked={form.enabled} onChange={e => setForm({...form, enabled: e.target.checked})} className="w-5 h-5 accent-[var(--theme-primary)] rounded" />
+            <label htmlFor="slideActive" className="checkbox-label text-[var(--theme-text-main)] cursor-pointer select-none">Aktif (Tampil di Frontend)</label>
            </div>
            
            <div className="md:col-span-2 pt-4 flex gap-4">
@@ -152,14 +152,14 @@ export const SlidesView = ({ slides }: { slides: HeroSlide[] }) => {
             <h1>Banner Slider</h1>
             <p>Atur gambar promo di atas web</p>
           </div>
-          <button className="bg-[#22d3ee] text-[#020617] px-4 py-2 rounded-xl text-sm font-bold" onClick={() => startEdit()}>+ Tambah Slide</button>
+          <button className="bg-[var(--theme-primary)] text-[var(--theme-bg-main)] px-4 py-2 rounded-xl text-sm font-bold" onClick={() => startEdit()}>+ Tambah Slide</button>
        </div>
 
        <div className="admin-section-card">
          <div className="overflow-x-auto">
          <table className="w-full text-left border-collapse">
            <thead>
-             <tr className="border-b border-[#334155] text-[#94a3b8] text-sm">
+             <tr className="border-b border-[var(--theme-border)] text-[var(--theme-text-soft)] text-sm">
                 <th className="pb-3 px-2 font-medium">Gambar</th>
                 <th className="pb-3 px-2 font-medium">Urutan</th>
                 <th className="pb-3 px-2 font-medium">Info</th>
@@ -169,7 +169,7 @@ export const SlidesView = ({ slides }: { slides: HeroSlide[] }) => {
            </thead>
            <tbody>
              {slides.length === 0 ? (
-               <tr><td colSpan={5} className="text-center py-6 text-[#94a3b8]">Belum ada slide</td></tr>
+               <tr><td colSpan={5} className="text-center py-6 text-[var(--theme-text-soft)]">Belum ada slide</td></tr>
              ) : slides.map(slide => (
                <tr key={slide.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
                  <td className="py-3 px-2">
@@ -177,18 +177,18 @@ export const SlidesView = ({ slides }: { slides: HeroSlide[] }) => {
                      <img src={slide.image} alt={slide.title} className="w-full h-full object-cover" />
                    </div>
                  </td>
-                 <td className="py-3 px-2 text-white">{slide.order || 0}</td>
+                 <td className="py-3 px-2 text-[var(--theme-text-main)]">{slide.order || 0}</td>
                  <td className="py-3 px-2">
-                   <div className="text-white font-medium text-sm truncate max-w-[150px]">{slide.title || '(Tanpa Judul)'}</div>
-                   <div className="text-[#94a3b8] text-xs truncate max-w-[150px]">{slide.desc || '-'}</div>
+                   <div className="text-[var(--theme-text-main)] font-medium text-sm truncate max-w-[150px]">{slide.title || '(Tanpa Judul)'}</div>
+                   <div className="text-[var(--theme-text-soft)] text-xs truncate max-w-[150px]">{slide.desc || '-'}</div>
                  </td>
                  <td className="py-3 px-2">
                    {slide.enabled === false ? <span className="text-red-400 text-sm">Nonaktif</span> : <span className="text-emerald-400 text-sm">Aktif</span>}
                  </td>
                  <td className="py-3 px-2 text-right">
                    <div className="flex items-center justify-end gap-2">
-                     <button type="button" onClick={() => startEdit(slide)} className="text-[#94a3b8] hover:text-[#22d3ee] text-sm font-medium px-2 py-1">Edit</button>
-                     <button type="button" onClick={() => handleDelete(slide.id)} className="text-[#94a3b8] hover:text-red-400 text-sm font-medium px-2 py-1">Hapus</button>
+                     <button type="button" onClick={() => startEdit(slide)} className="text-[var(--theme-text-soft)] hover:text-[var(--theme-primary)] text-sm font-medium px-2 py-1">Edit</button>
+                     <button type="button" onClick={() => handleDelete(slide.id)} className="text-[var(--theme-text-soft)] hover:text-red-400 text-sm font-medium px-2 py-1">Hapus</button>
                    </div>
                  </td>
                </tr>

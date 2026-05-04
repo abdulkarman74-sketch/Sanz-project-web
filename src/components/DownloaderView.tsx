@@ -164,7 +164,7 @@ const DownloaderView = () => {
           <div className="inline-flex p-3 bg-blue-500/10 rounded-2xl mb-4 border border-blue-500/20">
             <Download className="w-8 h-8 text-blue-400" />
           </div>
-          <h2 className="text-3xl font-black text-white mb-2 italic">DOWNLOADER <span className="text-blue-400">ALL SOSMED</span></h2>
+          <h2 className="text-3xl font-black text-[var(--theme-text-main)] mb-2 italic">DOWNLOADER <span className="text-blue-400">ALL SOSMED</span></h2>
           <p className="text-gray-400 text-sm font-mono uppercase tracking-widest">YouTube • TikTok • Instagram • Facebook • X</p>
         </div>
 
@@ -178,7 +178,7 @@ const DownloaderView = () => {
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               placeholder="Tempel link video di sini (TikTok, IG, YT...)"
-              className="w-full bg-black/40 border border-white/10 rounded-2xl py-5 pl-14 pr-32 text-white placeholder:text-gray-600 focus:outline-none focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 transition-all"
+              className="w-full bg-black/40 border border-white/10 rounded-2xl py-5 pl-14 pr-32 text-[var(--theme-text-main)] placeholder-[var(--theme-text-soft)] focus:outline-none focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 transition-all"
             />
             <button 
               type="submit"
@@ -223,9 +223,9 @@ const DownloaderView = () => {
                   referrerPolicy="no-referrer"
                 />
                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Play className="w-12 h-12 text-white fill-white" />
+                  <Play className="w-12 h-12 text-[var(--theme-text-main)] fill-white" />
                 </div>
-                <div className="absolute bottom-3 right-3 px-2 py-1 bg-black/80 backdrop-blur-md rounded text-[10px] font-mono text-white">
+                <div className="absolute bottom-3 right-3 px-2 py-1 bg-black/80 backdrop-blur-md rounded text-[10px] font-mono text-[var(--theme-text-main)]">
                   {result.duration}
                 </div>
               </div>
@@ -242,7 +242,7 @@ const DownloaderView = () => {
                       </span>
                     )}
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-2 line-clamp-2">{result.title}</h3>
+                  <h3 className="text-xl font-bold text-[var(--theme-text-main)] mb-2 line-clamp-2">{result.title}</h3>
                   <p className="text-gray-500 text-xs font-mono uppercase tracking-widest mb-6">Kualitas Terbaik • Tanpa Watermark</p>
                 </div>
 
@@ -263,7 +263,7 @@ const DownloaderView = () => {
                     <button 
                       onClick={() => triggerFileDownload(result.audioUrl, `sanz_audio_${Date.now()}.mp3`)}
                       disabled={downloading}
-                      className="flex items-center justify-center gap-2 py-3 bg-white/10 text-white font-black rounded-xl hover:bg-white/20 transition-all uppercase tracking-widest text-[10px] border border-white/10 disabled:opacity-50"
+                      className="flex items-center justify-center gap-2 py-3 bg-white/10 text-[var(--theme-text-main)] font-black rounded-xl hover:bg-white/20 transition-all uppercase tracking-widest text-[10px] border border-white/10 disabled:opacity-50"
                     >
                       {downloading ? (
                         <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -280,7 +280,7 @@ const DownloaderView = () => {
                       {['360p', '480p', '720p', '1080p', 'HD'].map((q) => (
                         <button 
                           key={q}
-                          className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-[10px] font-mono text-gray-400 hover:text-white hover:border-blue-500/50 transition-all"
+                          className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-[10px] font-mono text-gray-400 hover:text-[var(--theme-text-main)] hover:border-blue-500/50 transition-all"
                         >
                           {q}
                         </button>
@@ -302,8 +302,8 @@ const DownloaderView = () => {
               { icon: MessageSquare, label: "Facebook" }
             ].map((p, i) => (
               <div key={i} className="flex flex-col items-center gap-2">
-                <p.icon className="w-5 h-5 text-white" />
-                <span className="text-[10px] font-mono uppercase tracking-widest text-white">{p.label}</span>
+                <p.icon className="w-5 h-5 text-[var(--theme-text-main)]" />
+                <span className="text-[10px] font-mono uppercase tracking-widest text-[var(--theme-text-main)]">{p.label}</span>
               </div>
             ))}
           </div>

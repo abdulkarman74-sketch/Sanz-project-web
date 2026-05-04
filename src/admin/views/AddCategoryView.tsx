@@ -48,15 +48,15 @@ export const AddCategoryView = ({ onComplete }: { onComplete?: () => void }) => 
 
   return (
     <div className="admin-card">
-      <h2 className="text-xl font-bold text-white mb-6">Tambah Kategori Baru</h2>
+      <h2 className="text-xl font-bold text-[var(--theme-text-main)] mb-6">Tambah Kategori Baru</h2>
       <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="grid grid-cols-1 md:grid-cols-2 gap-6">
          <AdminInput label="Nama Kategori *" value={form.name} onChange={e => setForm({...form, name: e.target.value})} autoFocus />
          <AdminInput label="Slug (Otomatis jika kosong)" value={form.slug} onChange={e => setForm({...form, slug: e.target.value})} />
          <AdminInput label="Urutan (Terkecil tampil duluan)" type="number" value={form.order} onChange={e => setForm({...form, order: parseInt(e.target.value) || 0})} />
          
          <div className="col-span-1 md:col-span-2 flex items-center gap-3">
-          <input type="checkbox" id="catActive" checked={form.active} onChange={e => setForm({...form, active: e.target.checked})} className="w-5 h-5 accent-[#22d3ee] rounded" />
-          <label htmlFor="catActive" className="text-white cursor-pointer select-none">Kategori Aktif (Ditampilkan)</label>
+          <input type="checkbox" id="catActive" checked={form.active} onChange={e => setForm({...form, active: e.target.checked})} className="w-5 h-5 accent-[var(--theme-primary)] rounded" />
+          <label htmlFor="catActive" className="text-[var(--theme-text-main)] cursor-pointer select-none">Kategori Aktif (Ditampilkan)</label>
          </div>
          
          <div className="col-span-1 md:col-span-2 pt-4 flex gap-4">
