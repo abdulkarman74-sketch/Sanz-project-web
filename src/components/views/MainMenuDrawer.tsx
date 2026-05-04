@@ -41,11 +41,11 @@ export default function MainMenuDrawer({
   if (!mounted) return null;
 
   const items = [
-    { id: "home", label: "Beranda", icon: "🏠", action: onHome },
-    { id: "chat-ai", label: "Chat AI", icon: "💬", action: onChatAi },
-    { id: "video-game", label: "Video Game", icon: "🎮", action: onVideoGame },
-    { id: "video", label: "Video", icon: "🎥", action: onVideo },
-    { id: "login-admin", label: "Login Admin", icon: "🛡️", action: onLoginAdmin }
+    { id: "home", label: "Beranda", desc: "Kembali ke halaman utama", icon: "🏠", action: onHome },
+    { id: "chat-ai", label: "Chet Global", desc: "Ngobrol bareng semua pengunjung", icon: "💬", action: onChatAi },
+    { id: "video-game", label: "Video Game", desc: "Menu hiburan dan game", icon: "🎮", action: onVideoGame },
+    { id: "video", label: "Video", desc: "Kumpulan video menarik", icon: "🎥", action: onVideo },
+    { id: "login-admin", label: "Login Admin", desc: "Masuk ke panel admin", icon: "⚙️", action: onLoginAdmin }
   ];
 
   function handleClick(item: typeof items[0]) {
@@ -60,40 +60,40 @@ export default function MainMenuDrawer({
   }
 
   return (
-    <>
-      <div className={`main-menu-clean-backdrop ${show ? 'open' : ''}`} onClick={onClose} />
-
-      <aside className={`main-menu-clean-drawer ${show ? 'open' : ''}`}>
-        <div className="main-menu-clean-header">
+    <div className={`main-drawer-overlay ${show ? "open" : ""}`} onClick={onClose}>
+      <aside className={`main-drawer-panel ${show ? "open" : ""}`} onClick={(e) => e.stopPropagation()}>
+        <div className="main-drawer-header">
           <div>
             <h2>Menu Utama</h2>
-            <p>Pilih menu yang ingin dibuka</p>
+            <p>Pilih fitur yang ingin dibuka</p>
           </div>
 
-          <button type="button" onClick={onClose} className="main-menu-clean-close">
-            ×
+          <button
+            type="button"
+            className="main-drawer-close"
+            onClick={onClose}
+          >
+            ✕
           </button>
         </div>
 
-        <div className="main-menu-clean-list">
+        <div className="main-drawer-list">
           {items.map((item) => (
             <button
               key={item.id}
-              type="button"
-              className="main-menu-clean-item"
+              className="main-drawer-item"
               onClick={() => handleClick(item)}
+              type="button"
             >
-              <span className="main-menu-clean-icon">{item.icon}</span>
-              <span className="main-menu-clean-label">{item.label}</span>
+              <span className="main-drawer-icon">{item.icon}</span>
+              <span className="main-drawer-text">
+                <strong>{item.label}</strong>
+                <small>{item.desc}</small>
+              </span>
             </button>
           ))}
         </div>
-
-        <div className="main-menu-clean-status">
-          <span></span>
-          Semua Sistem Normal
-        </div>
       </aside>
-    </>
+    </div>
   );
 }

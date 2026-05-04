@@ -75,7 +75,7 @@ const VpsStatusShowcase = lazy(
   () => import("./components/common/VpsStatusShowcase"),
 );
 const TimeDateCard = lazy(() => import("./components/common/TimeDateCard"));
-const ChatDrawer = lazy(() => import("./components/views/ChatDrawer").then(module => ({ default: module.ChatDrawer })));
+const GlobalChatDrawer = lazy(() => import("./components/views/GlobalChatDrawer").then(module => ({ default: module.GlobalChatDrawer })));
 
 const ViewFallback = () => (
   <div className="flex-1 flex items-center justify-center min-h-[400px]">
@@ -793,10 +793,9 @@ export default function App() {
             slides={slides}
           />
         )}
-        <ChatDrawer 
+        <GlobalChatDrawer 
           isOpen={isAiChatOpen} 
           onClose={() => setIsAiChatOpen(false)} 
-          elainaSettings={siteSettings?.elainaChat} 
         />
       </Suspense>
     </div>
