@@ -1213,6 +1213,513 @@ export const GeneralView = ({ settings }: { settings: any }) => {
   );
 };
 
+// --- HEADER VIEW ---
+export const HeaderView = ({ settings }: { settings: any }) => {
+  const [payload, setPayload] = useState({
+    showLogo: false,
+    showStoreName: true,
+    showTagline: true,
+    headerStyle: "premium",
+    headerHeight: "normal",
+    leftDisplayMode: "text-only",
+    menuButtonStyle: "rounded-cyan",
+  });
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (settings?.header) {
+      setPayload({
+        showLogo: !!settings.header.showLogo,
+        showStoreName: settings.header.showStoreName !== false,
+        showTagline: settings.header.showTagline !== false,
+        headerStyle: settings.header.headerStyle || "premium",
+        headerHeight: settings.header.headerHeight || "normal",
+        leftDisplayMode: settings.header.leftDisplayMode || "text-only",
+        menuButtonStyle: settings.header.menuButtonStyle || "rounded-cyan",
+      });
+    }
+  }, [settings]);
+
+  const handleSave = async () => {
+    if (saving) return;
+    try {
+      setSaving(true);
+      if (!firebaseReady || !db) {
+        toast.error("Firebase belum aktif");
+        return;
+      }
+      await setDoc(doc(db, "settings", "header"), {
+        ...payload,
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+      toast.success("Pengaturan header berhasil disimpan");
+    } catch (error: any) {
+      toast.error("Gagal menyimpan header: " + error.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="admin-page">
+      <div className="admin-page-header">
+        <h1>Header Atas</h1>
+        <p>Atur tampilan navigasi atas website</p>
+      </div>
+
+      <div className="admin-section-card">
+        <div className="admin-section-header">
+          <h2>Tampilan Elemen</h2>
+          <p>Toggle elemen yang ingin ditampilkan</p>
+        </div>
+        <div className="admin-toggle-grid">
+          <label className="admin-toggle-card">
+            <div>
+              <h3>Tampilkan Logo</h3>
+              <p>Munculkan logo brand</p>
+            </div>
+            <input type="checkbox" checked={payload.showLogo} onChange={e => setPayload({...payload, showLogo: e.target.checked})} />
+          </label>
+          <label className="admin-toggle-card">
+            <div>
+              <h3>Tampilkan Nama</h3>
+              <p>Munculkan nama toko</p>
+            </div>
+            <input type="checkbox" checked={payload.showStoreName} onChange={e => setPayload({...payload, showStoreName: e.target.checked})} />
+          </label>
+          <label className="admin-toggle-card">
+            <div>
+              <h3>Tampilkan Tagline</h3>
+              <p>Munculkan slogan header</p>
+            </div>
+            <input type="checkbox" checked={payload.showTagline} onChange={e => setPayload({...payload, showTagline: e.target.checked})} />
+          </label>
+        </div>
+      </div>
+
+      <div className="admin-section-card">
+        <div className="admin-section-header">
+          <h2>Gaya Header</h2>
+          <p>Konfigurasi visual detail</p>
+        </div>
+        <div className="admin-form-grid">
+          <div className="admin-form-field">
+            <label>Mode Tampilan Kiri</label>
+            <select value={payload.leftDisplayMode} onChange={e => setPayload({...payload, leftDisplayMode: e.target.value})}>
+              <option value="text-only">Hanya Teks</option>
+              <option value="logo-only">Hanya Logo</option>
+              <option value="both">Logo & Teks</option>
+            </select>
+          </div>
+          <div className="admin-form-field">
+            <label>Style Header</label>
+            <select value={payload.headerStyle} onChange={e => setPayload({...payload, headerStyle: e.target.value})}>
+              <option value="premium">Premium Glass</option>
+              <option value="minimal">Minimalist</option>
+              <option value="bold">Bold Solid</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div className="admin-save-row">
+        <button className="admin-save-button" onClick={handleSave} disabled={saving}>
+          {saving ? "Menyimpan..." : "Simpan Header"}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// --- HERO VIEW ---
+export const HeroView = ({ settings, slides }: { settings: any, slides: any[] }) => {
+  const [payload, setPayload] = useState({
+    badgeText: "Premium Digital Store",
+    title: "Cloud VPS Berkualitas",
+    titleAccent: "Berkualitas",
+    description: "Performa stabil untuk panel, website, bot WhatsApp, dan sistem digital Anda.",
+    imageUrl: "",
+    overlayStrength: 45,
+    showButton: false,
+    buttonText: "Lihat Layanan",
+    buttonTarget: "services",
+    showFullscreenButton: true,
+    sliderAutoplay: true,
+    sliderDelay: 5000,
+  });
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (settings?.hero) {
+      setPayload({
+        badgeText: settings.hero.badgeText || "",
+        title: settings.hero.title || "",
+        titleAccent: settings.hero.titleAccent || "",
+        description: settings.hero.description || "",
+        imageUrl: settings.hero.imageUrl || "",
+        overlayStrength: settings.hero.overlayStrength || 45,
+        showButton: !!settings.hero.showButton,
+        buttonText: settings.hero.buttonText || "Lihat Layanan",
+        buttonTarget: settings.hero.buttonTarget || "services",
+        showFullscreenButton: settings.hero.showFullscreenButton !== false,
+        sliderAutoplay: settings.hero.sliderAutoplay !== false,
+        sliderDelay: settings.hero.sliderDelay || 5000,
+      });
+    }
+  }, [settings]);
+
+  const handleSave = async () => {
+    if (saving) return;
+    try {
+      setSaving(true);
+      if (!firebaseReady || !db) {
+        toast.error("Firebase belum aktif");
+        return;
+      }
+      await setDoc(doc(db, "settings", "hero"), {
+        ...payload,
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+      toast.success("Pengaturan hero berhasil disimpan");
+    } catch (error: any) {
+      toast.error("Gagal menyimpan hero: " + error.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="admin-page">
+      <div className="admin-page-header">
+        <h1>Hero / Banner</h1>
+        <p>Atur banner utama di halaman depan</p>
+      </div>
+
+      <div className="admin-section-card">
+        <div className="admin-section-header">
+          <h2>Teks Banner</h2>
+          <p>Teks utama yang muncul di atas gambar</p>
+        </div>
+        <div className="admin-form-grid">
+          <div className="admin-form-field">
+            <label>Badge Kecil</label>
+            <input value={payload.badgeText} onChange={e => setPayload({...payload, badgeText: e.target.value})} placeholder="Misal: Premium Digital Store" />
+          </div>
+          <div className="admin-form-field">
+            <label>Judul Hero</label>
+            <input value={payload.title} onChange={e => setPayload({...payload, title: e.target.value})} placeholder="Judul besar" />
+          </div>
+          <div className="admin-form-field">
+            <label>Kata Accent Judul</label>
+            <input value={payload.titleAccent} onChange={e => setPayload({...payload, titleAccent: e.target.value})} placeholder="Kata yang berwarna beda" />
+          </div>
+          <div className="admin-form-field full">
+            <label>Deskripsi Hero</label>
+            <textarea value={payload.description} onChange={e => setPayload({...payload, description: e.target.value})} rows={3} />
+          </div>
+        </div>
+      </div>
+
+      <div className="admin-section-card">
+        <div className="admin-section-header">
+          <h2>Tampilan & Gambar</h2>
+          <p>Wallpaper dan overlay</p>
+        </div>
+        <div className="admin-form-grid">
+          <div className="admin-form-field full">
+            <label>URL Gambar Banner (Fallback)</label>
+            <input value={payload.imageUrl} onChange={e => setPayload({...payload, imageUrl: e.target.value})} placeholder="https://..." />
+          </div>
+          <div className="admin-form-field">
+            <label>Kekuatan Overlay Gelap (%)</label>
+            <input type="number" value={payload.overlayStrength} onChange={e => setPayload({...payload, overlayStrength: parseInt(e.target.value)})} />
+          </div>
+        </div>
+      </div>
+
+      <div className="admin-save-row">
+        <button className="admin-save-button" onClick={handleSave} disabled={saving}>
+          {saving ? "Menyimpan..." : "Simpan Hero"}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// --- CATEGORY TABS VIEW ---
+export const CategoryTabsView = ({ settings }: { settings: any }) => {
+  const [payload, setPayload] = useState({
+    tabsTitle: "",
+    style: "cute-premium-pill",
+    allowHorizontalScroll: true,
+    showActiveIcon: true,
+    activeIcon: "✦",
+    tabs: [] as any[],
+  });
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (settings?.categoryTabs) {
+      setPayload({
+        tabsTitle: settings.categoryTabs.tabsTitle || "",
+        style: settings.categoryTabs.style || "cute-premium-pill",
+        allowHorizontalScroll: settings.categoryTabs.allowHorizontalScroll !== false,
+        showActiveIcon: settings.categoryTabs.showActiveIcon !== false,
+        activeIcon: settings.categoryTabs.activeIcon || "✦",
+        tabs: settings.categoryTabs.tabs || [],
+      });
+    }
+  }, [settings]);
+
+  const handleSave = async () => {
+    if (saving) return;
+    try {
+      setSaving(true);
+      await setDoc(doc(db, "settings", "categoryTabs"), {
+        ...payload,
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+      toast.success("Tab kategori berhasil disimpan");
+    } catch (error: any) {
+      toast.error("Gagal menyimpan tab");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="admin-page">
+      <div className="admin-page-header">
+        <h1>Tab Kategori</h1>
+        <p>Atur navigasi filter produk di beranda</p>
+      </div>
+
+      <div className="admin-section-card">
+        <div className="admin-form-grid">
+          <div className="admin-form-field">
+            <label>Style Tab</label>
+            <select value={payload.style} onChange={e => setPayload({...payload, style: e.target.value})}>
+              <option value="cute-premium-pill">Cute Premium Pill</option>
+              <option value="glass-tab">Glass Tab</option>
+              <option value="underline-bar">Underline Bar</option>
+            </select>
+          </div>
+          <div className="admin-form-field">
+            <label>Icon Aktif</label>
+            <input value={payload.activeIcon} onChange={e => setPayload({...payload, activeIcon: e.target.value})} />
+          </div>
+        </div>
+      </div>
+
+      <div className="admin-save-row">
+        <button className="admin-save-button" onClick={handleSave} disabled={saving}>Simpan Tab</button>
+      </div>
+    </div>
+  );
+};
+
+// --- SERVICE SECTION VIEW ---
+export const ServiceSectionView = ({ settings }: { settings: any }) => {
+  const [payload, setPayload] = useState({
+    badgeText: "Digital Service Hub",
+    title: "Pusat Layanan Digital",
+    description: "Kelola kebutuhan digital Anda dalam satu tempat.",
+    showPlayButton: true,
+  });
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (settings?.serviceSection) {
+      setPayload({
+        badgeText: settings.serviceSection.badgeText || "",
+        title: settings.serviceSection.title || "",
+        description: settings.serviceSection.description || "",
+        showPlayButton: settings.serviceSection.showPlayButton !== false,
+      });
+    }
+  }, [settings]);
+
+  const handleSave = async () => {
+    if (saving) return;
+    try {
+      setSaving(true);
+      await setDoc(doc(db, "settings", "serviceSection"), {
+        ...payload,
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+      toast.success("Section layanan berhasil disimpan");
+    } catch (error: any) {
+      toast.error("Gagal menyimpan section");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="admin-page">
+      <div className="admin-page-header">
+        <h1>Section Layanan</h1>
+        <p>Edit teks di area "Pusat Layanan Digital"</p>
+      </div>
+      <div className="admin-section-card">
+        <div className="admin-form-grid">
+          <AdminInput label="Badge Text" value={payload.badgeText} onChange={e => setPayload({...payload, badgeText: e.target.value})} />
+          <AdminInput label="Judul Section" value={payload.title} onChange={e => setPayload({...payload, title: e.target.value})} />
+          <div className="admin-form-field full">
+            <label>Deskripsi Section</label>
+            <textarea value={payload.description} onChange={e => setPayload({...payload, description: e.target.value})} rows={3} />
+          </div>
+        </div>
+      </div>
+      <div className="admin-save-row">
+        <button className="admin-save-button" onClick={handleSave} disabled={saving}>Simpan</button>
+      </div>
+    </div>
+  );
+};
+
+// --- STATS VIEW ---
+export const StatsView = ({ settings }: { settings: any }) => {
+  const [payload, setPayload] = useState<any[]>([
+    { id: "support", icon: "🎧", value: "24/7", label: "Support", active: true },
+    { id: "fast", icon: "⚡", value: "Fast", label: "Response", active: true },
+    { id: "active", icon: "▰", value: "Aktif", label: "Layanan", active: true },
+    { id: "easy", icon: "✓", value: "Mudah", label: "Order", active: true }
+  ]);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (settings?.statsSection?.stats) {
+      setPayload(settings.statsSection.stats);
+    }
+  }, [settings]);
+
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      await setDoc(doc(db, "settings", "statsSection"), {
+        stats: payload,
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+      toast.success("Statistik berhasil disimpan");
+    } catch (e) {
+      toast.error("Gagal simpan statistik");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="admin-page">
+      <div className="admin-page-header"><h1>Statistik Website</h1><p>Edit card angka di beranda</p></div>
+      <div className="admin-form-grid">
+        {payload.map((s, idx) => (
+          <div key={s.id} className="admin-section-card">
+            <div className="flex gap-2 mb-2">
+              <input style={{width: '40px'}} value={s.icon} onChange={e => {
+                const n = [...payload];
+                n[idx].icon = e.target.value;
+                setPayload(n);
+              }} />
+              <input value={s.value} onChange={e => {
+                const n = [...payload];
+                n[idx].value = e.target.value;
+                setPayload(n);
+              }} />
+            </div>
+            <input value={s.label} onChange={e => {
+              const n = [...payload];
+              n[idx].label = e.target.value;
+              setPayload(n);
+            }} />
+          </div>
+        ))}
+      </div>
+      <div className="admin-save-row">
+        <button className="admin-save-button" onClick={handleSave} disabled={saving}>Simpan Statistik</button>
+      </div>
+    </div>
+  );
+};
+
+// --- FLOW VIEW ---
+export const FlowView = ({ settings }: { settings: any }) => {
+  const [title, setTitle] = useState("Alur Layanan");
+  const [desc, setDesc] = useState("");
+  const [steps, setSteps] = useState<any[]>([]);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (settings?.flowSection) {
+      setTitle(settings.flowSection.title || "");
+      setDesc(settings.flowSection.description || "");
+      setSteps(settings.flowSection.steps || []);
+    }
+  }, [settings]);
+
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      await setDoc(doc(db, "settings", "flowSection"), {
+        title, description: desc, steps, updatedAt: serverTimestamp()
+      }, { merge: true });
+      toast.success("Alur layanan disimpan");
+    } catch (e) { toast.error("Gagal simpan alur"); } finally { setSaving(false); }
+  };
+
+  return (
+    <div className="admin-page">
+      <div className="admin-page-header"><h1>Alur Layanan</h1><p>Edit langkah-langkah order</p></div>
+      <div className="admin-section-card">
+        <AdminInput label="Judul Section" value={title} onChange={e => setTitle(e.target.value)} />
+        <AdminInput label="Deskripsi Section" value={desc} onChange={e => setDesc(e.target.value)} />
+      </div>
+      <div className="admin-save-row">
+        <button className="admin-save-button" onClick={handleSave} disabled={saving}>Simpan Alur</button>
+      </div>
+    </div>
+  );
+};
+
+// --- BENEFITS VIEW ---
+export const BenefitsView = ({ settings }: { settings: any }) => {
+  const [title, setTitle] = useState("");
+  const [desc, setDesc] = useState("");
+  const [benefits, setBenefits] = useState<any[]>([]);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (settings?.benefitsSection) {
+      setTitle(settings.benefitsSection.title || "");
+      setDesc(settings.benefitsSection.description || "");
+      setBenefits(settings.benefitsSection.benefits || []);
+    }
+  }, [settings]);
+
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      await setDoc(doc(db, "settings", "benefitsSection"), {
+        title, description: desc, benefits, updatedAt: serverTimestamp()
+      }, { merge: true });
+      toast.success("Benefit disimpan");
+    } catch (e) { toast.error("Gagal simpan benefit"); } finally { setSaving(false); }
+  };
+
+  return (
+    <div className="admin-page">
+      <div className="admin-page-header"><h1>Keunggulan / Benefit</h1><p>Edit list keunggulan layanan</p></div>
+      <div className="admin-section-card">
+        <AdminInput label="Judul Section" value={title} onChange={e => setTitle(e.target.value)} />
+        <AdminInput label="Deskripsi Section" value={desc} onChange={e => setDesc(e.target.value)} />
+      </div>
+      <div className="admin-save-row">
+        <button className="admin-save-button" onClick={handleSave} disabled={saving}>Simpan Benefit</button>
+      </div>
+    </div>
+  );
+};
+
 // --- DEBUG FIREBASE VIEW ---
 export const DebugFirebaseView = () => {
   const [testResult, setTestResult] = useState<string | null>(null);

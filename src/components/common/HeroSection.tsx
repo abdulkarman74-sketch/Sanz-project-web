@@ -14,6 +14,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ settings }) => {
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
 
+  const heroConfig = settings.hero;
   const slides = settings.heroSlides.filter(s => s.enabled);
   const hasSlides = slides.length > 0;
 
@@ -44,12 +45,12 @@ const HeroSection: React.FC<HeroSectionProps> = ({ settings }) => {
   };
 
   useEffect(() => {
-    if (!hasSlides) return;
+    if (!hasSlides || heroConfig?.sliderAutoplay === false) return;
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % slides.length);
-    }, 5000);
+    }, heroConfig?.sliderDelay || 5000);
     return () => clearInterval(timer);
-  }, [slides.length, hasSlides]);
+  }, [slides.length, hasSlides, heroConfig?.sliderAutoplay, heroConfig?.sliderDelay]);
 
   const nextSlide = () => {
     if (!hasSlides) return;
@@ -88,7 +89,15 @@ const HeroSection: React.FC<HeroSectionProps> = ({ settings }) => {
     document.getElementById(targetId)?.scrollIntoView({behavior: 'smooth'});
   };
 
-  if (!hasSlides) return null;
+  if (!hasSlides && !heroConfig?.imageUrl) return null;
+
+  const displaySlides = hasSlides ? slides : [{
+    id: "fallback",
+    title: heroConfig?.title || "SANZ STORE",
+    description: heroConfig?.description || "",
+    image: heroConfig?.imageUrl || "",
+    enabled: true
+  }];
 
   return (
     <div className="relative w-full">
@@ -102,7 +111,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ settings }) => {
       {/* Slider Container */}
       <section className="hero-slider-section" onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}>
         <div className="hero-slider-card">
-          {slides.map((slide, index) => (
+          {displaySlides.map((slide, index) => (
             <div 
               key={slide.id || index}
               className={`absolute inset-0 w-full h-full hero-slide ${
@@ -110,7 +119,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ settings }) => {
               }`}
             >
               <img
-                src={slide.image}
+                src={slide.image || slide.imageUrl || heroConfig?.imageUrl}
                 alt={slide.title || "Banner"}
                 className="hero-slide-image w-full h-full object-cover"
                 loading={index === 0 ? "eager" : "lazy"}
@@ -121,29 +130,42 @@ const HeroSection: React.FC<HeroSectionProps> = ({ settings }) => {
 
               <div className="hero-slide-content relative z-20">
                 <div className="hero-slide-badge">
-                  ✦ Premium Digital Store
+                  {heroConfig?.badgeText || "✦ Premium Digital Store"}
                 </div>
 
                 <h1 className="hero-slide-title">
-                  {slide.title && slide.title.split(' ').length > 1 ? (
-                    <>
-                      {slide.title.split(' ').slice(0, -1).join(' ')}{' '}
-                      <span className="accent">{slide.title.split(' ').slice(-1)[0]}</span>
-                    </>
-                  ) : (
-                    slide.title || "SANZ STORE PREMIUM"
-                  )}
+                  {(() => {
+                    const title = slide.title || heroConfig?.title || "SANZ STORE PREMIUM";
+                    const accent = heroConfig?.titleAccent;
+                    if (accent && title.includes(accent)) {
+                      const parts = title.split(accent);
+                      return (
+                        <>
+                          {parts[0]} <span className="accent">{accent}</span> {parts[1]}
+                        </>
+                      );
+                    }
+                    if (title.split(' ').length > 1) {
+                      return (
+                        <>
+                          {title.split(' ').slice(0, -1).join(' ')}{' '}
+                          <span className="accent">{title.split(' ').slice(-1)[0]}</span>
+                        </>
+                      );
+                    }
+                    return title;
+                  })()}
                 </h1>
 
                 <p className="hero-slide-subtitle">
-                  {slide.desc || slide.subtitle || "Layanan digital cepat, aman, dan terpercaya untuk kebutuhan server, bot, dan aplikasi premium."}
+                  {slide.desc || slide.subtitle || heroConfig?.description || "Layanan digital cepat, aman, dan terpercaya."}
                 </p>
               </div>
             </div>
           ))}
 
           <div className="hero-dots">
-            {slides.map((slide, index) => (
+            {displaySlides.map((slide, index) => (
               <button
                 key={slide.id || index}
                 type="button"

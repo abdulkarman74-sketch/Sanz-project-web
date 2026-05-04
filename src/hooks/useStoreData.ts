@@ -30,6 +30,13 @@ export function useStoreData() {
     let unsubGeneral: any;
     let unsubMenuSemua: any;
     let unsubAi: any;
+    let unsubHeader: any;
+    let unsubHero: any;
+    let unsubServiceSection: any;
+    let unsubCategoryTabs: any;
+    let unsubStatsSection: any;
+    let unsubFlowSection: any;
+    let unsubBenefitsSection: any;
     let unsubProducts: any;
     let unsubSlides: any;
     let unsubCats: any;
@@ -55,6 +62,13 @@ export function useStoreData() {
           await setDoc(doc(db, 'settings', 'footer'), DEFAULT_SITE_SETTINGS.footer, { merge: true });
           await setDoc(doc(db, 'settings', 'general'), DEFAULT_SITE_SETTINGS.general, { merge: true });
           await setDoc(doc(db, 'settings', 'loading'), DEFAULT_SITE_SETTINGS.loading, { merge: true });
+          await setDoc(doc(db, 'settings', 'header'), DEFAULT_SITE_SETTINGS.header, { merge: true });
+          await setDoc(doc(db, 'settings', 'hero'), DEFAULT_SITE_SETTINGS.hero, { merge: true });
+          await setDoc(doc(db, 'settings', 'serviceSection'), DEFAULT_SITE_SETTINGS.serviceSection, { merge: true });
+          await setDoc(doc(db, 'settings', 'categoryTabs'), DEFAULT_SITE_SETTINGS.categoryTabs, { merge: true });
+          await setDoc(doc(db, 'settings', 'statsSection'), DEFAULT_SITE_SETTINGS.statsSection, { merge: true });
+          await setDoc(doc(db, 'settings', 'flowSection'), DEFAULT_SITE_SETTINGS.flowSection, { merge: true });
+          await setDoc(doc(db, 'settings', 'benefitsSection'), DEFAULT_SITE_SETTINGS.benefitsSection, { merge: true });
           
           // Seed Slides
           for (const slide of DEFAULT_SITE_SETTINGS.heroSlides) {
@@ -156,6 +170,27 @@ export function useStoreData() {
              setSiteSettings(prev => ({...prev, ai: { ...(prev.ai || DEFAULT_AI_SETTINGS), ...snap.data() } as any}));
            }
         });
+        unsubHeader = onSnapshot(doc(db, 'settings', 'header'), (snap) => {
+           if (snap.exists()) setSiteSettings(prev => ({...prev, header: {...(prev.header || DEFAULT_SITE_SETTINGS.header), ...snap.data()} as any}));
+        });
+        unsubHero = onSnapshot(doc(db, 'settings', 'hero'), (snap) => {
+           if (snap.exists()) setSiteSettings(prev => ({...prev, hero: {...(prev.hero || DEFAULT_SITE_SETTINGS.hero), ...snap.data()} as any}));
+        });
+        unsubServiceSection = onSnapshot(doc(db, 'settings', 'serviceSection'), (snap) => {
+           if (snap.exists()) setSiteSettings(prev => ({...prev, serviceSection: {...(prev.serviceSection || DEFAULT_SITE_SETTINGS.serviceSection), ...snap.data()} as any}));
+        });
+        unsubCategoryTabs = onSnapshot(doc(db, 'settings', 'categoryTabs'), (snap) => {
+           if (snap.exists()) setSiteSettings(prev => ({...prev, categoryTabs: {...(prev.categoryTabs || DEFAULT_SITE_SETTINGS.categoryTabs), ...snap.data()} as any}));
+        });
+        unsubStatsSection = onSnapshot(doc(db, 'settings', 'statsSection'), (snap) => {
+           if (snap.exists()) setSiteSettings(prev => ({...prev, statsSection: {...(prev.statsSection || DEFAULT_SITE_SETTINGS.statsSection), ...snap.data()} as any}));
+        });
+        unsubFlowSection = onSnapshot(doc(db, 'settings', 'flowSection'), (snap) => {
+           if (snap.exists()) setSiteSettings(prev => ({...prev, flowSection: {...(prev.flowSection || DEFAULT_SITE_SETTINGS.flowSection), ...snap.data()} as any}));
+        });
+        unsubBenefitsSection = onSnapshot(doc(db, 'settings', 'benefitsSection'), (snap) => {
+           if (snap.exists()) setSiteSettings(prev => ({...prev, benefitsSection: {...(prev.benefitsSection || DEFAULT_SITE_SETTINGS.benefitsSection), ...snap.data()} as any}));
+        });
 
         // Subscribe to collections (Global)
         unsubCats = onSnapshot(collection(db, 'categories'), (snap) => {
@@ -201,6 +236,13 @@ export function useStoreData() {
       if(unsubGeneral) unsubGeneral();
       if(unsubMenuSemua) unsubMenuSemua();
       if(unsubAi) unsubAi();
+      if(unsubHeader) unsubHeader();
+      if(unsubHero) unsubHero();
+      if(unsubServiceSection) unsubServiceSection();
+      if(unsubCategoryTabs) unsubCategoryTabs();
+      if(unsubStatsSection) unsubStatsSection();
+      if(unsubFlowSection) unsubFlowSection();
+      if(unsubBenefitsSection) unsubBenefitsSection();
       if(unsubProducts) unsubProducts();
       if(unsubSlides) unsubSlides();
       if(unsubCats) unsubCats();

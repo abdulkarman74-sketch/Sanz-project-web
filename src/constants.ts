@@ -188,8 +188,102 @@ export interface ElainaSettings {
   maxHistory?: number;
 }
 
+export interface HeroSettings {
+  badgeText: string;
+  title: string;
+  titleAccent: string;
+  description: string;
+  imageUrl: string;
+  overlayStrength: number;
+  showButton: boolean;
+  buttonText: string;
+  buttonTarget: string;
+  showFullscreenButton: boolean;
+  sliderAutoplay: boolean;
+  sliderDelay: number;
+}
+
+export interface HeaderSettings {
+  showLogo: boolean;
+  showStoreName: boolean;
+  showTagline: boolean;
+  headerStyle: string;
+  headerHeight: string;
+  leftDisplayMode: string;
+  menuButtonStyle: string;
+}
+
+export interface CategoryTab {
+  id: string;
+  label: string;
+  target: string;
+  order: number;
+  active: boolean;
+}
+
+export interface CategoryTabsSettings {
+  tabsTitle: string;
+  style: string;
+  allowHorizontalScroll: boolean;
+  showActiveIcon: boolean;
+  activeIcon: string;
+  tabs: CategoryTab[];
+}
+
+export interface StatItem {
+  id: string;
+  icon: string;
+  value: string;
+  label: string;
+  active: boolean;
+}
+
+export interface StatsSectionSettings {
+  stats: StatItem[];
+}
+
+export interface FlowStep {
+  id: string;
+  number: string;
+  title: string;
+  description: string;
+  active: boolean;
+}
+
+export interface FlowSectionSettings {
+  title: string;
+  description: string;
+  steps: FlowStep[];
+}
+
+export interface BenefitItem {
+  id: string;
+  text: string;
+  active: boolean;
+}
+
+export interface BenefitsSectionSettings {
+  title: string;
+  description: string;
+  benefits: BenefitItem[];
+}
+
+export interface ServiceSectionSettings {
+  badgeText: string;
+  title: string;
+  description: string;
+  showPlayButton: boolean;
+}
+
 export interface SiteSettings {
   heroSlides: HeroSlide[];
+  hero?: HeroSettings;
+  header?: HeaderSettings;
+  categoryTabs?: CategoryTabsSettings;
+  statsSection?: StatsSectionSettings;
+  flowSection?: FlowSectionSettings;
+  benefitsSection?: BenefitsSectionSettings;
+  serviceSection?: ServiceSectionSettings;
   theme: ThemeSettings;
   audio: AudioSettings;
   branding: BrandingSettings;
@@ -481,6 +575,76 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
     analytics: true,
     devMode: false,
     infoDisplayMode: 'runtime'
+  },
+  header: {
+    showLogo: false,
+    showStoreName: true,
+    showTagline: true,
+    headerStyle: "premium",
+    headerHeight: "normal",
+    leftDisplayMode: "text-only",
+    menuButtonStyle: "rounded-cyan"
+  },
+  hero: {
+    badgeText: "Premium Digital Store",
+    title: "Cloud VPS Berkualitas",
+    titleAccent: "Berkualitas",
+    description: "Performa stabil untuk panel, website, bot WhatsApp, dan sistem digital Anda.",
+    imageUrl: "https://c.termai.cc/i140/Chh8r.jpg",
+    overlayStrength: 45,
+    showButton: false,
+    buttonText: "Lihat Layanan",
+    buttonTarget: "services",
+    showFullscreenButton: true,
+    sliderAutoplay: true,
+    sliderDelay: 5000
+  },
+  serviceSection: {
+    badgeText: "Digital Service Hub",
+    title: "Pusat Layanan Digital",
+    description: "Kelola kebutuhan digital Anda dalam satu tempat, mulai dari layanan bot, panel, aplikasi premium, sampai kebutuhan digital lain.",
+    showPlayButton: true
+  },
+  categoryTabs: {
+    tabsTitle: "",
+    style: "cute-premium-pill",
+    allowHorizontalScroll: true,
+    showActiveIcon: true,
+    activeIcon: "✦",
+    tabs: [
+      { id: "all", label: "SEMUA", target: "all", order: 1, active: true },
+      { id: "app-premium", label: "APP PREMIUM", target: "app-premium", order: 2, active: true },
+      { id: "sewa-bot", label: "SEWA BOT", target: "sewa-bot", order: 3, active: true },
+      { id: "panel", label: "PANEL", target: "panel", order: 4, active: true },
+      { id: "reseller", label: "RESELLER", target: "reseller", order: 5, active: true }
+    ]
+  },
+  statsSection: {
+    stats: [
+      { id: "support", icon: "🎧", value: "24/7", label: "Support", active: true },
+      { id: "fast", icon: "⚡", value: "Fast", label: "Response", active: true },
+      { id: "active", icon: "▰", value: "Aktif", label: "Layanan", active: true },
+      { id: "easy", icon: "✓", value: "Mudah", label: "Order", active: true }
+    ]
+  },
+  flowSection: {
+    title: "Alur Layanan",
+    description: "Mulai dari memilih kategori sampai aktivasi layanan dibuat lebih mudah.",
+    steps: [
+      { id: "1", number: "1", title: "Pilih Kategori", description: "Tentukan jenis layanan yang Anda butuhkan.", active: true },
+      { id: "2", number: "2", title: "Cek Detail Produk", description: "Baca harga, benefit, dan ketentuan layanan.", active: true },
+      { id: "3", number: "3", title: "Order ke Admin", description: "Kirim format order melalui tombol pembelian.", active: true },
+      { id: "4", number: "4", title: "Aktivasi Diproses", description: "Admin akan memproses layanan setelah data lengkap.", active: true }
+    ]
+  },
+  benefitsSection: {
+    title: "Kenapa Aman Order di Sini?",
+    description: "Layanan dibuat jelas, responsif, dan mudah dipahami.",
+    benefits: [
+      { id: "data", text: "Data order terjamin", active: true },
+      { id: "price", text: "Harga transparan", active: true },
+      { id: "admin", text: "Admin responsif", active: true }
+    ]
   }
 };
 

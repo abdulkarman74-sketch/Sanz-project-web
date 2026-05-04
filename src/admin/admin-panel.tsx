@@ -8,7 +8,7 @@ import { DashboardView } from "./views/DashboardView";
 import { ProductsView } from "./views/ProductsView";
 import { CategoriesView } from "./views/CategoriesView";
 import { SlidesView } from "./views/SlidesView";
-import { BrandingView, LoadingView, ThemeView, AudioView, ContactView, FooterView, GeneralView, MaintenanceView, DebugFirebaseView } from "./views/SettingsViews";
+import { BrandingView, LoadingView, ThemeView, AudioView, ContactView, FooterView, GeneralView, MaintenanceView, DebugFirebaseView, HeaderView, HeroView, CategoryTabsView, ServiceSectionView, StatsView, FlowView, BenefitsView } from "./views/SettingsViews";
 import { MenuSemuaView } from "./views/MenuSemuaView";
 import { SettingsAiView } from "./views/SettingsAiView";
 import { AddProductView } from "./views/AddProductView";
@@ -87,21 +87,27 @@ export default function AdminPanel({
   const renderContent = () => {
     switch (activeMenu) {
       case "dashboard": return <DashboardView categories={localCategories} products={products} slides={slides} settings={siteSettings} setActiveMenu={handleMenuClick} />;
-      case "loading": return <LoadingView settings={siteSettings} />;
       case "branding": return <BrandingView settings={siteSettings} />;
-      case "edit-menu-semua": return <MenuSemuaView settings={siteSettings} />;
-      case "settings-ai": return <SettingsAiView settings={siteSettings} />;
-      case "slides": return <SlidesView slides={slides} />;
+      case "header": return <HeaderView settings={siteSettings} />;
+      case "hero": return <HeroView settings={siteSettings} slides={slides} />;
+      case "menu-semua": return <MenuSemuaView settings={siteSettings} />;
+      case "category-tabs": return <CategoryTabsView settings={siteSettings} />;
+      case "section-layanan": return <ServiceSectionView settings={siteSettings} />;
+      case "stats": return <StatsView settings={siteSettings} />;
+      case "flow": return <FlowView settings={siteSettings} />;
+      case "benefits": return <BenefitsView settings={siteSettings} />;
       case "products": return <ProductsView products={products} categories={localCategories} />;
       case "add-product": return <AddProductView categories={localCategories} onComplete={() => setActiveMenu("products")} />;
       case "categories": return <CategoriesView categories={localCategories} />;
       case "add-category": return <AddCategoryView onComplete={() => setActiveMenu("categories")} />;
       case "contact": return <ContactView settings={siteSettings} />;
       case "theme": return <ThemeView settings={siteSettings} />;
+      case "loading": return <LoadingView settings={siteSettings} />;
       case "audio": return <AudioView settings={siteSettings} />;
+      case "settings-ai": return <SettingsAiView settings={siteSettings} />;
       case "footer": return <FooterView settings={siteSettings} />;
-      case "general": return <GeneralView settings={siteSettings} />;
       case "maintenance": return <MaintenanceView settings={siteSettings} />;
+      case "general": return <GeneralView settings={siteSettings} />;
       case "debug": return <DebugFirebaseView />;
       default: return <DashboardView categories={localCategories} products={products} slides={slides} settings={siteSettings} setActiveMenu={handleMenuClick} />;
     }
@@ -111,19 +117,16 @@ export default function AdminPanel({
     {
       label: "Utama",
       items: [
-        { id: "dashboard", label: "Dashboard", desc: "Ringkasan web", icon: "📊" }
-      ]
-    },
-    {
-      label: "Tampilan Web",
-      items: [
-        { id: "loading", label: "Loading Screen", desc: "Animasi masuk", icon: "✨" },
-        { id: "branding", label: "Branding Website", desc: "Logo & Teks", icon: "🏷️" },
-        { id: "edit-menu-semua", label: "Edit Menu Semua", desc: "Menu web", icon: "🧩" },
-        { id: "slides", label: "Banner Slider", desc: "Gambar promo", icon: "🖼️" },
-        { id: "theme", label: "Tema Seluruh Web", desc: "Ubah warna global", icon: "🎨" },
-        { id: "audio", label: "Audio & Musik", desc: "Suara web", icon: "🎧" },
-        { id: "footer", label: "Footer", desc: "Teks bawah", icon: "🧱" }
+        { id: "dashboard", label: "Dashboard", desc: "Ringkasan web", icon: "📊" },
+        { id: "branding", label: "Branding Website", desc: "Nama & Logo", icon: "🏷️" },
+        { id: "header", label: "Header Atas", desc: "Tampilan atas", icon: "🔝" },
+        { id: "hero", label: "Hero / Banner", desc: "Teks & Gambar hero", icon: "🖼️" },
+        { id: "menu-semua", label: "Menu Semua", desc: "Service hub", icon: "🧩" },
+        { id: "category-tabs", label: "Tab Kategori", desc: "Filter kategori", icon: "📑" },
+        { id: "section-layanan", label: "Section Layanan", desc: "Pusat layanan", icon: "📂" },
+        { id: "stats", label: "Statistik Website", desc: "Card angka hemat", icon: "📈" },
+        { id: "flow", label: "Alur Layanan", desc: "Langkah order", icon: "🛤️" },
+        { id: "benefits", label: "Keunggulan / Benefit", desc: "Kenapa pilih kami", icon: "💎" }
       ]
     },
     {
@@ -136,23 +139,17 @@ export default function AdminPanel({
       ]
     },
     {
-      label: "Order & Kontak",
+      label: "Sistem & Tampilan",
       items: [
-        { id: "contact", label: "Kontak & Order", desc: "Nomor & Pesan", icon: "☎️" }
-      ]
-    },
-    {
-      label: "Sistem",
-      items: [
-        { id: "general", label: "Pengaturan Web", desc: "Server & Web", icon: "⚙️" },
-        { id: "settings-ai", label: "Pengaturan Elaina Chat", desc: "Bot Assistant", icon: "💬" },
-        { id: "maintenance", label: "Maintenance", desc: "Mode perbaikan", icon: "🛡️" }
-      ]
-    },
-    {
-      label: "Debug",
-      items: [
-        { id: "debug", label: "Debug Firebase", desc: "Cek Auth Database", icon: "🔥" }
+        { id: "contact", label: "Kontak & Order", desc: "WA & Pesan", icon: "☎️" },
+        { id: "theme", label: "Tema Seluruh Web", desc: "Warna & Mode", icon: "🎨" },
+        { id: "loading", label: "Loading Screen", desc: "Animasi masuk", icon: "✨" },
+        { id: "audio", label: "Audio & Musik", desc: "Suara latar", icon: "🎧" },
+        { id: "settings-ai", label: "Chat AI / Elaina", desc: "Assistant Bot", icon: "💬" },
+        { id: "footer", label: "Footer", desc: "Bagian bawah", icon: "🧱" },
+        { id: "maintenance", label: "Maintenance", desc: "Mode perbaikan", icon: "🛡️" },
+        { id: "general", label: "Pengaturan Web", desc: "Server & Sistem", icon: "⚙️" },
+        { id: "debug", label: "Debug Firebase", desc: "Cek database", icon: "🔥" }
       ]
     }
   ];
@@ -183,7 +180,7 @@ export default function AdminPanel({
          </div>
 
          {/* Sidebar Navigation */}
-         <nav className="admin-nav">
+         <nav className="admin-nav" style={{ flex: '1 1 auto', overflowY: 'auto', paddingBottom: '100px' }}>
             {MENU_GROUPS.map((group, groupIdx) => (
                <div key={groupIdx}>
                   <div className="admin-menu-group-label">{group.label}</div>
@@ -195,6 +192,7 @@ export default function AdminPanel({
                            type="button"
                            onClick={() => handleMenuClick(m.id)}
                            className={`admin-nav-item ${active ? "active" : ""}`}
+                           style={{ display: 'flex', visibility: 'visible', opacity: 1, pointerEvents: 'auto' }}
                         >
                            <span className="admin-nav-item-icon">{m.icon}</span>
                            <span className="admin-nav-item-text">

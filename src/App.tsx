@@ -91,119 +91,78 @@ const ProductCard = memo(
     product: Product;
     onDetail?: (p: Product) => void;
   }) => {
-    // Generate a dynamic badge if none exists
-    const getDynamicBadge = () => {
-      if (product.badge)
-        return {
-          text: product.badge,
-          color: "bg-theme-surface",
-          textCol: "text-theme-text",
-        };
-      if (
-        product.category.includes("Panel") ||
-        product.category.includes("VPS")
-      )
-        return {
-          text: "Best Performance",
-          color: "bg-blue-600",
-          textCol: "text-white",
-        };
-      if (product.category.includes("Bot"))
-        return {
-          text: "Smart Auto",
-          color: "bg-emerald-500",
-          textCol: "text-white",
-        };
-      if (product.category.includes("Reseller"))
-        return {
-          text: "Best Seller",
-          color: "bg-amber-500",
-          textCol: "text-white",
-        };
-      return { text: "Premium", color: "bg-purple-600", textCol: "text-white" };
-    };
-    const badgeInfo = getDynamicBadge();
+    const title = product?.name || "Produk";
+    const description = product?.description || (product?.benefits && product?.benefits[0]) || "Produk digital premium siap order.";
+    const image = product?.image || "";
+    const price = product?.price || "0";
+    const category = product?.category || "PRODUK";
+    const rating = product?.rating || "5.0";
 
     return (
-      <motion.div
-        initial={{ opacity: 0, y: 15 }}
+      <motion.article 
+        initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-50px" }}
-        className="group relative bg-theme-card border border-theme-border rounded-[24px] p-2.5 flex flex-col h-full hover:border-[#334155] transition-all duration-500 overflow-hidden"
-        style={{
-          boxShadow:
-            "0 8px 30px -4px rgba(0,0,0,0.4), inset 0 0 0 1px rgba(255,255,255,0.05)",
-        }}
+        viewport={{ once: true }}
+        className="new-product-card"
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-theme-surface/80 to-theme-card opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-        <div className="relative aspect-[16/9] w-full rounded-[18px] overflow-hidden bg-theme-bg mb-4 isolate shadow-inner">
+        <div 
+          className="new-product-image-box cursor-pointer"
+          onClick={() => onDetail?.(product)}
+        >
           <img
-            src={product.image}
-            alt={product.name}
-            className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+            src={image}
+            alt={title}
+            className="new-product-image"
             loading="lazy"
-            decoding="async"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-theme-bg via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-
-          <div
-            className={`absolute top-2 left-2 md:top-3 md:left-3 px-2.5 py-1 ${badgeInfo.color} ${badgeInfo.textCol} text-[8px] font-black uppercase tracking-widest rounded-md shadow-md z-10 block`}
-          >
-            {badgeInfo.text}
-          </div>
-
-          <div className="absolute bottom-3 left-3 right-3 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 z-10 hidden md:flex justify-center">
-            <span className="bg-theme-surface/95 backdrop-blur-sm text-theme-text border border-theme-border text-xs font-bold px-4 py-2 rounded-xl shadow-lg flex items-center gap-2 w-full justify-center transform active:scale-95 transition-transform">
-              <ShoppingCart className="w-4 h-4 text-theme-accent" /> Pesan
-            </span>
+          <div className="new-product-image-badge">
+            {category}
           </div>
         </div>
 
-        <div className="px-2 pb-2 flex flex-col flex-1 relative z-10">
-          <div className="flex justify-between items-center gap-2 mb-2">
-            <p className="text-[9px] font-mono font-bold uppercase tracking-wider text-theme-accent bg-theme-accent/10 border border-theme-accent/20 px-2 py-0.5 rounded flex items-center gap-1">
-              <Package className="w-2.5 h-2.5" />
-              {product.category}
-            </p>
-            <div className="flex items-center gap-1 text-theme-muted">
-              <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400" />
-              <span className="text-[9px] font-bold text-theme-text">
-                {product.rating}
-              </span>
-            </div>
+        <div className="new-product-content">
+          <div className="new-product-meta">
+            <span className="new-product-category">
+              ✦ {category}
+            </span>
+
+            <span className="new-product-rating">
+              ⭐ {rating}
+            </span>
           </div>
 
-          <h3 className="text-sm font-bold text-theme-text leading-snug line-clamp-2 mb-1.5 group-hover:text-theme-accent transition-colors">
-            {product.name}
+          <h3 
+            className="new-product-title cursor-pointer hover:text-theme-accent transition-colors"
+            onClick={() => onDetail?.(product)}
+          >
+            {title}
           </h3>
 
-          <p className="text-[10px] md:text-[11px] text-theme-muted line-clamp-2 leading-relaxed mb-4 flex-1">
-            {product.description ||
-              "Layanan digital premium dan bergaransi resmi."}
+          <p className="new-product-description">
+            {description}
           </p>
 
-          <div className="pt-3 border-t border-theme-border border-dashed mt-auto shrink-0 flex items-end justify-between">
-            <div className="flex flex-col">
-              <span className="text-[8px] font-bold text-theme-muted uppercase tracking-widest leading-none mb-1">
-                Total Harga
+          <div className="new-product-footer">
+            <div className="new-product-price-wrap">
+              <span className="new-product-price-label">
+                TOTAL HARGA
               </span>
-              <span className="text-base md:text-lg font-display font-black text-theme-text tracking-tight leading-none bg-clip-text text-transparent bg-gradient-to-r from-theme-accent to-theme-accent-sec">
-                Rp {product.price}
-              </span>
+              <strong className="new-product-price">
+                <span className="text-[10px] mr-1">Rp</span>
+                {price}
+              </strong>
             </div>
+
             <button
-              className="px-3 py-1.5 md:px-4 md:py-2 rounded-xl bg-theme-accent text-theme-bg font-bold text-[10px] md:text-xs hover:bg-white transition-all shadow-[0_0_15px_rgba(34,211,238,0.2)] hover:shadow-[0_0_20px_rgba(34,211,238,0.5)] transform border border-transparent whitespace-nowrap"
-              onClick={(e) => {
-                e.stopPropagation();
-                onDetail?.(product);
-              }}
+              type="button"
+              className="new-product-buy-button active:scale-95 transition-transform"
+              onClick={() => onDetail?.(product)}
             >
-              Beli Sekarang
+              Beli
             </button>
           </div>
         </div>
-      </motion.div>
+      </motion.article>
     );
   },
 );
@@ -224,6 +183,37 @@ export default function App() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("Semua");
   const [isAiChatOpen, setIsAiChatOpen] = useState(false);
+
+  const normalizeCategory = (val: string) => {
+    return String(val || "").toLowerCase().trim().replace(/&/g, "and").replace(/[^\w\s-]/g, "").replace(/\s+/g, "-");
+  };
+
+  const CATEGORY_ALIASES: Record<string, string[]> = {
+    "sewa-bot": ["sewa-bot", "sewabot", "sewa bot", "bot", "sewa"],
+    "app-premium": ["app-premium", "app premium", "apk-premium", "apk premium", "aplikasi-premium"],
+    "source-code": ["source-code", "source code", "script", "script-bot", "script bot"],
+    "panel": ["panel"],
+    "reseller": ["reseller"]
+  };
+
+  const categoryMatches = (productValue: string, activeValue: string) => {
+    const active = normalizeCategory(activeValue);
+    const product = normalizeCategory(productValue);
+    const aliases = CATEGORY_ALIASES[active] || [active];
+    return aliases.map(normalizeCategory).includes(product);
+  };
+
+  const isLandingPage = normalizeCategory(selectedCategory) === "semua" || normalizeCategory(selectedCategory) === "all" || selectedCategory === "" || selectedCategory === "Semua";
+
+  function slugify(text: string) {
+    return text
+      .toString()
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, "-")
+      .replace(/[^\w-]+/g, "")
+      .replace(/--+/g, "-");
+  }
 
   const {
     loading: storeLoading,
@@ -273,13 +263,19 @@ export default function App() {
     console.log("Visible categories:", localCategories);
     console.log("Active category:", selectedCategory);
     
-    if (selectedCategory !== "Semua") {
-      const exists = localCategories.some((cat) => cat.id === selectedCategory || (cat as any).name === selectedCategory || (cat as any).title === selectedCategory);
+    if (!isLandingPage) {
+      const normalizedActive = normalizeCategory(selectedCategory);
+      const exists = localCategories.some((cat) => 
+        normalizeCategory(cat.id) === normalizedActive || 
+        normalizeCategory((cat as any).slug) === normalizedActive || 
+        normalizeCategory(cat.name) === normalizedActive || 
+        normalizeCategory(cat.title) === normalizedActive
+      );
       if (!exists) {
         setSelectedCategory("Semua");
       }
     }
-  }, [rawCategories, localCategories, selectedCategory]);
+  }, [rawCategories, localCategories, selectedCategory, isLandingPage]);
 
   const handleDirectOrder = useCallback(
     (product: Product) => {
@@ -419,48 +415,24 @@ export default function App() {
       {(!loading || siteSettings.loading?.enabled === false) && (
         <>
           <header className="store-header">
-            <div className="flex items-center gap-3 lg:gap-4">
-              <button
-                className="main-menu-button"
-                onClick={() => setIsAiChatOpen(true)}
-              >
-                <Bot className="w-5 h-5" />
-              </button>
-              <div className="store-brand" onClick={() => setCurrentTab("home")}>
-                <div className="store-logo">
-                  {siteSettings.branding.logoUrl ? (
-                    <img
-                      src={siteSettings.branding.logoUrl}
-                      alt="Logo"
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <Bot className="w-6 h-6 text-white" />
-                  )}
-                </div>
-                <div className="store-brand-text hidden sm:block">
-                  <h1 className="store-brand-title">
-                    {siteSettings.branding.headerName || siteSettings.branding.storeName || siteSettings.branding.siteName || "SANZ STORE"}
-                  </h1>
-                  <p className="store-brand-subtitle">
-                    {siteSettings.branding.slogan || "Infrastruktur Terpadu & Modern"}
-                  </p>
-                </div>
-              </div>
+            <div className="store-brand-text-only" onClick={() => setCurrentTab("home")}>
+              <h1 className="store-name-beauty">
+                {siteSettings.branding.headerName || siteSettings.branding.storeName || siteSettings.branding.siteName || "SANZ STORE"}
+              </h1>
+              {siteSettings.branding.slogan && (
+                <p className="store-tagline">
+                  {siteSettings.branding.slogan}
+                </p>
+              )}
             </div>
 
-            <div className="flex items-center gap-[10px] flex-shrink-0">
-              <button
-                className="main-menu-button"
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-              >
-                {isMenuOpen ? (
-                  <X className="w-5 h-5" />
-                ) : (
-                  <Menu className="w-5 h-5" />
-                )}
-              </button>
-            </div>
+            <button
+              type="button"
+              className="main-menu-button"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              {isMenuOpen ? "✕" : "☰"}
+            </button>
 
             <MainMenuDrawer
               open={isMenuOpen}
@@ -539,30 +511,47 @@ export default function App() {
 
                     <div className="home-category-shell">
                       <div className="home-category-track">
-                        {[{ id: "Semua", title: "Semua", name: "Semua" }, ...localCategories].map((cat) => (
-                          <button
-                            key={cat.id || cat.name || cat.title}
-                            onClick={() => setSelectedCategory(cat.id || (cat as any).name || (cat as any).title || "Semua")}
-                            className={`home-category-pill ${
-                              selectedCategory === (cat.id || (cat as any).name || (cat as any).title || "Semua")
-                                ? "active"
-                                : ""
-                            }`}
-                          >
-                            <span className="home-category-pill-label">{(cat.title || (cat as any).name || cat.id).replace(/-/g, " ")}</span>
-                          </button>
-                        ))}
+                        <button
+                          type="button"
+                          className={`home-category-pill ${isLandingPage ? "active shadow-glow" : ""}`}
+                          onClick={() => setSelectedCategory("Semua")}
+                        >
+                          <span className="home-category-pill-label">SEMUA</span>
+                        </button>
+
+                        {localCategories.map((category: any) => {
+                          const key = category.slug || category.id || (category.name ? slugify(category.name) : "");
+                          if (!key) return null;
+                          const isActive = categoryMatches(key, selectedCategory);
+
+                          return (
+                            <button
+                              key={key}
+                              type="button"
+                              className={`home-category-pill ${isActive ? "active shadow-glow" : ""}`}
+                              onClick={() => {
+                                console.log("CATEGORY CLICK:", key);
+                                setSelectedCategory(key);
+                              }}
+                            >
+                              {isActive && siteSettings.categoryTabs?.showActiveIcon && (
+                                <span className="mr-1 text-[10px] opacity-80">{siteSettings.categoryTabs?.activeIcon || "✦"}</span>
+                              )}
+                              <span className="home-category-pill-label">{category.name || category.title || category.label || key.replace(/-/g, " ")}</span>
+                            </button>
+                          );
+                        })}
                       </div>
                     </div>
 
-                    {selectedCategory === "Semua" ? (
+                    {isLandingPage ? (
                       <div className="menu-semua-premium">
                         {/* 1. Hero Premium */}
                         <section className="land-hero-premium">
                           <div className="hero-orb"></div>
-                          <span className="land-badge">{menuSemuaText.badgeText}</span>
-                          <h2 className="land-title">{menuSemuaText.heroTitle}</h2>
-                          <p className="land-subtitle">{menuSemuaText.heroSubtitle}</p>
+                          <span className="land-badge">{siteSettings.serviceSection?.badgeText || menuSemuaText.badgeText}</span>
+                          <h2 className="land-title">{siteSettings.serviceSection?.title || menuSemuaText.heroTitle}</h2>
+                          <p className="land-subtitle">{siteSettings.serviceSection?.description || menuSemuaText.heroSubtitle}</p>
                           <div className="land-chips">
                             <span className="land-chip"><Zap className="w-3.5 h-3.5" /> {(menuSemuaText as any).chip1 || "Cepat"}</span>
                             <span className="land-chip"><ShieldCheck className="w-3.5 h-3.5" /> {(menuSemuaText as any).chip2 || "Aman"}</span>
@@ -573,46 +562,38 @@ export default function App() {
 
                         {/* 2. Quick Stats */}
                         <section className="land-stats-grid">
-                          <div className="stat-card">
-                            <HeadphonesIcon className="stat-icon" />
-                            <span className="stat-value">24/7</span>
-                            <span className="stat-label">Support</span>
-                          </div>
-                          <div className="stat-card">
-                            <Zap className="stat-icon" />
-                            <span className="stat-value">Fast</span>
-                            <span className="stat-label">Response</span>
-                          </div>
-                          <div className="stat-card">
-                            <Server className="stat-icon" />
-                            <span className="stat-value">Aktif</span>
-                            <span className="stat-label">Layanan</span>
-                          </div>
-                          <div className="stat-card">
-                            <CheckCircle2 className="stat-icon" />
-                            <span className="stat-value">Mudah</span>
-                            <span className="stat-label">Order</span>
-                          </div>
+                          {(siteSettings.statsSection?.stats || [
+                            { id: "support", icon: "🎧", value: "24/7", label: "Support", active: true },
+                            { id: "fast", icon: "⚡", value: "Fast", label: "Response", active: true },
+                            { id: "active", icon: "▰", value: "Aktif", label: "Layanan", active: true },
+                            { id: "easy", icon: "✓", value: "Mudah", label: "Order", active: true }
+                          ]).filter((s:any) => s.active).map((s: any) => (
+                            <div className="stat-card" key={s.id}>
+                              <span className="text-xl mb-2">{s.icon}</span>
+                              <span className="stat-value">{s.value}</span>
+                              <span className="stat-label">{s.label}</span>
+                            </div>
+                          ))}
                         </section>
 
                         {/* 3. Alur Layanan Timeline */}
                         <section className="land-timeline-section">
                           <div className="land-section-header">
-                            <h3>{menuSemuaText.flowTitle}</h3>
-                            <p>{menuSemuaText.flowSubtitle}</p>
+                            <h3>{siteSettings.flowSection?.title || menuSemuaText.flowTitle}</h3>
+                            <p>{siteSettings.flowSection?.description || menuSemuaText.flowSubtitle}</p>
                           </div>
                           <div className="land-timeline-grid">
-                            {[
+                            {(siteSettings.flowSection?.steps || [
                               { step: "1", title: menuSemuaText.step1Title, desc: menuSemuaText.step1Desc },
                               { step: "2", title: menuSemuaText.step2Title, desc: menuSemuaText.step2Desc },
                               { step: "3", title: menuSemuaText.step3Title, desc: menuSemuaText.step3Desc },
                               { step: "4", title: menuSemuaText.step4Title, desc: menuSemuaText.step4Desc }
-                            ].map((s) => (
-                              <div className="timeline-card" key={s.step}>
-                                <div className="timeline-number">{s.step}</div>
+                            ]).map((s: any) => (
+                              <div className="timeline-card" key={s.id || s.step}>
+                                <div className="timeline-number">{s.number || s.step}</div>
                                 <div className="timeline-text">
                                   <h4>{s.title}</h4>
-                                  <p>{s.desc}</p>
+                                  <p>{s.desc || s.description}</p>
                                 </div>
                               </div>
                             ))}
@@ -622,16 +603,20 @@ export default function App() {
                         {/* 4. Trust Panel */}
                         <section className="land-trust-panel">
                           <div className="trust-left">
-                            <h3>{menuSemuaText.trustTitle}</h3>
-                            <p className="trust-subtitle">{(menuSemuaText as any).trustSubtitle || "Kami selalu memastikan setiap layanan yang Anda order aman, bergaransi, dan sesuai dengan deskripsi."}</p>
+                            <h3>{siteSettings.benefitsSection?.title || menuSemuaText.trustTitle}</h3>
+                            <p className="trust-subtitle">{siteSettings.benefitsSection?.description || (menuSemuaText as any).trustSubtitle || "Kami selalu memastikan setiap layanan yang Anda order aman, bergaransi, dan sesuai dengan deskripsi."}</p>
                           </div>
                           <div className="trust-right">
                             <ul className="trust-checklist">
-                              <li><CheckCircle2 className="w-5 h-5 trust-check" /> {menuSemuaText.trustPoint1}</li>
-                              <li><CheckCircle2 className="w-5 h-5 trust-check" /> {menuSemuaText.trustPoint2}</li>
-                              <li><CheckCircle2 className="w-5 h-5 trust-check" /> {menuSemuaText.trustPoint3}</li>
-                              <li><CheckCircle2 className="w-5 h-5 trust-check" /> {menuSemuaText.trustPoint4}</li>
-                              <li><CheckCircle2 className="w-5 h-5 trust-check" /> {menuSemuaText.trustPoint5}</li>
+                              {(siteSettings.benefitsSection?.benefits || [
+                                { text: menuSemuaText.trustPoint1 },
+                                { text: menuSemuaText.trustPoint2 },
+                                { text: menuSemuaText.trustPoint3 },
+                                { text: menuSemuaText.trustPoint4 },
+                                { text: menuSemuaText.trustPoint5 }
+                              ]).filter((b:any) => b.active !== false).map((b: any, i: number) => (
+                                <li key={i}><CheckCircle2 className="w-5 h-5 trust-check" /> {b.text}</li>
+                              ))}
                             </ul>
                           </div>
                         </section>
@@ -709,14 +694,22 @@ export default function App() {
 
                       </div>
                     ) : (
-                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 px-4 bg-transparent">
+                      <div className="products-grid grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 px-4 bg-transparent">
                         {(() => {
                           const productsToShow = localCategories
                             .flatMap((c) => c.products)
                             .filter((p) => {
-                              const targetCat = localCategories.find(c => c.id === selectedCategory || (c as any).name === selectedCategory || c.title === selectedCategory);
-                              if (!targetCat) return false;
-                              return p.categoryId === targetCat.id || p.categoryId === targetCat.slug || p.category === targetCat.title || p.category === (targetCat as any).name || (targetCat.id && p.category && p.category.toLowerCase().includes(targetCat.id.toLowerCase()));
+                              const normalizedActive = normalizeCategory(selectedCategory);
+                              
+                              // Check all possible category fields of the product using aliases
+                              const productValues = [
+                                p.category,
+                                p.categoryId,
+                                p.categorySlug,
+                                p.type
+                              ];
+
+                              return productValues.some(val => categoryMatches(val || "", selectedCategory));
                             });
                           // Deduplicate products based on ID
                           const uniqueProducts = Array.from(new Map(productsToShow.map((item: any) => [item.id, item])).values());

@@ -27,16 +27,23 @@ export const CategoriesView = ({ categories }: { categories: Category[] }) => {
   }
 
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState({ name: "", slug: "", order: 0, active: true });
+  const [form, setForm] = useState({ name: "", slug: "", description: "", icon: "📦", order: 0, active: true });
   const [saving, setSaving] = useState(false);
 
   const startEdit = (cat?: Category) => {
     if (cat) {
       setEditingId(cat.id);
-      setForm({ name: getCategoryName(cat), slug: cat.slug || "", order: cat.order || 0, active: cat.active !== false });
+      setForm({ 
+        name: getCategoryName(cat), 
+        slug: cat.slug || "", 
+        description: (cat as any).description || "", 
+        icon: (cat as any).icon || "📦", 
+        order: cat.order || 0, 
+        active: cat.active !== false 
+      });
     } else {
       setEditingId("new");
-      setForm({ name: "", slug: "", order: categories.length + 1, active: true });
+      setForm({ name: "", slug: "", description: "", icon: "📦", order: categories.length + 1, active: true });
     }
   };
 
@@ -67,6 +74,8 @@ export const CategoriesView = ({ categories }: { categories: Category[] }) => {
       const cleanPayload = removeUndefinedDeep({
         name: form.name.trim(),
         slug,
+        description: form.description.trim(),
+        icon: form.icon.trim() || "📦",
         order: Number(form.order) || 0,
         active: form.active
       });
@@ -145,9 +154,14 @@ export const CategoriesView = ({ categories }: { categories: Category[] }) => {
         <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="grid grid-cols-1 md:grid-cols-2 gap-6">
            <AdminInput label="Nama Kategori" value={form.name} onChange={e => setForm({...form, name: e.target.value})} autoFocus />
            <AdminInput label="URL Slug (Otomatis jika kosong)" value={form.slug} onChange={e => setForm({...form, slug: e.target.value})} />
+           <AdminInput label="Icon (Emoji)" value={form.icon} onChange={e => setForm({...form, icon: e.target.value})} placeholder="📦" />
            <AdminInput label="Urutan" type="number" value={form.order} onChange={e => setForm({...form, order: parseInt(e.target.value)})} />
            
-           <div className="flex items-center gap-3 mt-8">
+           <div className="md:col-span-2">
+              <AdminInput label="Deskripsi" value={form.description} onChange={e => setForm({...form, description: e.target.value})} />
+           </div>
+           
+           <div className="flex items-center gap-3 mt-4">
             <input type="checkbox" id="catActive" checked={form.active} onChange={e => setForm({...form, active: e.target.checked})} className="w-5 h-5 accent-[var(--theme-primary)] rounded" />
             <label htmlFor="catActive" className="checkbox-label text-[var(--theme-text-main)] cursor-pointer select-none">Aktif (Tampil di Frontend)</label>
            </div>
