@@ -83,92 +83,109 @@ const ViewFallback = () => (
   </div>
 );
 
+// Helpers untuk Data Produk Aman
+function getProductImage(product: any) {
+  return product?.image || product?.imageUrl || product?.thumbnail || product?.foto || "";
+}
+
+function getProductName(product: any) {
+  return product?.name || product?.title || product?.nama || "Nama Produk";
+}
+
+function getProductDescription(product: any) {
+  return product?.description || (product?.benefits && product?.benefits[0]) || product?.desc || product?.deskripsi || "Belum ada deskripsi produk.";
+}
+
+function getProductPrice(product: any) {
+  return product?.price || product?.harga || product?.amount || "Hubungi Admin";
+}
+
+function getProductCategory(product: any) {
+  return product?.categoryName || product?.category || product?.categoryId || product?.type || "PRODUK";
+}
+
 const ProductCard = memo(
   ({
     product,
     onDetail,
+    onBuy,
   }: {
-    product: Product;
-    onDetail?: (p: Product) => void;
+    product: any;
+    onDetail?: (p: any) => void;
+    onBuy?: (p: any) => void;
   }) => {
-    const title = product?.name || "Produk";
-    const description = product?.description || (product?.benefits && product?.benefits[0]) || "Produk digital premium siap order.";
-    const image = product?.image || "";
-    const price = product?.price || "0";
-    const category = product?.category || "PRODUK";
-    const rating = product?.rating || "5.0";
-
     return (
-      <motion.article 
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        className="new-product-card"
-      >
-        <div 
-          className="new-product-image-box cursor-pointer"
-          onClick={() => onDetail?.(product)}
-        >
-          {image ? (
+      <article className="pretty-product-card">
+        <div className="pretty-product-image-wrap">
+          {getProductImage(product) ? (
             <img
-              src={image}
-              alt={title}
-              className="new-product-image"
+              src={getProductImage(product)}
+              alt={getProductName(product)}
+              className="pretty-product-image"
               loading="lazy"
             />
           ) : (
-            <div className="new-product-image-placeholder">
+            <div className="pretty-product-placeholder">
               <span>✦</span>
             </div>
           )}
-          <div className="new-product-image-badge">
-            {category}
-          </div>
+
+          <span className="pretty-product-image-badge">
+            {getProductCategory(product)}
+          </span>
         </div>
 
-        <div className="new-product-content">
-          <div className="new-product-meta">
-            <span className="new-product-category">
-              ✦ {category}
+        <div className="pretty-product-body">
+          <div className="pretty-product-meta-row">
+            <span className="pretty-product-category">
+              ✦ {getProductCategory(product)}
             </span>
 
-            <span className="new-product-rating">
-              ⭐ {rating}
+            <span className="pretty-product-rating">
+              ⭐ {product?.rating || "5.0"}
             </span>
           </div>
 
-          <h3 
-            className="new-product-title cursor-pointer hover:text-theme-accent transition-colors"
-            onClick={() => onDetail?.(product)}
-          >
-            {title}
+          <h3 className="pretty-product-title">
+            {getProductName(product)}
           </h3>
 
-          <p className="new-product-description">
-            {description}
+          <p className="pretty-product-desc">
+            {getProductDescription(product)}
           </p>
 
-          <div className="new-product-footer">
-            <div className="new-product-price-wrap">
-              <span className="new-product-price-label">
+          <div className="pretty-product-footer">
+            <div className="pretty-product-price-box">
+              <span className="pretty-product-price-label">
                 TOTAL HARGA
               </span>
-              <strong className="new-product-price">
+
+              <strong className="pretty-product-price">
                 <span className="text-[10px] mr-1">Rp</span>
-                {price}
+                {getProductPrice(product)}
               </strong>
             </div>
 
-            <button
-              type="button"
-              className="new-product-buy-button active:scale-95 transition-transform"
-              onClick={() => onDetail?.(product)}
-            >
-              Beli
-            </button>
+            <div className="pretty-product-actions">
+              <button
+                type="button"
+                className="pretty-product-detail-button"
+                onClick={() => onDetail?.(product)}
+              >
+                Detail
+              </button>
+
+              <button
+                type="button"
+                className="pretty-product-buy-button"
+                onClick={() => onBuy?.(product)}
+              >
+                Beli
+              </button>
+            </div>
           </div>
         </div>
-      </motion.article>
+      </article>
     );
   },
 );
@@ -189,6 +206,19 @@ export default function App() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("Semua");
   const [isAiChatOpen, setIsAiChatOpen] = useState(false);
+
+  const [selectedProductDetail, setSelectedProductDetail] = useState<any>(null);
+  const [isProductDetailOpen, setIsProductDetailOpen] = useState(false);
+
+  function openProductDetail(product: any) {
+    setSelectedProductDetail(product);
+    setIsProductDetailOpen(true);
+  }
+
+  function closeProductDetail() {
+    setIsProductDetailOpen(false);
+    setSelectedProductDetail(null);
+  }
 
   const normalizeCategory = (val: string) => {
     return String(val || "").toLowerCase().trim().replace(/&/g, "and").replace(/[^\w\s-]/g, "").replace(/\s+/g, "-");
@@ -700,7 +730,7 @@ export default function App() {
 
                       </div>
                     ) : (
-                      <div className="products-grid grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 px-4 bg-transparent">
+                      <div className="pretty-products-grid products-grid grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 px-4 bg-transparent">
                         {(() => {
                           const productsToShow = localCategories
                             .flatMap((c) => c.products)
@@ -719,11 +749,23 @@ export default function App() {
                             });
                           // Deduplicate products based on ID
                           const uniqueProducts = Array.from(new Map(productsToShow.map((item: any) => [item.id, item])).values());
+                          
+                          if (uniqueProducts.length === 0) {
+                            return (
+                              <div className="pretty-products-empty">
+                                <div className="pretty-products-empty-icon">📦</div>
+                                <h3>Produk belum tersedia</h3>
+                                <p>Produk untuk kategori ini belum ditambahkan. Silakan cek kategori lain.</p>
+                              </div>
+                            );
+                          }
+
                           return uniqueProducts.map((product: any) => (
                             <ProductCard
                               key={product.id}
                               product={product}
-                              onDetail={handleDirectOrder}
+                              onBuy={handleDirectOrder}
+                              onDetail={openProductDetail}
                             />
                           ));
                         })()}
@@ -734,6 +776,76 @@ export default function App() {
                 )}
               </AnimatePresence>
             </Suspense>
+
+            {isProductDetailOpen && selectedProductDetail && (
+              <div className="product-detail-overlay" onClick={closeProductDetail}>
+                <div
+                  className="product-detail-modal"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <button
+                    type="button"
+                    className="product-detail-close"
+                    onClick={closeProductDetail}
+                  >
+                    ✕
+                  </button>
+
+                  <div className="product-detail-image-wrap">
+                    {getProductImage(selectedProductDetail) ? (
+                      <img
+                        src={getProductImage(selectedProductDetail)}
+                        alt={getProductName(selectedProductDetail)}
+                        className="product-detail-image"
+                      />
+                    ) : (
+                      <div className="product-detail-placeholder">
+                        ✦
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="product-detail-content">
+                    <div className="product-detail-meta">
+                      <span className="product-detail-category">
+                        {getProductCategory(selectedProductDetail)}
+                      </span>
+
+                      <span className="product-detail-rating">
+                        ⭐ {selectedProductDetail.rating || "5.0"}
+                      </span>
+                    </div>
+
+                    <h2 className="product-detail-title">
+                      {getProductName(selectedProductDetail)}
+                    </h2>
+
+                    <p className="product-detail-description">
+                      {getProductDescription(selectedProductDetail)}
+                    </p>
+
+                    <div className="product-detail-price-box">
+                      <span>Total Harga</span>
+                      <strong>
+                        <span className="text-[14px] mr-1">Rp</span>
+                        {getProductPrice(selectedProductDetail)}
+                      </strong>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="product-detail-buy-button"
+                      onClick={() => {
+                        closeProductDetail();
+                        handleDirectOrder(selectedProductDetail);
+                      }}
+                    >
+                      Beli Sekarang
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           <footer className="bg-theme-card border-t border-theme-border pt-[50px] pb-[40px] px-6 relative z-10 mt-auto">
