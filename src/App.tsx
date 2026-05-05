@@ -61,7 +61,7 @@ import {
 } from "./constants";
 
 import { db, firebaseReady } from "./lib/firebase";
-import { doc, setDoc, onSnapshot, deleteDoc } from "firebase/firestore";
+import { doc, setDoc, onSnapshot, deleteDoc, collection, addDoc, serverTimestamp, query, orderBy, limit } from "firebase/firestore";
 import { removeUndefinedDeep } from "./utils/objectUtils";
 import { Toaster, toast } from "react-hot-toast";
 
@@ -89,7 +89,7 @@ function getProductImage(product: any) {
 }
 
 function getProductName(product: any) {
-  return product?.name || product?.title || product?.nama || "Nama Produk";
+  return product?.name || product?.title || product?.nama || product?.productName || "Produk";
 }
 
 function getProductDescription(product: any) {
@@ -97,11 +97,89 @@ function getProductDescription(product: any) {
 }
 
 function getProductPrice(product: any) {
-  return product?.price || product?.harga || product?.amount || "Hubungi Admin";
+  return product?.price || product?.harga || product?.amount || product?.productPrice || "";
 }
 
 function getProductCategory(product: any) {
-  return product?.categoryName || product?.category || product?.categoryId || product?.type || "PRODUK";
+  return (
+    product?.categoryName ||
+    product?.categoryLabel ||
+    product?.category ||
+    product?.categoryId ||
+    product?.type ||
+    "Produk"
+  );
+}
+
+function formatProductPrice(price: any) {
+  if (price === null || price === undefined || price === "") {
+    return "Hubungi Admin";
+  }
+
+  if (typeof price === "number") {
+    return `Rp${price.toLocaleString("id-ID")}`;
+  }
+
+  const text = String(price).trim();
+
+  if (!text) return "Hubungi Admin";
+
+  if (text.toLowerCase().startsWith("rp")) return text;
+
+  if (/^\d+$/.test(text)) {
+    return `Rp${Number(text).toLocaleString("id-ID")}`;
+  }
+
+  return text;
+}
+
+function applyOrderTemplate(template: string, product: any) {
+  const productName = getProductName(product);
+  const category = getProductCategory(product);
+  const price = formatProductPrice(getProductPrice(product));
+
+  const lowerName = String(productName).toLowerCase();
+  const lowerCategory = String(category).toLowerCase();
+
+  const productLabel =
+    lowerCategory && lowerName.includes(lowerCategory)
+      ? productName
+      : `${category} ${productName}`.trim();
+
+  return String(template || "")
+    .replaceAll("{productName}", productName)
+    .replaceAll("{product_name}", productName)
+    .replaceAll("{category}", category)
+    .replaceAll("{productCategory}", category)
+    .replaceAll("{product_category}", category)
+    .replaceAll("{price}", price)
+    .replaceAll("{productPrice}", price)
+    .replaceAll("{product_price}", price)
+    .replaceAll("{productLabel}", productLabel)
+    .replaceAll("{product_label}", productLabel);
+}
+
+function createDirectProductOrderMessage(product: any) {
+  const productName = getProductName(product);
+  const category = getProductCategory(product);
+  const price = formatProductPrice(getProductPrice(product));
+
+  const lowerName = String(productName).toLowerCase();
+  const lowerCategory = String(category).toLowerCase();
+
+  const productLabel =
+    lowerCategory && lowerName.includes(lowerCategory)
+      ? productName
+      : `${category} ${productName}`.trim();
+
+  return [
+    "Halo Admin, saya ingin membeli produk berikut:",
+    "",
+    `Produk: ${productLabel}`,
+    `Harga: ${price}`,
+    "",
+    "Mohon instruksi selanjutnya."
+  ].join("\n");
 }
 
 const ProductCard = memo(
@@ -220,6 +298,127 @@ export default function App() {
     setSelectedProductDetail(null);
   }
 
+  // --- Rating State ---
+  const [isRatingOpen, setIsRatingOpen] = useState(false);
+  const [ratingName, setRatingName] = useState("");
+  const [ratingStars, setRatingStars] = useState(5);
+  const [ratingComment, setRatingComment] = useState("");
+  const [ratingLoading, setRatingLoading] = useState(false);
+  const [ratingError, setRatingError] = useState("");
+  const [ratingSuccess, setRatingSuccess] = useState("");
+  const [ratings, setRatings] = useState<any[]>([]);
+
+  function openRatingMenu() {
+    setIsRatingOpen(true);
+  }
+
+  function closeRatingMenu() {
+    setIsRatingOpen(false);
+    setRatingError("");
+    setRatingSuccess("");
+  }
+
+  useEffect(() => {
+    try {
+      const q = query(
+        collection(db, "ratings"),
+        orderBy("clientCreatedAt", "desc"),
+        limit(30)
+      );
+
+      const unsub = onSnapshot(q, (snapshot) => {
+        const data = snapshot.docs.map((docSnap) => ({
+          id: docSnap.id,
+          ...docSnap.data()
+        }));
+        setRatings(data);
+      }, (error) => {
+        console.error("Error loading ratings with index:", error);
+        // Fallback without orderBy if index is missing
+        const fallbackUnsub = onSnapshot(collection(db, "ratings"), (snapshot) => {
+          const data = snapshot.docs
+            .map((docSnap) => ({
+              id: docSnap.id,
+              ...docSnap.data()
+            }))
+            .sort((a: any, b: any) => Number(b.clientCreatedAt || 0) - Number(a.clientCreatedAt || 0))
+            .slice(0, 30);
+          setRatings(data);
+        });
+        return () => fallbackUnsub();
+      });
+
+      return () => unsub();
+    } catch (e) {
+      console.error("Ratings hook error", e);
+    }
+  }, []);
+
+  async function submitRating() {
+    const name = ratingName.trim();
+    const comment = ratingComment.trim();
+
+    setRatingError("");
+    setRatingSuccess("");
+
+    if (!name) {
+      setRatingError("Nama wajib diisi.");
+      return;
+    }
+
+    if (name.length < 2) {
+      setRatingError("Nama minimal 2 karakter.");
+      return;
+    }
+
+    if (name.length > 25) {
+      setRatingError("Nama maksimal 25 karakter.");
+      return;
+    }
+
+    if (!ratingStars || ratingStars < 1 || ratingStars > 5) {
+      setRatingError("Pilih rating bintang 1 sampai 5.");
+      return;
+    }
+
+    if (!comment) {
+      setRatingError("Komentar wajib diisi.");
+      return;
+    }
+
+    if (comment.length < 5) {
+      setRatingError("Komentar minimal 5 karakter.");
+      return;
+    }
+
+    if (comment.length > 300) {
+      setRatingError("Komentar maksimal 300 karakter.");
+      return;
+    }
+
+    try {
+      setRatingLoading(true);
+
+      await addDoc(collection(db, "ratings"), {
+        name,
+        stars: Number(ratingStars),
+        comment,
+        createdAt: serverTimestamp(),
+        clientCreatedAt: Date.now()
+      });
+
+      setRatingName("");
+      setRatingStars(5);
+      setRatingComment("");
+      setRatingSuccess("Terima kasih, rating kamu berhasil dikirim.");
+    } catch (error) {
+      console.error("SUBMIT RATING ERROR:", error);
+      setRatingError("Gagal mengirim rating. Coba lagi.");
+    } finally {
+      setRatingLoading(false);
+    }
+  }
+
   const normalizeCategory = (val: string) => {
     return String(val || "").toLowerCase().trim().replace(/&/g, "and").replace(/[^\w\s-]/g, "").replace(/\s+/g, "-");
   };
@@ -314,30 +513,44 @@ export default function App() {
   }, [rawCategories, localCategories, selectedCategory, isLandingPage]);
 
   const handleDirectOrder = useCallback(
-    (product: Product) => {
-      const name = siteSettings?.branding?.siteName || "Admin";
-      const phone = siteSettings?.contact?.whatsapp || WHATSAPP_NUMBER;
-
-      let defaultMsg =
-        siteSettings?.contact?.orderMessage ||
-        `Halo ${name}, saya ingin memesan:\n\n*Produk:* {product_name}\n*Harga:* Rp{product_price}\n\nMohon info selanjutnya.`;
-
-      const catLower = product.category.toLowerCase();
-      if (catLower.includes("panel") && siteSettings?.contact?.panelMessage) {
-        defaultMsg = siteSettings.contact.panelMessage;
-      } else if (
-        catLower.includes("bot") &&
-        siteSettings?.contact?.botMessage
-      ) {
-        defaultMsg = siteSettings.contact.botMessage;
+    (product: any) => {
+      if (!product) {
+        alert("Data produk tidak ditemukan. Coba pilih produk lagi.");
+        console.error("ORDER ERROR: product kosong");
+        return;
       }
 
-      const message = defaultMsg
-        .replace(/{product_name}/g, product.name)
-        .replace(/{product_price}/g, product.price.toString());
+      console.log("ORDER PRODUCT DATA:", product);
 
-      const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
-      window.open(url, "_blank");
+      const phoneNumber = 
+        siteSettings?.contact?.whatsapp || 
+        WHATSAPP_NUMBER ||
+        "";
+
+      const cleanPhone = String(phoneNumber).replace(/\D/g, "");
+
+      if (!cleanPhone) {
+        alert("Nomor WhatsApp admin belum diatur.");
+        return;
+      }
+
+      const adminTemplate = siteSettings?.contact?.orderMessage || "";
+
+      const hasProductVariables =
+        adminTemplate.includes("{productName}") ||
+        adminTemplate.includes("{product_name}") ||
+        adminTemplate.includes("{productLabel}") ||
+        adminTemplate.includes("{product_price}") ||
+        adminTemplate.includes("{price}");
+
+      const message = hasProductVariables
+        ? applyOrderTemplate(adminTemplate, product)
+        : createDirectProductOrderMessage(product);
+
+      console.log("ORDER WHATSAPP MESSAGE:", message);
+
+      const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
+      window.open(waUrl, "_blank");
     },
     [siteSettings],
   );
@@ -451,15 +664,17 @@ export default function App() {
       {(!loading || siteSettings.loading?.enabled === false) && (
         <>
           <header className="store-header">
-            <div className="store-brand-text-only" onClick={() => setCurrentTab("home")}>
-              <h1 className="store-name-beauty">
-                {siteSettings.branding.headerName || siteSettings.branding.storeName || siteSettings.branding.siteName || "SANZ STORE"}
-              </h1>
-              {siteSettings.branding.slogan && (
-                <p className="store-tagline">
-                  {siteSettings.branding.slogan}
-                </p>
-              )}
+            <div className="premium-brand-wrap" style={{ cursor: "pointer" }} onClick={() => setCurrentTab("home")}>
+              <span className="premium-brand-spark">✦</span>
+
+              <div className="premium-brand-text-box">
+                <h1 className="premium-brand-name">
+                  {siteSettings.branding.headerName || siteSettings.branding.storeName || siteSettings.branding.siteName || "SANZ STORE"}
+                </h1>
+                <span className="premium-brand-sub">
+                  {siteSettings.branding.slogan || "Digital Store"}
+                </span>
+              </div>
             </div>
 
             <button
@@ -475,6 +690,7 @@ export default function App() {
               onClose={() => setIsMenuOpen(false)}
               onLoginAdmin={openAdminFromMainMenu}
               onChatAi={() => setIsAiChatOpen(true)}
+              onRating={openRatingMenu}
               onHome={() => {
                 setCurrentTab("home");
                 setSelectedCategory("Semua");
@@ -842,6 +1058,117 @@ export default function App() {
                     >
                       Beli Sekarang
                     </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {isRatingOpen && (
+              <div className="rating-overlay" onClick={closeRatingMenu}>
+                <div className="rating-panel" onClick={(e) => e.stopPropagation()}>
+                  <div className="rating-header">
+                    <div>
+                      <h2>Rating Store</h2>
+                      <p>Berikan penilaian kamu untuk store ini.</p>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="rating-close"
+                      onClick={closeRatingMenu}
+                    >
+                      ✕
+                    </button>
+                  </div>
+
+                  <div className="rating-form">
+                    <label>
+                      Nama
+                      <input
+                        type="text"
+                        value={ratingName}
+                        onChange={(e) => setRatingName(e.target.value)}
+                        placeholder="Masukkan nama kamu"
+                        maxLength={25}
+                      />
+                    </label>
+
+                    <label>
+                      Kasih Bintang
+                      <div className="rating-stars-picker">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <button
+                            key={star}
+                            type="button"
+                            className={`rating-star-button ${ratingStars >= star ? "active" : ""}`}
+                            onClick={() => setRatingStars(star)}
+                          >
+                            ★
+                          </button>
+                        ))}
+                      </div>
+                    </label>
+
+                    <label>
+                      Komentar
+                      <textarea
+                        value={ratingComment}
+                        onChange={(e) => setRatingComment(e.target.value)}
+                        placeholder="Tulis komentar kamu..."
+                        maxLength={300}
+                        rows={4}
+                      />
+                    </label>
+
+                    {ratingError && (
+                      <div className="rating-error">
+                        {ratingError}
+                      </div>
+                    )}
+
+                    {ratingSuccess && (
+                      <div className="rating-success">
+                        {ratingSuccess}
+                      </div>
+                    )}
+
+                    <button
+                      type="button"
+                      className="rating-submit"
+                      onClick={submitRating}
+                      disabled={ratingLoading}
+                    >
+                      {ratingLoading ? "Mengirim..." : "Kirim Rating"}
+                    </button>
+                  </div>
+
+                  <div className="rating-list-section">
+                    <div className="rating-list-header">
+                      <h3>Rating Terbaru</h3>
+                      <span>{ratings.length} ulasan</span>
+                    </div>
+
+                    <div className="rating-list">
+                      {ratings.length === 0 ? (
+                        <div className="rating-empty">
+                          Belum ada rating. Jadilah yang pertama memberi penilaian.
+                        </div>
+                      ) : (
+                        ratings.map((item) => (
+                          <div key={item.id} className="rating-item">
+                            <div className="rating-item-top">
+                              <strong>{item.name}</strong>
+                              <span>
+                                {"★".repeat(Number(item.stars || 0))}
+                                {"☆".repeat(5 - Number(item.stars || 0))}
+                              </span>
+                            </div>
+
+                            <p>{item.comment}</p>
+                          </div>
+                        ))
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

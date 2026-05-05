@@ -31,25 +31,74 @@ export default function CategoryPopup({
 
   const handleOrder = (product: Product, e: React.MouseEvent) => {
     e.stopPropagation();
-    const name = siteSettings?.branding?.siteName || "Admin";
     const phone = siteSettings?.contact?.whatsapp || WHATSAPP_NUMBER;
+    const cleanPhone = String(phone).replace(/\D/g, "");
 
-    let defaultMsg =
-      siteSettings?.contact?.orderMessage ||
-      `Halo ${name}, saya ingin memesan:\n\n*Produk:* {product_name}\n*Harga:* Rp{product_price}\n\nMohon info selanjutnya.`;
-
-    const catLower = product.category.toLowerCase();
-    if (catLower.includes("panel") && siteSettings?.contact?.panelMessage) {
-      defaultMsg = siteSettings.contact.panelMessage;
-    } else if (catLower.includes("bot") && siteSettings?.contact?.botMessage) {
-      defaultMsg = siteSettings.contact.botMessage;
+    function formatProductPrice(price: any) {
+      if (price === null || price === undefined || price === "") {
+        return "Hubungi Admin";
+      }
+      if (typeof price === "number") {
+        return `Rp${price.toLocaleString("id-ID")}`;
+      }
+      const text = String(price).trim();
+      if (!text) return "Hubungi Admin";
+      if (text.toLowerCase().startsWith("rp")) return text;
+      if (/^\d+$/.test(text)) {
+        return `Rp${Number(text).toLocaleString("id-ID")}`;
+      }
+      return text;
     }
 
-    const message = defaultMsg
-      .replace(/{product_name}/g, product.name)
-      .replace(/{product_price}/g, product.price.toString());
+    const productName = product?.name || product?.title || product?.nama || "Produk";
+    const category = product?.categoryName || product?.category || "Produk";
+    const price = formatProductPrice(product?.price);
 
-    const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+    const lowerName = String(productName).toLowerCase();
+    const lowerCategory = String(category).toLowerCase();
+
+    const productLabel =
+      lowerCategory && lowerName.includes(lowerCategory)
+        ? productName
+        : `${category} ${productName}`.trim();
+
+    const defaultTemplate = [
+      "Halo Admin, saya ingin membeli produk berikut:",
+      "",
+      `Produk: ${productLabel}`,
+      `Harga: ${price}`,
+      "",
+      "Mohon instruksi selanjutnya."
+    ].join("\n");
+
+    let template = siteSettings?.contact?.orderMessage || "";
+
+    if (lowerCategory.includes("panel") && siteSettings?.contact?.panelMessage) {
+      template = siteSettings.contact.panelMessage;
+    } else if (lowerCategory.includes("bot") && siteSettings?.contact?.botMessage) {
+      template = siteSettings.contact.botMessage;
+    }
+
+    const hasProductVariables =
+      template.includes("{productName}") ||
+      template.includes("{product_name}") ||
+      template.includes("{productLabel}") ||
+      template.includes("{product_price}") ||
+      template.includes("{price}");
+
+    if (!template || !hasProductVariables) {
+      template = defaultTemplate;
+    }
+
+    const message = String(template || "")
+      .replaceAll("{productName}", productName)
+      .replaceAll("{product_name}", productLabel)
+      .replaceAll("{category}", category)
+      .replaceAll("{price}", price)
+      .replaceAll("{product_price}", String(product?.price))
+      .replaceAll("{productLabel}", productLabel);
+
+    const url = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
     window.open(url, "_blank");
   };
 

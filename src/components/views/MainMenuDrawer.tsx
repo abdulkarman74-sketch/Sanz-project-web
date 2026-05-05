@@ -5,6 +5,7 @@ interface MainMenuDrawerProps {
   onClose: () => void;
   onLoginAdmin: () => void;
   onChatAi: () => void;
+  onRating: () => void;
   onHome: () => void;
   onVideoGame: () => void;
   onVideo: () => void;
@@ -15,6 +16,7 @@ export default function MainMenuDrawer({
   onClose, 
   onLoginAdmin, 
   onChatAi, 
+  onRating,
   onHome, 
   onVideoGame, 
   onVideo 
@@ -43,6 +45,7 @@ export default function MainMenuDrawer({
   const items = [
     { id: "home", label: "Beranda", desc: "Kembali ke halaman utama", icon: "🏠", action: onHome },
     { id: "chat-ai", label: "Chet Global", desc: "Ngobrol bareng semua pengunjung", icon: "💬", action: onChatAi },
+    { id: "rating", label: "Rating", desc: "Beri penilaian untuk store ini", icon: "⭐", action: onRating },
     { id: "video-game", label: "Video Game", desc: "Menu hiburan dan game", icon: "🎮", action: onVideoGame },
     { id: "video", label: "Video", desc: "Kumpulan video menarik", icon: "🎥", action: onVideo },
     { id: "login-admin", label: "Login Admin", desc: "Masuk ke panel admin", icon: "⚙️", action: onLoginAdmin }
