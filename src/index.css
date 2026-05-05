@@ -7946,3 +7946,145 @@ body[data-theme-mode="light"] .premium-brand-sub {
     border-color: color-mix(in srgb, var(--theme-primary, #22d3ee) 35%, var(--theme-border, rgba(148,163,184,0.18))) !important;
   }
 }
+
+.admin-login-clean-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.admin-login-card {
+  width: min(92vw, 390px) !important;
+  padding: 24px !important;
+  border-radius: 28px !important;
+  background:
+    radial-gradient(circle at top right, color-mix(in srgb, var(--theme-primary, #22d3ee) 12%, transparent), transparent 42%),
+    linear-gradient(180deg, rgba(255,255,255,0.065), rgba(255,255,255,0.022)),
+    var(--theme-bg-card, #111827) !important;
+  border: 1px solid color-mix(in srgb, var(--theme-primary, #22d3ee) 18%, var(--theme-border, rgba(148,163,184,0.18))) !important;
+  box-shadow:
+    0 24px 70px var(--theme-shadow, rgba(0,0,0,0.38)),
+    inset 0 0 0 1px rgba(255,255,255,0.035) !important;
+  color: var(--theme-text-main, #f8fafc) !important;
+}
+
+.admin-login-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  min-height: 28px !important;
+  padding: 0 10px !important;
+  border-radius: 999px !important;
+  background: color-mix(in srgb, var(--theme-primary, #22d3ee) 13%, transparent) !important;
+  color: var(--theme-primary, #22d3ee) !important;
+  border: 1px solid color-mix(in srgb, var(--theme-primary, #22d3ee) 30%, transparent) !important;
+  font-size: 11px !important;
+  font-weight: 900 !important;
+  margin-bottom: 14px !important;
+}
+
+.admin-login-card h2 {
+  margin: 0 0 7px !important;
+  font-size: 24px !important;
+  line-height: 1.1 !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.035em !important;
+  color: var(--theme-text-main, #f8fafc) !important;
+}
+
+.admin-login-card p {
+  margin: 0 0 18px !important;
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+  color: var(--theme-text-muted, #cbd5e1) !important;
+}
+
+.admin-login-field {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 7px !important;
+  margin-bottom: 12px !important;
+}
+
+.admin-login-field label {
+  font-size: 12px !important;
+  font-weight: 850 !important;
+  color: var(--theme-text-main, #f8fafc) !important;
+}
+
+.admin-login-field input {
+  width: 100% !important;
+  min-height: 45px !important;
+  padding: 0 13px !important;
+  border-radius: 15px !important;
+  border: 1px solid var(--theme-border, rgba(148,163,184,0.18)) !important;
+  background: var(--theme-bg-surface, #0f172a) !important;
+  color: var(--theme-text-main, #f8fafc) !important;
+  outline: none !important;
+  font-size: 13px !important;
+}
+
+.admin-login-field input:focus {
+  border-color: var(--theme-primary, #22d3ee) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--theme-primary, #22d3ee) 14%, transparent) !important;
+}
+
+.admin-login-error {
+  margin: 4px 0 12px !important;
+  padding: 10px 12px !important;
+  border-radius: 14px !important;
+  background: rgba(239, 68, 68, 0.12) !important;
+  border: 1px solid rgba(239, 68, 68, 0.25) !important;
+  color: #fecaca !important;
+  font-size: 12px !important;
+  line-height: 1.4 !important;
+}
+
+.admin-login-button {
+  width: 100% !important;
+  min-height: 45px !important;
+  border-radius: 15px !important;
+  border: none !important;
+  background: linear-gradient(135deg, var(--theme-primary, #22d3ee), var(--theme-secondary, #67e8f9)) !important;
+  color: var(--theme-button-text, #020617) !important;
+  font-size: 13px !important;
+  font-weight: 950 !important;
+  cursor: pointer !important;
+  touch-action: manipulation !important;
+}
+
+.admin-login-button:disabled {
+  opacity: 0.65 !important;
+  cursor: not-allowed !important;
+}
+
+body[data-theme-mode="light"] .admin-login-card {
+  background:
+    radial-gradient(circle at top right, rgba(15, 118, 110, 0.10), transparent 42%),
+    #ffffff !important;
+  color: #0f172a !important;
+  border-color: rgba(15, 23, 42, 0.14) !important;
+  box-shadow: 0 18px 44px rgba(15, 23, 42, 0.14) !important;
+}
+
+body[data-theme-mode="light"] .admin-login-card h2,
+body[data-theme-mode="light"] .admin-login-field label {
+  color: #0f172a !important;
+}
+
+body[data-theme-mode="light"] .admin-login-card p {
+  color: #334155 !important;
+}
+
+body[data-theme-mode="light"] .admin-login-field input {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+  border-color: rgba(15, 23, 42, 0.14) !important;
+}

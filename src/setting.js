@@ -4,15 +4,23 @@
  * File ini adalah pusat pengaturan project.
  *
  * Cara pakai:
- * 1. Ubah adminPassword untuk mengganti sandi login admin.
- * 2. Firebase config diambil dari Firebase Console > Project Settings > Web App.
- * 3. Jangan menaruh initializeApp di file ini.
- * 4. Jika firebaseConfig kosong/tidak lengkap, fitur simpan admin harus ditolak dengan pesan jelas.
+ * 1. Firebase config diambil dari Firebase Console > Project Settings > Web App.
+ * 2. Jangan menaruh initializeApp di file ini.
+ * 3. Jika firebaseConfig kosong/tidak lengkap, fitur simpan admin harus ditolak dengan pesan jelas.
  */
 
+export const adminLoginConfig = {
+  username: "Sanz_1701",
+  password: "sanzstore"
+};
+
+globalThis.adminLogin = adminLoginConfig;
+globalThis.adminUsername = adminLoginConfig.username;
+globalThis.adminPassword = adminLoginConfig.password;
+
 export const APP_SETTINGS = {
-  // Sandi/PIN login admin
-  adminPassword: "6285814369350",
+  // Sandi/PIN fallback (tidak disarankan pakai ini lagi)
+  adminPassword: "sanzstore",
 
   // Firebase config project baru: sanzstore-6398b
   firebaseConfig: {

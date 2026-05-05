@@ -279,7 +279,17 @@ import { useStoreData } from "./hooks/useStoreData";
 export default function App() {
   // --- Core State ---
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(() => {
-    return localStorage.getItem("sanz_admin_logged_in") === "true";
+    try {
+      const saved = localStorage.getItem("adminSession");
+      if (saved) {
+        const session = JSON.parse(saved);
+        if (session?.loggedIn === true && session?.username) {
+          return true;
+        }
+      }
+    } catch (e) {}
+    // Fallback for legacy login checking (optional)
+    return localStorage.getItem("isAdminLoggedIn") === "true";
   });
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("Semua");
@@ -587,9 +597,19 @@ export default function App() {
     setIsAiChatOpen(false);
 
     setTimeout(() => {
-      const savedAdmin = localStorage.getItem("sanz_admin_logged_in") === "true" || localStorage.getItem("isAdminLoggedIn") === "true";
+      // Validasi session modern
+      const saved = localStorage.getItem("adminSession");
+      let isValidSession = false;
+      if (saved) {
+        try {
+          const session = JSON.parse(saved);
+          if (session?.loggedIn && session?.username) {
+            isValidSession = true;
+          }
+        } catch (e) {}
+      }
       
-      if (savedAdmin || isAdminLoggedIn) {
+      if (isAdminLoggedIn || isValidSession) {
         setShowLoginModal(false);
         setAdminMode("dashboard");
         return;
@@ -602,24 +622,42 @@ export default function App() {
 
   const handleAdminLoginInit = () => {
     console.log("ADMIN LOGIN SUCCESS");
-    localStorage.setItem("sanz_admin_logged_in", "true");
-    localStorage.setItem("isAdminLoggedIn", "true");
     setIsAdminLoggedIn(true);
     setShowLoginModal(false);
     setAdminMode("dashboard");
   };
 
   const handleLogoutInit = () => {
-    localStorage.removeItem("sanz_admin_logged_in");
+    localStorage.removeItem("adminSession");
     localStorage.removeItem("isAdminLoggedIn");
+    localStorage.removeItem("adminUsername");
+    localStorage.removeItem("sanz_admin_logged_in");
     localStorage.removeItem("adminLoggedIn");
+    
     setIsAdminLoggedIn(false);
     setAdminMode(null);
   };
 
   useEffect(() => {
-    // This unused old effect is now replaced by the one above.
-  }, [siteSettings.theme]);
+    try {
+      const saved = localStorage.getItem("adminSession");
+
+      if (!saved) {
+        setIsAdminLoggedIn(false);
+        return;
+      }
+
+      const session = JSON.parse(saved);
+
+      if (session?.loggedIn === true && session?.username) {
+        setIsAdminLoggedIn(true);
+      } else {
+        handleLogoutInit();
+      }
+    } catch (error) {
+      handleLogoutInit();
+    }
+  }, []);
 
   useEffect(() => {
     if ((loading && !storeLoading) || activeCategory || showLoginModal) {

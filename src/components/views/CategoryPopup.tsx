@@ -50,9 +50,10 @@ export default function CategoryPopup({
       return text;
     }
 
-    const productName = product?.name || product?.title || product?.nama || "Produk";
-    const category = product?.categoryName || product?.category || "Produk";
-    const price = formatProductPrice(product?.price);
+    const anyProduct = product as any;
+    const productName = anyProduct?.name || anyProduct?.title || anyProduct?.nama || "Produk";
+    const category = anyProduct?.categoryName || anyProduct?.category || "Produk";
+    const price = formatProductPrice(anyProduct?.price);
 
     const lowerName = String(productName).toLowerCase();
     const lowerCategory = String(category).toLowerCase();
