@@ -6821,3 +6821,126 @@ body[data-theme-mode="dark"] p {
     height: 6px !important;
   }
 }
+
+/* ====== PREMIUM DOWNLOADER SCREEN ====== */
+.video-downloader-card {
+  padding: 16px;
+  border-radius: 22px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0.018)),
+    var(--theme-bg-card, #111827);
+  border: 1px solid var(--theme-border, rgba(148, 163, 184, 0.18));
+  color: var(--theme-text-main, #f8fafc);
+  box-shadow: 0 16px 42px var(--theme-shadow, rgba(0,0,0,0.28));
+}
+
+.video-downloader-header h2 {
+  margin: 0 0 6px;
+  font-size: 18px;
+  font-weight: 950;
+  color: var(--theme-text-main, #f8fafc);
+}
+
+.video-downloader-header p {
+  margin: 0 0 14px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--theme-text-muted, #cbd5e1);
+}
+
+.video-downloader-input,
+.video-downloader-select {
+  width: 100%;
+  min-height: 42px;
+  margin-bottom: 10px;
+  padding: 0 12px;
+  border-radius: 14px;
+  border: 1px solid var(--theme-border, rgba(148, 163, 184, 0.18));
+  background: var(--theme-bg-surface, #0f172a);
+  color: var(--theme-text-main, #f8fafc);
+  outline: none;
+}
+
+.video-downloader-button {
+  width: 100%;
+  min-height: 42px;
+  border-radius: 14px;
+  border: none;
+  background: linear-gradient(135deg, var(--theme-primary, #22d3ee), var(--theme-secondary, #67e8f9));
+  color: var(--theme-button-text, #020617);
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.video-downloader-button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.video-downloader-error {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.22);
+  color: #fecaca;
+  font-size: 12px;
+}
+
+.video-downloader-result {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 16px;
+  background: var(--theme-bg-surface, #0f172a);
+  border: 1px solid var(--theme-border, rgba(148, 163, 184, 0.18));
+}
+
+.video-downloader-result img {
+  width: 100%;
+  border-radius: 13px;
+  margin-bottom: 10px;
+}
+
+.video-downloader-result h3 {
+  margin: 0 0 10px;
+  font-size: 14px;
+  color: var(--theme-text-main, #f8fafc);
+}
+
+.video-downloader-download-link {
+  display: inline-flex;
+  width: 100%;
+  min-height: 38px;
+  border-radius: 13px;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  background: var(--theme-primary, #22d3ee);
+  color: var(--theme-button-text, #020617);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+/* Light Theme Fix for Downloader */
+body[data-theme-mode="light"] .video-downloader-card,
+body[data-theme-mode="light"] .video-downloader-result {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: rgba(15, 23, 42, 0.14) !important;
+}
+
+body[data-theme-mode="light"] .video-downloader-header h2,
+body[data-theme-mode="light"] .video-downloader-result h3 {
+  color: #0f172a !important;
+}
+
+body[data-theme-mode="light"] .video-downloader-header p {
+  color: #334155 !important;
+}
+
+body[data-theme-mode="light"] .video-downloader-input,
+body[data-theme-mode="light"] .video-downloader-select {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: rgba(15, 23, 42, 0.14) !important;
+}

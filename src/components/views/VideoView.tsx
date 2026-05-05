@@ -71,166 +71,193 @@ const VideoShort = memo(({ url, title, storeName }: { url: string; title: string
 });
 
 const DownloaderView = () => {
-  const [url, setUrl] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<any>(null);
-  const [error, setError] = useState('');
-  const [currentService, setCurrentService] = useState('Semua');
+  const [downloaderUrl, setDownloaderUrl] = useState("");
+  const [downloadMode, setDownloadMode] = useState("video");
+  const [downloaderLoading, setDownloaderLoading] = useState(false);
+  const [downloaderError, setDownloaderError] = useState("");
+  const [downloaderResult, setDownloaderResult] = useState<any>(null);
 
-  const supportedServices = ['Semua', 'TikTok', 'Instagram', 'Twitter / X', 'Facebook', 'YouTube'];
+  function normalizeDownloaderUrl(url: string) {
+    const clean = String(url || "").trim();
+    if (!clean) return "";
+    if (!/^https?:\/\//i.test(clean)) {
+      return "https://" + clean;
+    }
+    return clean;
+  }
 
-  const detectService = (input: string) => {
-    if (input.includes('tiktok.com') || input.includes('vt.tiktok')) return 'TikTok';
-    if (input.includes('instagram.com/reel') || input.includes('instagram.com/p/')) return 'Instagram';
-    if (input.includes('twitter.com') || input.includes('x.com')) return 'Twitter / X';
-    if (input.includes('facebook.com') || input.includes('fb.watch')) return 'Facebook';
-    if (input.includes('youtube.com/shorts') || input.includes('youtu.be')) return 'YouTube';
-    return null;
-  };
+  function detectDownloaderPlatform(url: string) {
+    try {
+      const parsed = new URL(normalizeDownloaderUrl(url));
+      const host = parsed.hostname.toLowerCase().replace(/^www\./, "");
+      const path = parsed.pathname.toLowerCase();
 
-  const handleDownload = async (e?: FormEvent) => {
-    e?.preventDefault();
-    if (!url) return;
+      if (host.includes("tiktok.com") || host.includes("vm.tiktok.com") || host.includes("vt.tiktok.com")) return "TikTok";
+      if (host.includes("instagram.com")) return "Instagram";
+      if (host.includes("facebook.com") || host.includes("fb.watch") || host.includes("m.facebook.com")) return "Facebook";
+      if (host.includes("youtube.com") || host.includes("youtu.be") || host.includes("m.youtube.com")) {
+        if (path.includes("/shorts/")) return "YouTube Shorts";
+        return "YouTube";
+      }
+      if (host.includes("x.com") || host.includes("twitter.com") || host.includes("mobile.twitter.com")) return "Twitter/X";
+      if (host.includes("reddit.com")) return "Reddit";
+      if (host.includes("vimeo.com")) return "Vimeo";
+      if (host.includes("soundcloud.com")) return "SoundCloud";
 
-    const detected = detectService(url);
-    if (!detected && currentService !== 'Semua') {
-      setError(`URL tidak cocok dengan layanan ${currentService}`);
+      return "Unknown";
+    } catch {
+      return "Invalid";
+    }
+  }
+
+  function isSupportedDownloaderUrl(url: string) {
+    const platform = detectDownloaderPlatform(url);
+    return platform !== "Invalid" && platform !== "Unknown";
+  }
+
+  async function handleDownloadVideo() {
+    const cleanUrl = normalizeDownloaderUrl(downloaderUrl);
+
+    setDownloaderError("");
+    setDownloaderResult(null);
+
+    if (!cleanUrl) {
+      setDownloaderError("Link wajib diisi.");
       return;
     }
 
-    setLoading(true);
-    setError('');
-    setResult(null);
+    if (!isSupportedDownloaderUrl(cleanUrl)) {
+      setDownloaderError("Link tidak didukung. Gunakan TikTok, Instagram, Facebook, YouTube, X/Twitter, Reddit, Vimeo, atau SoundCloud.");
+      return;
+    }
 
     try {
-      // Simulate API or use real one
-      const response = await fetch(`https://api.tiklydown.eu.org/api/download?url=${encodeURIComponent(url)}`);
-      
-      if (!response.ok) {
-        throw new Error('Gagal mengambil data video');
-      }
-      
-      const data = await response.json();
-      
-      if (data && data.video) {
-        setResult({
-          title: data.title || "Video Download",
-          videoUrl: data.video.noWatermark || data.video.watermark || data.video,
-          thumbnail: data.author?.avatar || data.thumbnail,
-          author: data.author?.name || "User"
-        });
-      } else {
-        throw new Error('Format respon tidak sesuai. Coba link video lain.');
-      }
-    } catch (err: any) {
-      console.warn("API Gagal, menggunakan fallback untuk demonstrasi UI.", err);
-      // Fallback for UI demonstration if API is down
-      setResult({
-        title: "Video berhasil diekstrak (Demonstrasi)",
-        videoUrl: url,
-        thumbnail: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800&q=80",
-        author: detected || currentService !== 'Semua' ? currentService : "Media"
+      setDownloaderLoading(true);
+
+      const res = await fetch("/api/downloader", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          url: cleanUrl,
+          mode: downloadMode
+        })
       });
-      // setError(err.message || 'Gagal download. Pastikan URL benar atau coba beberapa saat lagi.');
+
+      const data = await res.json().catch(() => null);
+
+      if (!res.ok || !data?.success) {
+        throw new Error(data?.message || "Downloader gagal memproses link.");
+      }
+
+      setDownloaderResult(data.result);
+    } catch (error: any) {
+      console.error("DOWNLOADER FRONTEND ERROR:", error);
+      setDownloaderError(error.message || "Downloader gagal.");
     } finally {
-      setLoading(false);
+      setDownloaderLoading(false);
     }
-  };
+  }
+
+  function getDownloadFileName(result: any) {
+    const title = String(result?.title || "sanz-store-download")
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-")
+      .slice(0, 60);
+
+    let ext = "mp4";
+
+    if (result?.type === "audio") ext = "mp3";
+    if (result?.type === "thumbnail") ext = "jpg";
+
+    return `${title || "sanz-store-download"}.${ext}`;
+  }
+
+  async function handleDirectDownload(result: any) {
+    try {
+      if (!result?.downloadUrl) {
+        setDownloaderError("Link download tidak ditemukan.");
+        return;
+      }
+
+      const fileName = getDownloadFileName(result);
+      const proxyUrl = `/api/download-file?url=${encodeURIComponent(result.downloadUrl)}&filename=${encodeURIComponent(fileName)}`;
+
+      const anchor = document.createElement("a");
+      anchor.href = proxyUrl;
+      anchor.download = fileName;
+      anchor.style.display = "none";
+
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+    } catch (error) {
+      console.error("DIRECT DOWNLOAD ERROR:", error);
+      setDownloaderError("Gagal memulai download.");
+    }
+  }
 
   return (
-    <div className="max-w-3xl mx-auto px-6 py-12">
-      <div className="text-center mb-10">
-        <h2 className="text-3xl font-display font-black text-slate-900 uppercase tracking-tighter mb-4">Sosmed Downloader</h2>
-        <p className="text-[var(--theme-text-soft)] text-sm max-w-lg mx-auto">Download video dari TikTok, Instagram Reels, YouTube Shorts, X/Twitter, dan Facebook tanpa watermark dengan cepat.</p>
-      </div>
-
-      <div className="flex flex-wrap gap-2 justify-center mb-8">
-        {supportedServices.map(service => (
-          <button
-            key={service}
-            onClick={() => setCurrentService(service)}
-            className={`px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all ${currentService === service ? 'bg-[var(--theme-bg-main)] text-[var(--theme-text-main)] shadow-md' : 'bg-white text-[var(--theme-text-soft)] border border-slate-200 hover:border-slate-400'}`}
-          >
-            {service}
-          </button>
-        ))}
-      </div>
-
-      <form onSubmit={handleDownload} className="relative mb-8 group">
-        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-          <Search className="h-5 w-5 text-[var(--theme-text-soft)] group-focus-within:text-blue-500 transition-colors" />
+    <div className="max-w-xl mx-auto px-6 py-12">
+      <div className="video-downloader-card">
+        <div className="video-downloader-header">
+          <h2>Downloader Video</h2>
+          <p>Tempel link video dari TikTok, Instagram, Facebook, YouTube, X, Reddit, Vimeo, atau SoundCloud.</p>
         </div>
+
         <input
-          type="url"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          placeholder={`Paste link video ${currentService !== 'Semua' ? currentService : ''} di sini...`}
-          className="w-full h-16 pl-12 pr-36 bg-white border border-slate-200 rounded-2xl text-slate-900 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all shadow-sm"
-          required
+          className="video-downloader-input"
+          value={downloaderUrl}
+          onChange={(e) => setDownloaderUrl(e.target.value)}
+          placeholder="Tempel link video di sini..."
         />
-        <button
-          type="submit"
-          disabled={loading || !url}
-          className="absolute inset-y-2 right-2 px-6 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-[var(--theme-text-main)] font-bold uppercase tracking-widest text-[10px] rounded-xl transition-all shadow-md shadow-blue-600/20 disabled:shadow-none flex items-center justify-center min-w-[120px]"
+
+        <select
+          className="video-downloader-select"
+          value={downloadMode}
+          onChange={(e) => setDownloadMode(e.target.value)}
         >
-          {loading ? (
-             <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-          ) : (
-            <>
-              <Download className="w-3.5 h-3.5 mr-2" /> Download
-            </>
-          )}
+          <option value="video">Video</option>
+          <option value="audio">Audio MP3</option>
+          <option value="thumbnail">Thumbnail</option>
+        </select>
+
+        <button
+          className="video-downloader-button"
+          onClick={handleDownloadVideo}
+          disabled={downloaderLoading}
+        >
+          {downloaderLoading ? "Memproses..." : "Proses Link"}
         </button>
-      </form>
 
-      <AnimatePresence>
-        {error && (
-          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="p-4 bg-red-50 border border-red-100 text-red-600 rounded-2xl mb-8 text-sm flex items-center gap-3 font-medium">
-            <X className="w-5 h-5" /> {error}
-          </motion.div>
+        {downloaderError && (
+          <div className="video-downloader-error">
+            <strong>Downloader gagal</strong>
+            <p>{downloaderError}</p>
+          </div>
         )}
 
-        {result && (
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-white border border-slate-200 rounded-[2rem] p-6 shadow-xl flex flex-col md:flex-row gap-8 items-center md:items-start relative overflow-hidden">
-             {/* Decorative Background Element */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-50 rounded-full blur-[80px] -z-10 pointer-events-none" />
+        {downloaderResult && (
+          <div className="video-downloader-result">
+            {downloaderResult.thumbnail && (
+              <img src={downloaderResult.thumbnail} alt="Thumbnail" />
+            )}
 
-            <div className="w-32 h-32 md:w-48 md:h-48 rounded-2xl overflow-hidden shadow-lg border border-slate-100 shrink-0 relative bg-slate-50">
-              {result.thumbnail && <img src={result.thumbnail} alt="Thumbnail" className="w-full h-full object-cover" />}
-              <div className="absolute inset-0 bg-black/10 flex items-center justify-center">
-                 <div className="w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm">
-                    <CheckCircle className="w-5 h-5 text-green-500" />
-                 </div>
-              </div>
-            </div>
-            <div className="flex-1 flex flex-col w-full text-center md:text-left">
-              <h3 className="text-lg font-bold text-slate-800 mb-2 truncate max-w-full">{result.title}</h3>
-              <p className="text-[var(--theme-text-soft)] text-sm mb-6 flex items-center justify-center md:justify-start gap-2">
-                 <span className="w-2 h-2 rounded-full bg-blue-500 inline-block" /> Oleh: {result.author}
-              </p>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-auto">
-                <a
-                  href={result.videoUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="w-full h-14 bg-[var(--theme-bg-main)] hover:bg-black text-[var(--theme-text-main)] font-bold uppercase tracking-widest rounded-xl transition-all shadow-md flex items-center justify-center gap-2 text-xs"
-                >
-                  <Download className="w-4 h-4" /> Download Video
-                </a>
-                <a
-                  href={result.videoUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="w-full h-14 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold uppercase tracking-widest rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 text-xs"
-                >
-                   Buka Link Server
-                </a>
-              </div>
-            </div>
-          </motion.div>
+            <h3>{downloaderResult.title || "Hasil Downloader"}</h3>
+
+            <button
+              className="video-downloader-download-link"
+              onClick={() => handleDirectDownload(downloaderResult)}
+            >
+              Download Sekarang
+            </button>
+          </div>
         )}
-      </AnimatePresence>
+      </div>
     </div>
   );
 };
