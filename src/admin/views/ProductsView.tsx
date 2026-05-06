@@ -166,7 +166,7 @@ export const ProductsView = ({ products, categories }: { products: Product[], ca
   if (editingId) {
     return (
       <div className="admin-card">
-        <h2 className="text-xl font-bold text-[var(--theme-text-main)] mb-6">Edit Produk</h2>
+        <h2 className="text-xl font-bold text-[var(--theme-text-main)] mb-6">{editingId === "new" ? "Tambah Produk" : "Edit Produk"}</h2>
         <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
            <AdminInput label="Nama Produk *" value={form.name || ""} onChange={e => setForm({...form, name: e.target.value})} autoFocus className="lg:col-span-2" />
@@ -224,8 +224,18 @@ export const ProductsView = ({ products, categories }: { products: Product[], ca
 
   return (
     <div className="admin-card">
-       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-          <h2 className="text-xl font-bold text-[var(--theme-text-main)]">Kelola Produk</h2>
+       <div className="admin-products-header">
+          <div>
+            <h2>Kelola Produk</h2>
+            <p>Tambah, edit, hapus, dan atur produk store.</p>
+          </div>
+          <button
+            type="button"
+            className="admin-add-product-button"
+            onClick={() => startEdit()}
+          >
+            + Tambah Produk
+          </button>
        </div>
 
        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
