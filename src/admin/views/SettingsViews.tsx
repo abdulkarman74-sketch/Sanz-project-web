@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { setDoc, doc, serverTimestamp } from "firebase/firestore";
+import { setDoc, doc, serverTimestamp, onSnapshot } from "firebase/firestore";
 import { db, firebaseReady } from "../../lib/firebase";
 import { toast } from "react-hot-toast";
 import { safeToastError, removeUndefinedDeep, ensureFirebaseReady , withTimeout } from "../utils/helpers";
@@ -1782,6 +1782,139 @@ export const DebugFirebaseView = () => {
             {testResult}
           </div>
         )}
+      </div>
+    </div>
+  );
+};
+
+// --- WEB DESIGN VIEW ---
+export const WebDesignView = () => {
+  const [layoutForm, setLayoutForm] = useState({
+    designMode: "default"
+  });
+  const [layoutSaving, setLayoutSaving] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    const unsub = onSnapshot(doc(db, "settings", "layout"), (snap) => {
+      if (!active) return;
+      if (snap.exists()) {
+        const data = snap.data();
+        setLayoutForm({
+          designMode: data.designMode || "default"
+        });
+        document.body.dataset.designMode = data.designMode || "default";
+      } else {
+        setLayoutForm({
+          designMode: "default"
+        });
+        document.body.dataset.designMode = "default";
+      }
+    });
+
+    return () => {
+      active = false;
+      unsub();
+    };
+  }, []);
+
+  async function saveDesignMode(mode: string) {
+    try {
+      setLayoutSaving(true);
+      const cleanMode = mode === "shop" ? "shop" : "default";
+
+      await setDoc(
+        doc(db, "settings", "layout"),
+        {
+          designMode: cleanMode,
+          updatedAt: new Date().toISOString()
+        },
+        { merge: true }
+      );
+
+      setLayoutForm({
+        designMode: cleanMode
+      });
+
+      document.body.dataset.designMode = cleanMode;
+      toast.success("Desain web berhasil diubah");
+    } catch (error: any) {
+      console.error("SAVE DESIGN MODE ERROR:", error);
+      alert("Gagal menyimpan desain web: " + error.message);
+    } finally {
+      setLayoutSaving(false);
+    }
+  }
+
+  return (
+    <div className="admin-design-page" style={{ padding: "16px" }}>
+      <div className="admin-design-header" style={{ marginBottom: "20px" }}>
+        <h2 style={{ fontSize: "20px", fontWeight: "bold", color: "var(--theme-text-main)", marginBottom: "8px" }}>Ganti Desain Web</h2>
+        <p style={{ fontSize: "14px", color: "var(--theme-text-muted)" }}>Pilih desain utama website. Default adalah tampilan bawaan, Shop Style adalah tampilan katalog belanja modern.</p>
+      </div>
+
+      <div className="admin-design-options" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "20px" }}>
+        
+        {/* DEFAULT OPTION */}
+        <button
+          type="button"
+          className={`admin-design-option ${layoutForm.designMode === "default" ? "active" : ""}`}
+          onClick={() => saveDesignMode("default")}
+          disabled={layoutSaving}
+          style={{ 
+            background: layoutForm.designMode === "default" ? "rgba(8, 145, 178, 0.1)" : "var(--theme-bg-surface)",
+            border: layoutForm.designMode === "default" ? "2px solid #0891b2" : "1px solid var(--theme-border)",
+            borderRadius: "16px",
+            padding: "24px",
+            color: "var(--theme-text-main)",
+            textAlign: "left",
+            display: "flex",
+            flexDirection: "column",
+            gap: "12px",
+            cursor: "pointer",
+            transition: "all 0.2s"
+          }}
+        >
+          <div className="admin-design-preview admin-design-preview-default" style={{ height: "120px", background: "var(--theme-bg-card)", borderRadius: "12px", width: "100%", padding: "16px", display: "flex", flexDirection: "column", gap: "10px", border: "1px solid var(--theme-border)" }}>
+            <span style={{ display: "block", height: "16px", background: "currentColor", opacity: 0.1, borderRadius: "4px", width: "80%" }}></span>
+            <span style={{ display: "block", height: "60px", background: "currentColor", opacity: 0.1, borderRadius: "8px", width: "100%" }}></span>
+            <span style={{ display: "block", height: "16px", background: "currentColor", opacity: 0.1, borderRadius: "4px", width: "50%" }}></span>
+          </div>
+          <strong style={{ fontSize: "16px", fontWeight: "bold" }}>Desain Web Default</strong>
+          <small style={{ color: "var(--theme-text-muted)", fontSize: "13px" }}>Tampilan bawaan website saat ini.</small>
+        </button>
+
+        {/* SHOP OPTION */}
+        <button
+          type="button"
+          className={`admin-design-option ${layoutForm.designMode === "shop" ? "active" : ""}`}
+          onClick={() => saveDesignMode("shop")}
+          disabled={layoutSaving}
+          style={{ 
+            background: layoutForm.designMode === "shop" ? "rgba(8, 145, 178, 0.1)" : "var(--theme-bg-surface)",
+            border: layoutForm.designMode === "shop" ? "2px solid #0891b2" : "1px solid var(--theme-border)",
+            borderRadius: "16px",
+            padding: "24px",
+            color: "var(--theme-text-main)",
+            textAlign: "left",
+            display: "flex",
+            flexDirection: "column",
+            gap: "12px",
+            cursor: "pointer",
+            transition: "all 0.2s"
+          }}
+        >
+          <div className="admin-design-preview admin-design-preview-shop" style={{ height: "120px", background: "#f8fafc", borderRadius: "12px", width: "100%", padding: "12px", display: "flex", flexDirection: "column", gap: "8px", border: "1px solid rgba(0,0,0,0.1)" }}>
+            <div className="shop-preview-search" style={{ height: "24px", background: "#ffffff", borderRadius: "12px", border: "1px solid rgba(0,0,0,0.1)" }}></div>
+            <div className="shop-preview-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", height: "100%" }}>
+              <span style={{ display: "block", background: "#ffffff", borderRadius: "8px", border: "1px solid rgba(0,0,0,0.05)" }}></span>
+              <span style={{ display: "block", background: "#ffffff", borderRadius: "8px", border: "1px solid rgba(0,0,0,0.05)" }}></span>
+            </div>
+          </div>
+          <strong style={{ fontSize: "16px", fontWeight: "bold" }}>Desain Web Shop Style</strong>
+          <small style={{ color: "var(--theme-text-muted)", fontSize: "13px" }}>Tampilan katalog belanja modern dengan grid produk.</small>
+        </button>
+
       </div>
     </div>
   );

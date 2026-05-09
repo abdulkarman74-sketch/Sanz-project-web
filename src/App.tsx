@@ -77,6 +77,225 @@ const VpsStatusShowcase = lazy(
 const TimeDateCard = lazy(() => import("./components/common/TimeDateCard"));
 const GlobalChatDrawer = lazy(() => import("./components/views/GlobalChatDrawer").then(module => ({ default: module.GlobalChatDrawer })));
 
+function ShopStyleProductCard({ product, handleBuyProduct, openProductDetail }: any) {
+  const image =
+    product.image ||
+    product.imageUrl ||
+    product.thumbnail ||
+    product.foto ||
+    "";
+
+  const name =
+    product.name ||
+    product.title ||
+    product.nama ||
+    "Nama Produk";
+
+  const desc =
+    product.description ||
+    product.desc ||
+    product.deskripsi ||
+    "";
+
+  const price =
+    product.price ||
+    product.harga ||
+    product.amount ||
+    "Hubungi Admin";
+
+  const category =
+    product.categoryName ||
+    product.category ||
+    product.categoryId ||
+    "Produk";
+
+  const formattedPrice =
+    typeof price === "number"
+      ? `Rp${price.toLocaleString("id-ID")}`
+      : String(price).toLowerCase().startsWith("rp")
+        ? price
+        : /^\d+$/.test(String(price))
+          ? `Rp${Number(price).toLocaleString("id-ID")}`
+          : price;
+
+  return (
+    <article className="shop-style-card">
+      <div className="shop-style-image-wrap">
+        {image ? (
+          <img src={image} alt={name} className="shop-style-image" loading="lazy" />
+        ) : (
+          <div className="shop-style-placeholder">✦</div>
+        )}
+
+        <span className="shop-style-badge">{category}</span>
+      </div>
+
+      <div className="shop-style-card-body">
+        <h3>{name}</h3>
+
+        {desc ? (
+          <p>{desc}</p>
+        ) : null}
+
+        <strong>{formattedPrice}</strong>
+
+        <div className="shop-style-actions">
+          <button
+            type="button"
+            className="shop-style-detail-btn"
+            onClick={() => openProductDetail(product)}
+          >
+            Detail
+          </button>
+
+          <button
+            type="button"
+            className="shop-style-buy-btn"
+            onClick={() => handleBuyProduct(product)}
+          >
+            Beli
+          </button>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function ShopStyleLayout({
+  products = [],
+  categories = [],
+  activeCategory,
+  setActiveCategory,
+  handleBuyProduct,
+  openProductDetail,
+  onHome,
+  onChatAi,
+  onAdmin,
+  onRating
+}: any) {
+  const [shopSearch, setShopSearch] = useState("");
+
+  const safeCategories = Array.isArray(categories) ? categories : [];
+  const safeProducts = Array.isArray(products) ? products : [];
+
+  const visibleProducts = safeProducts.filter((product: any) => {
+    const isActive = product.isActive !== false;
+
+    const productCategory =
+      product.category ||
+      product.categoryId ||
+      product.categoryName ||
+      product.type ||
+      "";
+
+    const matchCategory =
+      !activeCategory ||
+      activeCategory === "all" ||
+      activeCategory === "semua" ||
+      activeCategory === "Semua" ||
+      productCategory === activeCategory ||
+      String(productCategory).toLowerCase() === String(activeCategory).toLowerCase();
+
+    const searchText = `${product.name || product.title || product.nama || ""} ${product.description || product.desc || product.deskripsi || ""}`.toLowerCase();
+
+    const matchSearch = searchText.includes(shopSearch.toLowerCase());
+
+    return isActive && matchCategory && matchSearch;
+  });
+
+  return (
+    <main className="shop-style-page">
+      <header className="shop-style-header">
+        <div className="shop-style-search">
+          <span>🔎</span>
+          <input
+            value={shopSearch}
+            onChange={(e) => setShopSearch(e.target.value)}
+            placeholder="Cari produk digital..."
+          />
+          <span>📷</span>
+        </div>
+
+        <button type="button" className="shop-style-icon-btn" onClick={() => window.alert('Keranjang belum aktif')}>
+          🛒
+        </button>
+
+        <button type="button" className="shop-style-icon-btn" onClick={onChatAi}>
+          💬
+        </button>
+      </header>
+
+      <section className="shop-style-categories">
+        <button
+          type="button"
+          className={`shop-style-category ${!activeCategory || activeCategory === "all" || activeCategory === "semua" || activeCategory === "Semua" ? "active" : ""}`}
+          onClick={() => setActiveCategory("Semua")}
+        >
+          Semua
+        </button>
+
+        {safeCategories.map((cat: any) => {
+          const catValue = cat.slug || cat.id || cat.name || cat.label;
+          const catLabel = cat.name || cat.label || cat.slug || "Kategori";
+
+          return (
+            <button
+              key={cat.id || catValue}
+              type="button"
+              className={`shop-style-category ${String(activeCategory) === String(catValue) ? "active" : ""}`}
+              onClick={() => setActiveCategory(catValue)}
+            >
+              {catLabel}
+            </button>
+          );
+        })}
+      </section>
+
+      <section className="shop-style-products">
+        {visibleProducts.length === 0 ? (
+          <div className="shop-style-empty">
+            <div>📦</div>
+            <h3>Produk belum tersedia</h3>
+            <p>Coba pilih kategori lain atau hapus pencarian.</p>
+          </div>
+        ) : (
+          visibleProducts.map((product: any) => (
+            <ShopStyleProductCard
+              key={product.id}
+              product={product}
+              handleBuyProduct={handleBuyProduct}
+              openProductDetail={openProductDetail}
+            />
+          ))
+        )}
+      </section>
+
+      <nav className="shop-bottom-nav">
+        <button type="button" className="active" onClick={() => { onHome(); window.scrollTo(0, 0); }}>
+          <span>⌂</span>
+          <small>Beranda</small>
+        </button>
+        <button type="button" onClick={() => setActiveCategory("Semua")}>
+          <span>▣</span>
+          <small>Produk</small>
+        </button>
+        <button type="button" onClick={onRating}>
+          <span>★</span>
+          <small>Rating</small>
+        </button>
+        <button type="button" onClick={onChatAi}>
+          <span>💬</span>
+          <small>Chat</small>
+        </button>
+        <button type="button" onClick={onAdmin}>
+          <span>☻</span>
+          <small>Admin</small>
+        </button>
+      </nav>
+    </main>
+  );
+}
+
 const ViewFallback = () => (
   <div className="flex-1 flex items-center justify-center min-h-[400px]">
     <div className="w-8 h-8 border-2 border-slate-200 border-t-slate-800 rounded-full animate-spin" />
@@ -576,6 +795,7 @@ export default function App() {
   }, [siteSettings?.theme]);
 
   const [activeCategory, setActiveCategory] = useState<Category | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const [currentTab, setCurrentTab] = useState<
     "home" | "produk" | "app" | "game" | "video" | "script"
   >("home");
@@ -701,22 +921,37 @@ export default function App() {
 
       {(!loading || siteSettings.loading?.enabled === false) && (
         <>
-          <header className="store-header">
-            <div className="premium-brand-wrap" style={{ cursor: "pointer" }} onClick={() => setCurrentTab("home")}>
-              <span className="premium-brand-spark">✦</span>
+          {siteSettings?.layout?.designMode === 'shop' ? (
+            <ShopStyleLayout 
+              products={storeProducts}
+              categories={localCategories}
+              activeCategory={selectedCategory}
+              setActiveCategory={setSelectedCategory}
+              handleBuyProduct={handleDirectOrder}
+              openProductDetail={openProductDetail}
+              onHome={() => setCurrentTab('home')}
+              onChatAi={() => setIsAiChatOpen(true)}
+              onAdmin={openAdminFromMainMenu}
+              onRating={openRatingMenu}
+            />
+          ) : (
+            <>
+              <header className="store-header">
+                <div className="premium-brand-wrap" style={{ cursor: "pointer" }} onClick={() => setCurrentTab("home")}>
+                  <span className="premium-brand-spark">✦</span>
 
-              <div className="premium-brand-text-box">
-                <h1 className="premium-brand-name">
-                  {siteSettings.branding.headerName || siteSettings.branding.storeName || siteSettings.branding.siteName || "SANZ STORE"}
-                </h1>
-                <span className="premium-brand-sub">
-                  {siteSettings.branding.slogan || "Digital Store"}
-                </span>
-              </div>
-            </div>
+                  <div className="premium-brand-text-box">
+                    <h1 className="premium-brand-name">
+                      {siteSettings.branding.headerName || siteSettings.branding.storeName || siteSettings.branding.siteName || "SANZ STORE"}
+                    </h1>
+                    <span className="premium-brand-sub">
+                      {siteSettings.branding.slogan || "Digital Store"}
+                    </span>
+                  </div>
+                </div>
 
-            <button
-              type="button"
+                <button
+                  type="button"
               className="main-menu-button"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
@@ -1002,8 +1237,15 @@ export default function App() {
                               return productValues.some(val => categoryMatches(val || "", selectedCategory));
                             });
                           // Deduplicate products based on ID
-                          const uniqueProducts = Array.from(new Map(productsToShow.map((item: any) => [item.id, item])).values());
+                          let uniqueProducts = Array.from(new Map(productsToShow.map((item: any) => [item.id, item])).values()) as any[];
                           
+                          if (searchQuery.trim()) {
+                            uniqueProducts = uniqueProducts.filter(p => 
+                              p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                              (p.description && p.description.toLowerCase().includes(searchQuery.toLowerCase()))
+                            );
+                          }
+
                           if (uniqueProducts.length === 0) {
                             return (
                               <div className="pretty-products-empty">
@@ -1244,6 +1486,8 @@ export default function App() {
               </p>
             </div>
           </footer>
+            </>
+          )}
         </>
       )}
 

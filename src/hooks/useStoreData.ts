@@ -92,11 +92,15 @@ export function useStoreData() {
         // Subscribe to settings (Global)
         onSnapshot(doc(db, 'settings', 'layout'), (snap) => {
            if (snap.exists()) {
+              const data = snap.data();
+              document.body.dataset.designMode = data.designMode || "default";
               setSiteSettings(prev => ({
                  ...prev,
-                 theme: { ...prev.theme, layoutId: snap.data().layoutId },
-                 layout: { ...prev.layout, ...snap.data() } as any
+                 theme: { ...prev.theme, layoutId: data.layoutId },
+                 layout: { ...prev.layout, ...data } as any
               }));
+           } else {
+              document.body.dataset.designMode = "default";
            }
         });
 
