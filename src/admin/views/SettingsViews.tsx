@@ -1920,3 +1920,440 @@ export const WebDesignView = () => {
   );
 };
 
+const DEFAULT_DESIGN_V2 = {
+  brandName: "Yonz Market",
+  brandSubtitle: "Premium Digital Store",
+  searchPlaceholder: "Cari produk digital...",
+  bannerEnabled: true,
+  bannerVideoUrl: "https://d.uguu.se/uTldvYoT.mp4",
+  bannerLabel: "Premium Digital Store",
+  bannerTitle: "Yonz Market",
+  bannerDescription: "Produk digital pilihan, cepat, aman, dan praktis.",
+  showCartIcon: true,
+  showChatIcon: true,
+  showBottomNav: true,
+  accentColor: "#06b6d4",
+  accentColor2: "#0ea5e9",
+  pageBackground: "#f8fafc",
+  cardBackground: "#ffffff",
+  mainTextColor: "#0f172a",
+  mutedTextColor: "#64748b",
+  priceColor: "#0891b2",
+  categoryAllLabel: "Semua",
+  productColumnsMobile: 2,
+  productImageRatio: "1/1",
+  productCardRadius: 12,
+  emptyTitle: "Produk belum tersedia",
+  emptyDescription: "Coba pilih kategori lain atau hapus pencarian.",
+  navHomeLabel: "Beranda",
+  navProductLabel: "Produk",
+  navRatingLabel: "Rating",
+  navChatLabel: "Chat",
+  navProfileLabel: "Saya"
+};
+
+export const EditDesignV2View = () => {
+  const [designV2Form, setDesignV2Form] = useState(DEFAULT_DESIGN_V2);
+  const [designV2Saving, setDesignV2Saving] = useState(false);
+  const [designV2Message, setDesignV2Message] = useState("");
+
+  useEffect(() => {
+    let active = true;
+    const ref = doc(db, "settings", "designV2");
+  
+    const unsub = onSnapshot(ref, (snap) => {
+      if (!active) return;
+      if (snap.exists()) {
+        setDesignV2Form({
+          ...DEFAULT_DESIGN_V2,
+          ...snap.data()
+        });
+      } else {
+        setDesignV2Form(DEFAULT_DESIGN_V2);
+      }
+    });
+  
+    return () => {
+      active = false;
+      unsub();
+    };
+  }, []);
+
+  async function saveDesignV2Settings() {
+    try {
+      setDesignV2Saving(true);
+      setDesignV2Message("");
+  
+      await setDoc(
+        doc(db, "settings", "designV2"),
+        {
+          ...designV2Form,
+          productColumnsMobile: Number(designV2Form.productColumnsMobile || 2),
+          productCardRadius: Number(designV2Form.productCardRadius || 12),
+          updatedAt: serverTimestamp()
+        },
+        { merge: true }
+      );
+  
+      setDesignV2Message("Desain Web V2 berhasil disimpan.");
+    } catch (error: any) {
+      console.error("SAVE DESIGN V2 ERROR:", error);
+      setDesignV2Message("Gagal menyimpan Desain Web V2: " + error.message);
+    } finally {
+      setDesignV2Saving(false);
+    }
+  }
+
+  function resetDesignV2Form() {
+    setDesignV2Form(DEFAULT_DESIGN_V2);
+    setDesignV2Message("Form dikembalikan ke default V2. Klik Simpan untuk menyimpan.");
+  }
+
+  return (
+    <div className="admin-design-v2-page">
+      <div className="admin-design-v2-header">
+        <div>
+          <h2>Edit Desain Web V2</h2>
+          <p>Setting ini khusus untuk tampilan Desain Web V2 / Shop Style dan tidak mengubah desain default.</p>
+        </div>
+    
+        <button
+          type="button"
+          className="admin-design-v2-save"
+          onClick={saveDesignV2Settings}
+          disabled={designV2Saving}
+        >
+          {designV2Saving ? "Menyimpan..." : "Simpan V2"}
+        </button>
+      </div>
+    
+      {designV2Message && (
+        <div className="admin-design-v2-message">
+          {designV2Message}
+        </div>
+      )}
+    
+      <section className="admin-design-v2-section">
+        <h3>Branding V2</h3>
+    
+        <label>
+          Nama Brand V2
+          <input
+            value={designV2Form.brandName}
+            onChange={(e) =>
+              setDesignV2Form((prev) => ({ ...prev, brandName: e.target.value }))
+            }
+            placeholder="Contoh: Yonz Market"
+          />
+        </label>
+    
+        <label>
+          Subtitle Brand V2
+          <input
+            value={designV2Form.brandSubtitle}
+            onChange={(e) =>
+              setDesignV2Form((prev) => ({ ...prev, brandSubtitle: e.target.value }))
+            }
+            placeholder="Contoh: Premium Digital Store"
+          />
+        </label>
+    
+        <label>
+          Placeholder Search
+          <input
+            value={designV2Form.searchPlaceholder}
+            onChange={(e) =>
+              setDesignV2Form((prev) => ({ ...prev, searchPlaceholder: e.target.value }))
+            }
+            placeholder="Cari produk digital..."
+          />
+        </label>
+      </section>
+    
+      <section className="admin-design-v2-section">
+        <h3>Live Banner V2</h3>
+    
+        <label className="admin-design-v2-check">
+          <input
+            type="checkbox"
+            checked={designV2Form.bannerEnabled}
+            onChange={(e) =>
+              setDesignV2Form((prev) => ({ ...prev, bannerEnabled: e.target.checked }))
+            }
+          />
+          Tampilkan Live Banner
+        </label>
+    
+        <label>
+          URL Video Live Wallpaper
+          <input
+            value={designV2Form.bannerVideoUrl}
+            onChange={(e) =>
+              setDesignV2Form((prev) => ({ ...prev, bannerVideoUrl: e.target.value }))
+            }
+            placeholder="https://..."
+          />
+        </label>
+    
+        <label>
+          Label Kecil Banner
+          <input
+            value={designV2Form.bannerLabel}
+            onChange={(e) =>
+              setDesignV2Form((prev) => ({ ...prev, bannerLabel: e.target.value }))
+            }
+          />
+        </label>
+    
+        <label>
+          Judul Banner
+          <input
+            value={designV2Form.bannerTitle}
+            onChange={(e) =>
+              setDesignV2Form((prev) => ({ ...prev, bannerTitle: e.target.value }))
+            }
+          />
+        </label>
+    
+        <label>
+          Deskripsi Banner
+          <textarea
+            value={designV2Form.bannerDescription}
+            onChange={(e) =>
+              setDesignV2Form((prev) => ({ ...prev, bannerDescription: e.target.value }))
+            }
+            rows={3}
+          />
+        </label>
+      </section>
+    
+      <section className="admin-design-v2-section">
+        <h3>Warna Khusus V2</h3>
+    
+        <label>
+          Warna Aksen Utama
+          <input
+            type="color"
+            value={designV2Form.accentColor}
+            onChange={(e) =>
+              setDesignV2Form((prev) => ({ ...prev, accentColor: e.target.value }))
+            }
+          />
+        </label>
+    
+        <label>
+          Warna Aksen Kedua
+          <input
+            type="color"
+            value={designV2Form.accentColor2}
+            onChange={(e) =>
+              setDesignV2Form((prev) => ({ ...prev, accentColor2: e.target.value }))
+            }
+          />
+        </label>
+    
+        <label>
+          Background Halaman V2
+          <input
+            type="color"
+            value={designV2Form.pageBackground}
+            onChange={(e) =>
+              setDesignV2Form((prev) => ({ ...prev, pageBackground: e.target.value }))
+            }
+          />
+        </label>
+    
+        <label>
+          Background Card V2
+          <input
+            type="color"
+            value={designV2Form.cardBackground}
+            onChange={(e) =>
+              setDesignV2Form((prev) => ({ ...prev, cardBackground: e.target.value }))
+            }
+          />
+        </label>
+    
+        <label>
+          Warna Teks Utama V2
+          <input
+            type="color"
+            value={designV2Form.mainTextColor}
+            onChange={(e) =>
+              setDesignV2Form((prev) => ({ ...prev, mainTextColor: e.target.value }))
+            }
+          />
+        </label>
+    
+        <label>
+          Warna Harga V2
+          <input
+            type="color"
+            value={designV2Form.priceColor}
+            onChange={(e) =>
+              setDesignV2Form((prev) => ({ ...prev, priceColor: e.target.value }))
+            }
+          />
+        </label>
+      </section>
+    
+      <section className="admin-design-v2-section">
+        <h3>Layout Produk V2</h3>
+    
+        <label>
+          Label Kategori Semua
+          <input
+            value={designV2Form.categoryAllLabel}
+            onChange={(e) =>
+              setDesignV2Form((prev) => ({ ...prev, categoryAllLabel: e.target.value }))
+            }
+          />
+        </label>
+    
+        <label>
+          Jumlah Kolom Produk di HP
+          <select
+            value={designV2Form.productColumnsMobile}
+            onChange={(e) =>
+              setDesignV2Form((prev) => ({ ...prev, productColumnsMobile: Number(e.target.value) }))
+            }
+          >
+            <option value={1}>1 Kolom</option>
+            <option value={2}>2 Kolom</option>
+          </select>
+        </label>
+    
+        <label>
+          Rasio Gambar Produk
+          <select
+            value={designV2Form.productImageRatio}
+            onChange={(e) =>
+              setDesignV2Form((prev) => ({ ...prev, productImageRatio: e.target.value }))
+            }
+          >
+            <option value="1/1">Kotak 1:1</option>
+            <option value="4/3">Lebar 4:3</option>
+            <option value="16/9">Wide 16:9</option>
+          </select>
+        </label>
+    
+        <label>
+          Radius Card Produk
+          <input
+            type="number"
+            min="0"
+            max="30"
+            value={designV2Form.productCardRadius}
+            onChange={(e) =>
+              setDesignV2Form((prev) => ({ ...prev, productCardRadius: Number(e.target.value) }))
+            }
+          />
+        </label>
+      </section>
+    
+      <section className="admin-design-v2-section">
+        <h3>Bottom Navigation V2</h3>
+    
+        <label className="admin-design-v2-check">
+          <input
+            type="checkbox"
+            checked={designV2Form.showBottomNav}
+            onChange={(e) =>
+              setDesignV2Form((prev) => ({ ...prev, showBottomNav: e.target.checked }))
+            }
+          />
+          Tampilkan Bottom Navigation
+        </label>
+    
+        <label>
+          Label Beranda
+          <input
+            value={designV2Form.navHomeLabel}
+            onChange={(e) =>
+              setDesignV2Form((prev) => ({ ...prev, navHomeLabel: e.target.value }))
+            }
+          />
+        </label>
+    
+        <label>
+          Label Produk
+          <input
+            value={designV2Form.navProductLabel}
+            onChange={(e) =>
+              setDesignV2Form((prev) => ({ ...prev, navProductLabel: e.target.value }))
+            }
+          />
+        </label>
+    
+        <label>
+          Label Rating
+          <input
+            value={designV2Form.navRatingLabel}
+            onChange={(e) =>
+              setDesignV2Form((prev) => ({ ...prev, navRatingLabel: e.target.value }))
+            }
+          />
+        </label>
+    
+        <label>
+          Label Chat
+          <input
+            value={designV2Form.navChatLabel}
+            onChange={(e) =>
+              setDesignV2Form((prev) => ({ ...prev, navChatLabel: e.target.value }))
+            }
+          />
+        </label>
+    
+        <label>
+          Label Saya
+          <input
+            value={designV2Form.navProfileLabel}
+            onChange={(e) =>
+              setDesignV2Form((prev) => ({ ...prev, navProfileLabel: e.target.value }))
+            }
+          />
+        </label>
+      </section>
+    
+      <section className="admin-design-v2-section">
+        <h3>Empty State V2</h3>
+    
+        <label>
+          Judul Produk Kosong
+          <input
+            value={designV2Form.emptyTitle}
+            onChange={(e) =>
+              setDesignV2Form((prev) => ({ ...prev, emptyTitle: e.target.value }))
+            }
+          />
+        </label>
+    
+        <label>
+          Deskripsi Produk Kosong
+          <textarea
+            value={designV2Form.emptyDescription}
+            onChange={(e) =>
+              setDesignV2Form((prev) => ({ ...prev, emptyDescription: e.target.value }))
+            }
+            rows={3}
+          />
+        </label>
+      </section>
+    
+      <div className="admin-design-v2-actions">
+        <button type="button" onClick={resetDesignV2Form}>
+          Reset Form V2
+        </button>
+    
+        <button
+          type="button"
+          onClick={saveDesignV2Settings}
+          disabled={designV2Saving}
+        >
+          {designV2Saving ? "Menyimpan..." : "Simpan Semua Setting V2"}
+        </button>
+      </div>
+    </div>
+  );
+};

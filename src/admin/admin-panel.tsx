@@ -8,7 +8,7 @@ import { DashboardView } from "./views/DashboardView";
 import { ProductsView } from "./views/ProductsView";
 import { CategoriesView } from "./views/CategoriesView";
 import { SlidesView } from "./views/SlidesView";
-import { BrandingView, LoadingView, ThemeView, AudioView, ContactView, FooterView, GeneralView, MaintenanceView, DebugFirebaseView, HeaderView, HeroView, CategoryTabsView, ServiceSectionView, StatsView, FlowView, BenefitsView, WebDesignView } from "./views/SettingsViews";
+import { BrandingView, LoadingView, ThemeView, AudioView, ContactView, FooterView, GeneralView, MaintenanceView, DebugFirebaseView, HeaderView, HeroView, CategoryTabsView, ServiceSectionView, StatsView, FlowView, BenefitsView, WebDesignView, EditDesignV2View } from "./views/SettingsViews";
 import { MenuSemuaView } from "./views/MenuSemuaView";
 import { SettingsAiView } from "./views/SettingsAiView";
 function EmptySafeAdminView({ title, description }: { title: string, description: string }) {
@@ -154,7 +154,8 @@ export default function AdminPanel({
         { id: "menu-semua", label: "Menu Semua", desc: "Section layanan", icon: "🧩" },
         { id: "tema", label: "Tema Web", desc: "Warna & Style", icon: "🎨" },
         { id: "layout", label: "Layout", desc: "Ukuran & Animasi", icon: "💎" },
-        { id: "web-design", label: "Ganti Desain Web", desc: "Pilih mode desain web", icon: "🛒" }
+        { id: "web-design", label: "Ganti Desain Web", desc: "Pilih mode desain web", icon: "🛒" },
+        { id: "edit-design-v2", label: "Edit Desain Web V2", desc: "Edit tampilan khusus V2", icon: "✨" }
       ]
     },
     {
@@ -201,6 +202,7 @@ export default function AdminPanel({
       case "tema": return <ThemeView settings={siteSettings} />;
       case "layout": return <LayoutAdminView settings={siteSettings} />;
       case "web-design": return <WebDesignView />;
+      case "edit-design-v2": return <EditDesignV2View />;
       case "loading": return <LoadingView settings={siteSettings} />;
       case "chet-global": return <SettingsAiView settings={siteSettings} />;
       case "audio": return <AudioView settings={siteSettings} />;

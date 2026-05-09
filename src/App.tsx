@@ -77,7 +77,7 @@ const VpsStatusShowcase = lazy(
 const TimeDateCard = lazy(() => import("./components/common/TimeDateCard"));
 const GlobalChatDrawer = lazy(() => import("./components/views/GlobalChatDrawer").then(module => ({ default: module.GlobalChatDrawer })));
 
-function ShopStyleProductCard({ product, handleBuyProduct, openProductDetail }: any) {
+function ShopStyleProductCard({ product, openShopProductDetail, openDurationSheet, designV2Settings = DEFAULT_DESIGN_V2 }: any) {
   const image =
     product.image ||
     product.imageUrl ||
@@ -119,8 +119,16 @@ function ShopStyleProductCard({ product, handleBuyProduct, openProductDetail }: 
           : price;
 
   return (
-    <article className="shop-style-card">
-      <div className="shop-style-image-wrap">
+    <article 
+      className="shop-style-card"
+      onClick={() => openShopProductDetail(product)}
+    >
+      <div 
+        className="shop-style-image-wrap"
+        style={{
+          aspectRatio: designV2Settings.productImageRatio || "1/1"
+        }}
+      >
         {image ? (
           <img src={image} alt={name} className="shop-style-image" loading="lazy" />
         ) : (
@@ -143,7 +151,10 @@ function ShopStyleProductCard({ product, handleBuyProduct, openProductDetail }: 
           <button
             type="button"
             className="shop-style-detail-btn"
-            onClick={() => openProductDetail(product)}
+            onClick={(e) => {
+              e.stopPropagation();
+              openShopProductDetail(product);
+            }}
           >
             Detail
           </button>
@@ -151,7 +162,10 @@ function ShopStyleProductCard({ product, handleBuyProduct, openProductDetail }: 
           <button
             type="button"
             className="shop-style-buy-btn"
-            onClick={() => handleBuyProduct(product)}
+            onClick={(e) => {
+              e.stopPropagation();
+              openDurationSheet(product, "buy");
+            }}
           >
             Beli
           </button>
@@ -160,6 +174,40 @@ function ShopStyleProductCard({ product, handleBuyProduct, openProductDetail }: 
     </article>
   );
 }
+
+
+
+const DEFAULT_DESIGN_V2 = {
+  brandName: "Yonz Market",
+  brandSubtitle: "Premium Digital Store",
+  searchPlaceholder: "Cari produk digital...",
+  bannerEnabled: true,
+  bannerVideoUrl: "https://d.uguu.se/uTldvYoT.mp4",
+  bannerLabel: "Premium Digital Store",
+  bannerTitle: "Yonz Market",
+  bannerDescription: "Produk digital pilihan, cepat, aman, dan praktis.",
+  showCartIcon: true,
+  showChatIcon: true,
+  showBottomNav: true,
+  accentColor: "#06b6d4",
+  accentColor2: "#0ea5e9",
+  pageBackground: "#f8fafc",
+  cardBackground: "#ffffff",
+  mainTextColor: "#0f172a",
+  mutedTextColor: "#64748b",
+  priceColor: "#0891b2",
+  categoryAllLabel: "Semua",
+  productColumnsMobile: 2,
+  productImageRatio: "1/1",
+  productCardRadius: 12,
+  emptyTitle: "Produk belum tersedia",
+  emptyDescription: "Coba pilih kategori lain atau hapus pencarian.",
+  navHomeLabel: "Beranda",
+  navProductLabel: "Produk",
+  navRatingLabel: "Rating",
+  navChatLabel: "Chat",
+  navProfileLabel: "Saya"
+};
 
 function ShopStyleLayout({
   products = [],
@@ -171,15 +219,93 @@ function ShopStyleLayout({
   onHome,
   onChatAi,
   onAdmin,
-  onRating
+  onRating,
+  designV2Settings = DEFAULT_DESIGN_V2,
+  siteSettings
 }: any) {
   const [shopSearch, setShopSearch] = useState("");
+  
+  const [selectedShopProduct, setSelectedShopProduct] = useState<any>(null);
+  const [isShopProductDetailOpen, setIsShopProductDetailOpen] = useState(false);
+  const [isDurationSheetOpen, setIsDurationSheetOpen] = useState(false);
+  const [selectedDurationOption, setSelectedDurationOption] = useState<any>(null);
+  const [durationOrderMode, setDurationOrderMode] = useState("buy");
 
-  const safeCategories = Array.isArray(categories) ? categories : [];
+  function openShopProductDetail(product: any) {
+    setSelectedShopProduct(product);
+    setSelectedDurationOption(null);
+    setIsShopProductDetailOpen(true);
+  }
+
+  function closeShopProductDetail() {
+    setSelectedShopProduct(null);
+    setSelectedDurationOption(null);
+    setIsDurationSheetOpen(false);
+    setIsShopProductDetailOpen(false);
+  }
+
+  function openDurationSheet(product: any, mode = "buy") {
+    setSelectedShopProduct(product);
+    setDurationOrderMode(mode);
+    setSelectedDurationOption(null);
+    setIsDurationSheetOpen(true);
+  }
+
+  function submitDurationOrder(product: any, duration: any, mode = "buy") {
+    if (!product || !duration) {
+      alert("Pilih durasi terlebih dahulu.");
+      return;
+    }
+
+    const productName = getProductName(product);
+    const price = formatShopPrice(duration.price);
+    const durationLabel = duration.label;
+
+    const message = [
+      "Halo Admin, saya ingin order produk berikut:",
+      "",
+      `Produk: ${productName}`,
+      `Durasi: ${durationLabel}`,
+      `Harga: ${price}`,
+      `Metode: ${mode === "admin" ? "Order Via Admin" : mode === "chat" ? "Chat Sekarang" : "Beli Sekarang"}`,
+      "",
+      "Mohon instruksi selanjutnya."
+    ].join("\n");
+
+    const phoneNumber =
+      siteSettings?.contact?.whatsapp ||
+      siteSettings?.whatsappNumber ||
+      siteSettings?.ownerNumber ||
+      WHATSAPP_NUMBER ||
+      "";
+
+    const cleanPhone = String(phoneNumber).replace(/\D/g, "");
+
+    if (!cleanPhone) {
+      alert("Nomor WhatsApp admin belum diatur.");
+      return;
+    }
+
+    const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
+
+    window.open(waUrl, "_blank");
+  }
+
   const safeProducts = Array.isArray(products) ? products : [];
+  const safeCategories = Array.isArray(categories) ? categories : [];
 
   const visibleProducts = safeProducts.filter((product: any) => {
-    const isActive = product.isActive !== false;
+    const productName =
+      product.name ||
+      product.title ||
+      product.nama ||
+      "";
+
+    const productDesc =
+      product.description ||
+      product.desc ||
+      product.deskripsi ||
+      "";
 
     const productCategory =
       product.category ||
@@ -188,50 +314,95 @@ function ShopStyleLayout({
       product.type ||
       "";
 
+    const matchActive = product.isActive !== false;
+
     const matchCategory =
       !activeCategory ||
       activeCategory === "all" ||
       activeCategory === "semua" ||
       activeCategory === "Semua" ||
-      productCategory === activeCategory ||
       String(productCategory).toLowerCase() === String(activeCategory).toLowerCase();
 
-    const searchText = `${product.name || product.title || product.nama || ""} ${product.description || product.desc || product.deskripsi || ""}`.toLowerCase();
+    const matchSearch =
+      `${productName} ${productDesc}`.toLowerCase().includes(shopSearch.toLowerCase());
 
-    const matchSearch = searchText.includes(shopSearch.toLowerCase());
-
-    return isActive && matchCategory && matchSearch;
+    return matchActive && matchCategory && matchSearch;
   });
 
   return (
-    <main className="shop-style-page">
+    <main 
+      className="shop-style-page"
+      style={{
+        "--v2-accent": designV2Settings.accentColor,
+        "--v2-accent-2": designV2Settings.accentColor2,
+        "--v2-bg": designV2Settings.pageBackground,
+        "--v2-card": designV2Settings.cardBackground,
+        "--v2-text": designV2Settings.mainTextColor,
+        "--v2-muted": designV2Settings.mutedTextColor,
+        "--v2-price": designV2Settings.priceColor,
+        "--v2-card-radius": `${Number(designV2Settings.productCardRadius || 12)}px`,
+        "--v2-product-columns": Number(designV2Settings.productColumnsMobile || 2)
+      } as React.CSSProperties}
+    >
       <header className="shop-style-header">
         <div className="shop-style-search">
           <span>🔎</span>
           <input
             value={shopSearch}
             onChange={(e) => setShopSearch(e.target.value)}
-            placeholder="Cari produk digital..."
+            placeholder={designV2Settings.searchPlaceholder || "Cari produk digital..."}
           />
           <span>📷</span>
         </div>
 
-        <button type="button" className="shop-style-icon-btn" onClick={() => window.alert('Keranjang belum aktif')}>
-          🛒
-        </button>
+        {designV2Settings.showCartIcon && (
+          <button type="button" className="shop-style-icon-btn" onClick={() => window.alert('Keranjang belum aktif')}>
+            🛒
+          </button>
+        )}
 
-        <button type="button" className="shop-style-icon-btn" onClick={onChatAi}>
-          💬
-        </button>
+        {designV2Settings.showChatIcon && (
+          <button type="button" className="shop-style-icon-btn" onClick={onChatAi}>
+            💬
+          </button>
+        )}
       </header>
+
+      {designV2Settings.bannerEnabled && (
+        <section className="shop-live-banner">
+          {designV2Settings.bannerVideoUrl ? (
+            <video
+              className="shop-live-video"
+              src={designV2Settings.bannerVideoUrl}
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="metadata"
+            />
+          ) : null}
+
+          <div className="shop-live-overlay"></div>
+
+          <div className="shop-live-content">
+            <span>{designV2Settings.bannerLabel}</span>
+            <h2>{designV2Settings.bannerTitle}</h2>
+            <p>{designV2Settings.bannerDescription}</p>
+          </div>
+        </section>
+      )}
 
       <section className="shop-style-categories">
         <button
           type="button"
-          className={`shop-style-category ${!activeCategory || activeCategory === "all" || activeCategory === "semua" || activeCategory === "Semua" ? "active" : ""}`}
+          className={`shop-style-category ${
+            !activeCategory || activeCategory === "all" || activeCategory === "semua" || activeCategory === "Semua"
+              ? "active"
+              : ""
+          }`}
           onClick={() => setActiveCategory("Semua")}
         >
-          Semua
+          {designV2Settings.categoryAllLabel || "Semua"}
         </button>
 
         {safeCategories.map((cat: any) => {
@@ -242,7 +413,9 @@ function ShopStyleLayout({
             <button
               key={cat.id || catValue}
               type="button"
-              className={`shop-style-category ${String(activeCategory) === String(catValue) ? "active" : ""}`}
+              className={`shop-style-category ${
+                String(activeCategory) === String(catValue) ? "active" : ""
+              }`}
               onClick={() => setActiveCategory(catValue)}
             >
               {catLabel}
@@ -255,43 +428,235 @@ function ShopStyleLayout({
         {visibleProducts.length === 0 ? (
           <div className="shop-style-empty">
             <div>📦</div>
-            <h3>Produk belum tersedia</h3>
-            <p>Coba pilih kategori lain atau hapus pencarian.</p>
+            <h3>{designV2Settings.emptyTitle}</h3>
+            <p>{designV2Settings.emptyDescription}</p>
           </div>
         ) : (
           visibleProducts.map((product: any) => (
             <ShopStyleProductCard
               key={product.id}
               product={product}
-              handleBuyProduct={handleBuyProduct}
-              openProductDetail={openProductDetail}
+              openShopProductDetail={openShopProductDetail}
+              openDurationSheet={openDurationSheet}
+              designV2Settings={designV2Settings}
             />
           ))
         )}
       </section>
 
-      <nav className="shop-bottom-nav">
-        <button type="button" className="active" onClick={() => { onHome(); window.scrollTo(0, 0); }}>
-          <span>⌂</span>
-          <small>Beranda</small>
-        </button>
-        <button type="button" onClick={() => setActiveCategory("Semua")}>
-          <span>▣</span>
-          <small>Produk</small>
-        </button>
-        <button type="button" onClick={onRating}>
-          <span>★</span>
-          <small>Rating</small>
-        </button>
-        <button type="button" onClick={onChatAi}>
-          <span>💬</span>
-          <small>Chat</small>
-        </button>
-        <button type="button" onClick={onAdmin}>
-          <span>☻</span>
-          <small>Admin</small>
-        </button>
-      </nav>
+      {designV2Settings.showBottomNav && (
+        <nav className="shop-bottom-nav">
+          <button type="button" className="active" onClick={() => { onHome(); window.scrollTo(0, 0); }}>
+            <span>⌂</span>
+            <small>{designV2Settings.navHomeLabel || "Beranda"}</small>
+          </button>
+
+          <button type="button" onClick={() => setActiveCategory("Semua")}>
+            <span>▣</span>
+            <small>{designV2Settings.navProductLabel || "Produk"}</small>
+          </button>
+
+          <button type="button" onClick={onRating}>
+            <span>★</span>
+            <small>{designV2Settings.navRatingLabel || "Rating"}</small>
+          </button>
+
+          <button type="button" onClick={onChatAi}>
+            <span>💬</span>
+            <small>{designV2Settings.navChatLabel || "Chat"}</small>
+          </button>
+
+          <button type="button" onClick={onAdmin}>
+            <span>☻</span>
+            <small>{designV2Settings.navProfileLabel || "Saya"}</small>
+          </button>
+        </nav>
+      )}
+
+      {isShopProductDetailOpen && selectedShopProduct && (
+        <div className="shop-product-detail-page">
+          <div className="shop-detail-top-actions">
+            <button type="button" onClick={closeShopProductDetail}>←</button>
+
+            <div>
+              <button type="button">↗</button>
+              <button type="button" onClick={() => window.alert('Keranjang belum aktif')}>🛒</button>
+              <button type="button">⋮</button>
+            </div>
+          </div>
+
+          <section className="shop-detail-image-section">
+            {getProductImage(selectedShopProduct) ? (
+              <img
+                src={getProductImage(selectedShopProduct)}
+                alt={getProductName(selectedShopProduct)}
+                className="shop-detail-main-image"
+              />
+            ) : (
+              <div className="shop-detail-image-placeholder">✦</div>
+            )}
+
+            <span className="shop-detail-image-count">1/1</span>
+          </section>
+
+          <section className="shop-detail-info">
+            <div className="shop-detail-price-row">
+              <strong>
+                {formatShopPrice(
+                  selectedDurationOption?.price || getProductPrice(selectedShopProduct)
+                )}
+              </strong>
+
+              <span>{selectedShopProduct.sold || "24"} Terjual ♡</span>
+            </div>
+
+            <h1>{getProductName(selectedShopProduct)}</h1>
+
+            <p className="shop-detail-description">
+              {getProductDescription(selectedShopProduct)}
+            </p>
+
+            <div className="shop-detail-tags">
+              <span>Garansi Harga Terbaik</span>
+              <span>Cepat Diproses</span>
+              <span>Support Admin</span>
+            </div>
+          </section>
+
+          <section className="shop-detail-row">
+            <span>🚚</span>
+            <div>
+              <strong>Proses cepat setelah pembayaran</strong>
+              <p>Admin akan memberi instruksi selanjutnya via WhatsApp.</p>
+            </div>
+            <b>›</b>
+          </section>
+
+          <section className="shop-detail-row">
+            <span>🛡️</span>
+            <div>
+              <strong>Transaksi aman</strong>
+              <p>Detail order akan dikirim langsung ke admin.</p>
+            </div>
+            <b>›</b>
+          </section>
+
+          <section
+            className="shop-detail-variation-row"
+            onClick={() => openDurationSheet(selectedShopProduct, "buy")}
+          >
+            <strong>Pilih Durasi</strong>
+            <span>{selectedDurationOption?.label || "Pilih durasi produk"} ›</span>
+          </section>
+
+          <section className="shop-detail-rating">
+            <div>
+              <strong>5 ⭐ Penilaian Produk</strong>
+              <span>Lihat Semua ›</span>
+            </div>
+            <p>Produk sesuai deskripsi, proses cepat, dan admin responsif.</p>
+          </section>
+
+          <div className="shop-detail-bottom-bar">
+            <button
+              type="button"
+              className="shop-detail-chat-btn"
+              onClick={() => openDurationSheet(selectedShopProduct, "chat")}
+            >
+              💬
+              <small>Chat Sekarang</small>
+            </button>
+
+            <button
+              type="button"
+              className="shop-detail-admin-btn"
+              onClick={() => openDurationSheet(selectedShopProduct, "admin")}
+            >
+              🛒
+              <small>Order Via Admin</small>
+            </button>
+
+            <button
+              type="button"
+              className="shop-detail-buy-now-btn"
+              onClick={() => openDurationSheet(selectedShopProduct, "buy")}
+            >
+              Beli Sekarang
+              <strong>
+                {formatShopPrice(
+                  selectedDurationOption?.price || getProductPrice(selectedShopProduct)
+                )}
+              </strong>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {isDurationSheetOpen && selectedShopProduct && (
+        <div className="shop-duration-overlay" onClick={() => setIsDurationSheetOpen(false)}>
+          <div className="shop-duration-sheet" onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              className="shop-duration-close"
+              onClick={() => setIsDurationSheetOpen(false)}
+            >
+              ×
+            </button>
+
+            <div className="shop-duration-product-head">
+              <div className="shop-duration-thumb">
+                {getProductImage(selectedShopProduct) ? (
+                  <img src={getProductImage(selectedShopProduct)} alt={getProductName(selectedShopProduct)} />
+                ) : (
+                  <span>✦</span>
+                )}
+              </div>
+
+              <div>
+                <strong>
+                  {formatShopPrice(
+                    selectedDurationOption?.price || getProductPrice(selectedShopProduct)
+                  )}
+                </strong>
+                <p>{getProductName(selectedShopProduct)}</p>
+              </div>
+            </div>
+
+            <div className="shop-duration-section">
+              <div className="shop-duration-section-title">
+                Durasi
+              </div>
+
+              <div className="shop-duration-options">
+                {getProductDurations(selectedShopProduct).map((item: any, index: number) => (
+                  <button
+                    key={index}
+                    type="button"
+                    className={`shop-duration-option ${
+                      selectedDurationOption?.label === item.label ? "active" : ""
+                    }`}
+                    onClick={() => setSelectedDurationOption(item)}
+                  >
+                    <span>{item.label}</span>
+                    <small>{formatShopPrice(item.price)}</small>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <button
+              type="button"
+              className="shop-duration-submit"
+              disabled={!selectedDurationOption}
+              onClick={() => submitDurationOrder(selectedShopProduct, selectedDurationOption, durationOrderMode)}
+            >
+              {selectedDurationOption
+                ? `Lanjutkan Order ${formatShopPrice(selectedDurationOption.price)}`
+                : "Pilih Durasi Dulu"}
+            </button>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
@@ -328,6 +693,44 @@ function getProductCategory(product: any) {
     product?.type ||
     "Produk"
   );
+}
+
+function formatShopPrice(price: any) {
+  if (price === null || price === undefined || price === "") return "Hubungi Admin";
+
+  if (typeof price === "number") {
+    return `Rp${price.toLocaleString("id-ID")}`;
+  }
+
+  const text = String(price).trim();
+
+  if (text.toLowerCase().startsWith("rp")) return text;
+
+  if (/^\d+$/.test(text)) {
+    return `Rp${Number(text).toLocaleString("id-ID")}`;
+  }
+
+  return text;
+}
+
+function getProductDurations(product: any) {
+  if (Array.isArray(product?.durations) && product.durations.length > 0) {
+    return product.durations;
+  }
+
+  if (Array.isArray(product?.variants) && product.variants.length > 0) {
+    return product.variants.map((item: any) => ({
+      label: item.label || item.name || item.duration || "Durasi",
+      price: item.price || item.harga || product.price || product.harga || ""
+    }));
+  }
+
+  return [
+    {
+      label: product?.duration || "Default",
+      price: product?.price || product?.harga || "Hubungi Admin"
+    }
+  ];
 }
 
 function formatProductPrice(price: any) {
@@ -513,6 +916,21 @@ export default function App() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("Semua");
   const [isAiChatOpen, setIsAiChatOpen] = useState(false);
+  const [designV2Settings, setDesignV2Settings] = useState(DEFAULT_DESIGN_V2);
+
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, "settings", "designV2"), (snap) => {
+      if (snap.exists()) {
+        setDesignV2Settings({
+          ...DEFAULT_DESIGN_V2,
+          ...snap.data()
+        });
+      } else {
+        setDesignV2Settings(DEFAULT_DESIGN_V2);
+      }
+    });
+    return () => unsub();
+  }, []);
 
   const [selectedProductDetail, setSelectedProductDetail] = useState<any>(null);
   const [isProductDetailOpen, setIsProductDetailOpen] = useState(false);
@@ -933,6 +1351,8 @@ export default function App() {
               onChatAi={() => setIsAiChatOpen(true)}
               onAdmin={openAdminFromMainMenu}
               onRating={openRatingMenu}
+              designV2Settings={designV2Settings}
+              siteSettings={siteSettings}
             />
           ) : (
             <>
