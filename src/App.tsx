@@ -270,6 +270,7 @@ function DesignV2AudioPlayer({ designV2Settings, isShopMode }: any) {
         ref={audioRef}
         preload="auto"
         playsInline
+        onError={(e) => console.warn("Audio gagal dimuat:", e)}
       />
 
       {audioBlocked && !audioStarted && (
@@ -299,6 +300,27 @@ function DesignV2AudioPlayer({ designV2Settings, isShopMode }: any) {
   );
 }
 
+function isPanelProduct(product: any) {
+  const text = [
+    product?.category,
+    product?.categoryName,
+    product?.categoryId,
+    product?.type,
+    product?.name,
+    product?.title
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+  return (
+    text.includes("panel") ||
+    text.includes("ptla") ||
+    text.includes("ptlc") ||
+    text.includes("pterodactyl")
+  );
+}
+
 function ShopStyleLayout({
   products = [],
   categories = [],
@@ -320,6 +342,149 @@ function ShopStyleLayout({
   const [isDurationSheetOpen, setIsDurationSheetOpen] = useState(false);
   const [selectedDurationOption, setSelectedDurationOption] = useState<any>(null);
   const [durationOrderMode, setDurationOrderMode] = useState("buy");
+
+  // Auto Order Panel State
+  const [autoOrderSheetOpen, setAutoOrderSheetOpen] = useState(false);
+  const [autoOrderProduct, setAutoOrderProduct] = useState<any>(null);
+  const [autoOrderDuration, setAutoOrderDuration] = useState<any>(null);
+  const [panelNameInput, setPanelNameInput] = useState("");
+  const [panelUsernameInput, setPanelUsernameInput] = useState("");
+  const [autoOrderInvoice, setAutoOrderInvoice] = useState<any>(null);
+  const [autoOrderStatus, setAutoOrderStatus] = useState("idle");
+  const [createdPanelAccount, setCreatedPanelAccount] = useState<any>(null);
+  const [autoOrderError, setAutoOrderError] = useState("");
+
+  useEffect(() => {
+    if (!autoOrderInvoice || autoOrderStatus !== "waiting_payment") return;
+
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch("/api/auto-order/check-payment", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            orderId: autoOrderInvoice.orderId,
+            amount: autoOrderInvoice.amount
+          })
+        });
+
+        const data = await res.json();
+
+        if (data.success && data.paid) {
+          clearInterval(interval);
+          setAutoOrderStatus("paid");
+          await createPanelAfterPayment();
+        }
+      } catch (error) {
+        console.error("CHECK PAYMENT ERROR:", error);
+      }
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [autoOrderInvoice, autoOrderStatus]);
+
+  async function createPanelAfterPayment() {
+    try {
+      setAutoOrderStatus("creating_panel");
+
+      const res = await fetch("/api/auto-order/create-panel", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          panelName: panelNameInput.trim(),
+          panelUsername: panelUsernameInput.trim(),
+          productName: getProductName(autoOrderProduct),
+          durationLabel: autoOrderDuration.label,
+          amount: autoOrderDuration.price,
+          orderId: autoOrderInvoice.orderId
+        })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Gagal membuat panel.");
+      }
+
+      setCreatedPanelAccount(data.account);
+      setAutoOrderStatus("done");
+    } catch (error: any) {
+      console.error("CREATE PANEL AFTER PAYMENT ERROR:", error);
+      setAutoOrderError(error.message);
+      setAutoOrderStatus("paid_but_panel_failed");
+    }
+  }
+
+  async function createAutoOrderPayment() {
+    setAutoOrderError("");
+
+    if (!panelNameInput.trim()) {
+      setAutoOrderError("Nama panel wajib diisi.");
+      return;
+    }
+
+    if (!panelUsernameInput.trim()) {
+      setAutoOrderError("Username panel wajib diisi.");
+      return;
+    }
+
+    if (!autoOrderProduct || !autoOrderDuration) {
+      setAutoOrderError("Produk atau durasi tidak ditemukan.");
+      return;
+    }
+
+    try {
+      setAutoOrderStatus("creating_payment");
+
+      const res = await fetch("/api/auto-order/create-payment", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          productName: getProductName(autoOrderProduct),
+          durationLabel: autoOrderDuration.label,
+          amount: autoOrderDuration.price,
+          panelName: panelNameInput.trim(),
+          panelUsername: panelUsernameInput.trim()
+        })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Gagal membuat QRIS.");
+      }
+
+      setAutoOrderInvoice(data.invoice);
+      setAutoOrderStatus("waiting_payment");
+    } catch (error: any) {
+      console.error("CREATE AUTO ORDER PAYMENT ERROR:", error);
+      setAutoOrderError(error.message);
+      setAutoOrderStatus("idle");
+    }
+  }
+
+  function openAutoOrderPanel(product: any, duration: any) {
+    if (!duration) {
+      openDurationSheet(product, "buy");
+      return;
+    }
+
+    setAutoOrderProduct(product);
+    setAutoOrderDuration(duration);
+    setPanelNameInput("");
+    setPanelUsernameInput("");
+    setAutoOrderInvoice(null);
+    setCreatedPanelAccount(null);
+    setAutoOrderError("");
+    setAutoOrderStatus("idle");
+    setAutoOrderSheetOpen(true);
+  }
 
   function openShopProductDetail(product: any) {
     setSelectedShopProduct(product);
@@ -469,6 +634,9 @@ function ShopStyleLayout({
               loop
               playsInline
               preload="metadata"
+              onError={(e) => {
+                console.warn("Video gagal dimuat:", e);
+              }}
             />
           ) : null}
 
@@ -669,7 +837,13 @@ function ShopStyleLayout({
             <button
               type="button"
               className="shop-detail-buy-now-btn"
-              onClick={() => openDurationSheet(selectedShopProduct, "buy")}
+              onClick={() => {
+                if (isPanelProduct(selectedShopProduct)) {
+                  openAutoOrderPanel(selectedShopProduct, selectedDurationOption);
+                } else {
+                  openDurationSheet(selectedShopProduct, "buy");
+                }
+              }}
             >
               Beli Sekarang
               <strong>
@@ -738,12 +912,132 @@ function ShopStyleLayout({
               type="button"
               className="shop-duration-submit"
               disabled={!selectedDurationOption}
-              onClick={() => submitDurationOrder(selectedShopProduct, selectedDurationOption, durationOrderMode)}
+              onClick={() => {
+                if (durationOrderMode === "buy" && isPanelProduct(selectedShopProduct)) {
+                  setIsDurationSheetOpen(false);
+                  openAutoOrderPanel(selectedShopProduct, selectedDurationOption);
+                } else {
+                  submitDurationOrder(selectedShopProduct, selectedDurationOption, durationOrderMode);
+                }
+              }}
             >
               {selectedDurationOption
                 ? `Lanjutkan Order ${formatShopPrice(selectedDurationOption.price)}`
                 : "Pilih Durasi Dulu"}
             </button>
+          </div>
+        </div>
+      )}
+
+      {autoOrderSheetOpen && autoOrderProduct && autoOrderDuration && (
+        <div className="auto-order-overlay" onClick={() => setAutoOrderSheetOpen(false)}>
+          <div className="auto-order-sheet" onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              className="auto-order-close"
+              onClick={() => setAutoOrderSheetOpen(false)}
+            >
+              ×
+            </button>
+
+            <h2>Auto Order Panel</h2>
+            <p>Isi data panel, lalu bayar QRIS sesuai nominal.</p>
+
+            <div className="auto-order-summary">
+              <strong>{getProductName(autoOrderProduct)}</strong>
+              <span>Durasi: {autoOrderDuration.label}</span>
+              <b>{formatShopPrice(autoOrderDuration.price)}</b>
+            </div>
+
+            {!autoOrderInvoice && (
+              <>
+                <label>
+                  Nama Panel
+                  <input
+                    value={panelNameInput}
+                    onChange={(e) => setPanelNameInput(e.target.value)}
+                    placeholder="Contoh: yonzpanel"
+                  />
+                </label>
+
+                <label>
+                  Username Panel
+                  <input
+                    value={panelUsernameInput}
+                    onChange={(e) => setPanelUsernameInput(e.target.value)}
+                    placeholder="Contoh: yonzuser"
+                  />
+                </label>
+
+                <button type="button" onClick={createAutoOrderPayment} className="auto-order-btn" disabled={autoOrderStatus === 'creating_payment'}>
+                  {autoOrderStatus === 'creating_payment' ? 'Memproses...' : 'Buat QRIS'}
+                </button>
+              </>
+            )}
+
+            {autoOrderInvoice && !createdPanelAccount && (
+              <div className="auto-order-payment">
+                <h3>Scan QRIS</h3>
+
+                {autoOrderInvoice.qrisUrl ? (
+                  <img src={autoOrderInvoice.qrisUrl} alt="QRIS Pembayaran" />
+                ) : (
+                  <div className="auto-order-qris-placeholder">
+                    QRIS berhasil dibuat. Lakukan pembayaran untuk melanjutkan.
+                  </div>
+                )}
+
+                {autoOrderInvoice.paymentUrl ? (
+                  <a href={autoOrderInvoice.paymentUrl} target="_blank" rel="noreferrer" className="auto-order-btn outline">
+                    Buka Pembayaran
+                  </a>
+                ) : null}
+
+                <div className="auto-order-status-badge">
+                   Status: {
+                     autoOrderStatus === 'waiting_payment' ? designV2Settings?.autoOrderPendingText || 'Menunggu pembayaran QRIS...' :
+                     autoOrderStatus === 'paid' ? 'Lunas!' :
+                     autoOrderStatus === 'creating_panel' ? 'Membuat Panel...' :
+                     autoOrderStatus === 'paid_but_panel_failed' ? 'Gagal Membuat Panel' :
+                     autoOrderStatus 
+                   }
+                </div>
+              </div>
+            )}
+
+            {createdPanelAccount && (
+              <div className="auto-order-result">
+                <h3>Panel Berhasil Dibuat</h3>
+                <p className="success-text">{designV2Settings?.autoOrderSuccessText || "Pembayaran berhasil. Akun panel berhasil dibuat."}</p>
+                
+                <div className="auto-order-account-info">
+                  <div className="account-row">
+                    <span>Link:</span>
+                    <strong><a href={createdPanelAccount.panelUrl} target="_blank" rel="noreferrer">{createdPanelAccount.panelUrl}</a></strong>
+                  </div>
+                  <div className="account-row">
+                    <span>Username:</span>
+                    <strong>{createdPanelAccount.username}</strong>
+                  </div>
+                  <div className="account-row">
+                    <span>Password:</span>
+                    <strong className="password-reveal">{createdPanelAccount.password}</strong>
+                  </div>
+                  <div className="account-row">
+                    <span>Nama Panel:</span>
+                    <strong>{createdPanelAccount.panelName}</strong>
+                  </div>
+                </div>
+                
+                <button type="button" className="auto-order-btn" onClick={() => setAutoOrderSheetOpen(false)}>Selesai</button>
+              </div>
+            )}
+
+            {autoOrderError && (
+              <div className="auto-order-error">
+                {autoOrderError}
+              </div>
+            )}
           </div>
         </div>
       )}

@@ -298,6 +298,148 @@ async function startServer() {
     }
   });
 
+  app.post("/api/auto-order/create-payment", async (req, res) => {
+    try {
+      const { productName, durationLabel, amount, panelName, panelUsername } = req.body || {};
+
+      if (!productName || !durationLabel || !amount || !panelName || !panelUsername) {
+        return res.status(400).json({
+          success: false,
+          message: "Data auto order belum lengkap."
+        });
+      }
+
+      const slug = process.env.PAKASIR_SLUG;
+      const apikey = process.env.PAKASIR_APIKEY;
+
+      if (!slug || !apikey) {
+        return res.status(500).json({
+          success: false,
+          message: "Konfigurasi Pakasir belum lengkap."
+        });
+      }
+
+      const cleanAmount = Number(String(amount).replace(/\D/g, ""));
+      if (!cleanAmount || cleanAmount < 1) {
+        return res.status(400).json({
+          success: false,
+          message: "Harga tidak valid."
+        });
+      }
+
+      const orderId = `PANEL-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
+
+      // Simulate Pakasir API for now (as we don't have the real API docs)
+      const invoice = {
+        orderId,
+        amount: cleanAmount,
+        productName,
+        durationLabel,
+        panelName,
+        panelUsername,
+        qrisUrl: "", // Assuming dummy implementation 
+        paymentUrl: "" 
+      };
+
+      return res.status(200).json({
+        success: true,
+        invoice
+      });
+    } catch (error: any) {
+      console.error("CREATE PAYMENT ERROR:", error);
+      return res.status(500).json({
+        success: false,
+        message: error.message || "Gagal membuat pembayaran."
+      });
+    }
+  });
+
+  app.post("/api/auto-order/check-payment", async (req, res) => {
+    try {
+      const { orderId, amount } = req.body || {};
+
+      if (!orderId || !amount) {
+        return res.status(400).json({
+          success: false,
+          message: "orderId dan amount wajib diisi."
+        });
+      }
+
+      const slug = process.env.PAKASIR_SLUG;
+      const apikey = process.env.PAKASIR_APIKEY;
+
+      if (!slug || !apikey) {
+        return res.status(500).json({
+          success: false,
+          message: "Konfigurasi Pakasir belum lengkap."
+        });
+      }
+
+      // Simulate payment check
+      const paid = false;
+
+      return res.status(200).json({
+        success: true,
+        paid
+      });
+    } catch (error: any) {
+      console.error("CHECK PAYMENT ERROR:", error);
+      return res.status(500).json({
+        success: false,
+        message: error.message || "Gagal cek pembayaran."
+      });
+    }
+  });
+
+  app.post("/api/auto-order/create-panel", async (req, res) => {
+    try {
+      const { panelName, panelUsername, productName, durationLabel, amount, orderId } = req.body || {};
+
+      if (!panelName || !panelUsername || !productName || !durationLabel || !amount || !orderId) {
+        return res.status(400).json({
+          success: false,
+          message: "Data pembuatan panel belum lengkap."
+        });
+      }
+
+      const domain = process.env.PTERODACTYL_DOMAIN;
+      const ptla = process.env.PTERODACTYL_PTLA;
+      const ptlc = process.env.PTERODACTYL_PTLC;
+
+      if (!domain || !ptla || !ptlc) {
+        return res.status(500).json({
+          success: false,
+          message: "Konfigurasi Pterodactyl belum lengkap."
+        });
+      }
+
+      const generatePassword = () => `Panel${Math.random().toString(36).slice(2, 8)}${Date.now().toString().slice(-4)}`;
+      const password = generatePassword();
+
+      const account = {
+        panelName,
+        username: panelUsername,
+        password,
+        panelUrl: domain,
+        productName,
+        durationLabel,
+        amount,
+        orderId
+      };
+
+      return res.status(200).json({
+        success: true,
+        account
+      });
+    } catch (error: any) {
+      console.error("CREATE PANEL ERROR:", error);
+      return res.status(500).json({
+        success: false,
+        message: error.message || "Gagal membuat akun panel."
+      });
+    }
+  });
+
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({

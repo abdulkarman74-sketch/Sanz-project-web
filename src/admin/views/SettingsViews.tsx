@@ -1953,7 +1953,16 @@ const DEFAULT_DESIGN_V2 = {
   audioEnabled: true,
   audioUrl: "https://c.termai.cc/a177/TO4G8Sr.mp3",
   audioVolume: 0.45,
-  audioLoop: true
+  audioLoop: true,
+  autoOrderPanelEnabled: true,
+  panelDomain: "https://rexzzypublictod.zonapanel.web.id/",
+  pakasirSlug: "barrstore",
+  pakasirApiKey: "",
+  ptlaKey: "",
+  ptlcKey: "",
+  autoOrderSuccessText: "Pembayaran berhasil. Akun panel berhasil dibuat.",
+  autoOrderPendingText: "Menunggu pembayaran QRIS...",
+  autoOrderFailedText: "Pembayaran belum terdeteksi atau gagal."
 };
 
 export const EditDesignV2View = () => {
@@ -1998,6 +2007,15 @@ export const EditDesignV2View = () => {
           audioUrl: designV2Form.audioUrl || "https://c.termai.cc/a177/TO4G8Sr.mp3",
           audioVolume: Number(designV2Form.audioVolume ?? 0.45),
           audioLoop: designV2Form.audioLoop !== false,
+          autoOrderPanelEnabled: Boolean(designV2Form.autoOrderPanelEnabled),
+          panelDomain: designV2Form.panelDomain,
+          pakasirSlug: designV2Form.pakasirSlug,
+          pakasirApiKey: designV2Form.pakasirApiKey,
+          ptlaKey: designV2Form.ptlaKey,
+          ptlcKey: designV2Form.ptlcKey,
+          autoOrderSuccessText: designV2Form.autoOrderSuccessText || "Pembayaran berhasil. Akun panel berhasil dibuat.",
+          autoOrderPendingText: designV2Form.autoOrderPendingText || "Menunggu pembayaran QRIS...",
+          autoOrderFailedText: designV2Form.autoOrderFailedText || "Pembayaran belum terdeteksi atau gagal.",
           updatedAt: serverTimestamp()
         },
         { merge: true }
@@ -2436,6 +2454,139 @@ export const EditDesignV2View = () => {
         >
           Test Audio
         </button>
+      </section>
+
+      <section className="admin-design-v2-section">
+        <h3>Auto Order Panel V2</h3>
+
+        <label className="admin-design-v2-check">
+          <input
+            type="checkbox"
+            checked={designV2Form.autoOrderPanelEnabled !== false}
+            onChange={(e) =>
+              setDesignV2Form((prev: any) => ({
+                ...prev,
+                autoOrderPanelEnabled: e.target.checked
+              }))
+            }
+          />
+          Aktifkan Auto Order Panel
+        </label>
+
+        <label>
+          Domain Panel
+          <input
+            value={designV2Form.panelDomain || ""}
+            onChange={(e) =>
+              setDesignV2Form((prev: any) => ({
+                ...prev,
+                panelDomain: e.target.value
+              }))
+            }
+            placeholder="https://rexzzypublictod.zonapanel.web.id/"
+          />
+        </label>
+
+        <label>
+          Pakasir Slug
+          <input
+            value={designV2Form.pakasirSlug || ""}
+            onChange={(e) =>
+              setDesignV2Form((prev: any) => ({
+                ...prev,
+                pakasirSlug: e.target.value
+              }))
+            }
+            placeholder="barrstore"
+          />
+        </label>
+
+        <label>
+          Pakasir API Key
+          <input
+            type="password"
+            value={designV2Form.pakasirApiKey || ""}
+            onChange={(e) =>
+              setDesignV2Form((prev: any) => ({
+                ...prev,
+                pakasirApiKey: e.target.value
+              }))
+            }
+            placeholder="(Biarkan kosong jika pakai env vars)"
+          />
+        </label>
+
+        <label>
+          PTLA Key
+          <input
+            type="password"
+            value={designV2Form.ptlaKey || ""}
+            onChange={(e) =>
+              setDesignV2Form((prev: any) => ({
+                ...prev,
+                ptlaKey: e.target.value
+              }))
+            }
+            placeholder="(Biarkan kosong jika pakai env vars)"
+          />
+        </label>
+
+        <label>
+          PTLC Key
+          <input
+            type="password"
+            value={designV2Form.ptlcKey || ""}
+            onChange={(e) =>
+              setDesignV2Form((prev: any) => ({
+                ...prev,
+                ptlcKey: e.target.value
+              }))
+            }
+            placeholder="(Biarkan kosong jika pakai env vars)"
+          />
+        </label>
+
+        <label>
+          Pesan Sukses (Pembayaran Lunas)
+          <textarea
+            value={designV2Form.autoOrderSuccessText || ""}
+            onChange={(e) =>
+              setDesignV2Form((prev: any) => ({
+                ...prev,
+                autoOrderSuccessText: e.target.value
+              }))
+            }
+            rows={2}
+          />
+        </label>
+
+        <label>
+          Pesan Pending (Menunggu Bayar)
+          <textarea
+            value={designV2Form.autoOrderPendingText || ""}
+            onChange={(e) =>
+              setDesignV2Form((prev: any) => ({
+                ...prev,
+                autoOrderPendingText: e.target.value
+              }))
+            }
+            rows={2}
+          />
+        </label>
+
+        <label>
+          Pesan Gagal (Expired/Error)
+          <textarea
+            value={designV2Form.autoOrderFailedText || ""}
+            onChange={(e) =>
+              setDesignV2Form((prev: any) => ({
+                ...prev,
+                autoOrderFailedText: e.target.value
+              }))
+            }
+            rows={2}
+          />
+        </label>
       </section>
     
       <div className="admin-design-v2-actions">
