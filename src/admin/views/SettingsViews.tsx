@@ -1949,7 +1949,11 @@ const DEFAULT_DESIGN_V2 = {
   navProductLabel: "Produk",
   navRatingLabel: "Rating",
   navChatLabel: "Chat",
-  navProfileLabel: "Saya"
+  navProfileLabel: "Saya",
+  audioEnabled: true,
+  audioUrl: "https://c.termai.cc/a177/TO4G8Sr.mp3",
+  audioVolume: 0.45,
+  audioLoop: true
 };
 
 export const EditDesignV2View = () => {
@@ -1990,6 +1994,10 @@ export const EditDesignV2View = () => {
           ...designV2Form,
           productColumnsMobile: Number(designV2Form.productColumnsMobile || 2),
           productCardRadius: Number(designV2Form.productCardRadius || 12),
+          audioEnabled: Boolean(designV2Form.audioEnabled),
+          audioUrl: designV2Form.audioUrl || "https://c.termai.cc/a177/TO4G8Sr.mp3",
+          audioVolume: Number(designV2Form.audioVolume ?? 0.45),
+          audioLoop: designV2Form.audioLoop !== false,
           updatedAt: serverTimestamp()
         },
         { merge: true }
@@ -2339,6 +2347,95 @@ export const EditDesignV2View = () => {
             rows={3}
           />
         </label>
+      </section>
+
+      <section className="admin-design-v2-section">
+        <h3>Audio Background V2</h3>
+
+        <label className="admin-design-v2-check">
+          <input
+            type="checkbox"
+            checked={designV2Form.audioEnabled !== false}
+            onChange={(e) =>
+              setDesignV2Form((prev: any) => ({
+                ...prev,
+                audioEnabled: e.target.checked
+              }))
+            }
+          />
+          Aktifkan Audio di Desain V2
+        </label>
+
+        <label>
+          URL Audio V2
+          <input
+            value={designV2Form.audioUrl || ""}
+            onChange={(e) =>
+              setDesignV2Form((prev: any) => ({
+                ...prev,
+                audioUrl: e.target.value
+              }))
+            }
+            placeholder="https://c.termai.cc/a177/TO4G8Sr.mp3"
+          />
+        </label>
+
+        <label>
+          Volume Audio V2
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.05"
+            value={designV2Form.audioVolume ?? 0.45}
+            onChange={(e) =>
+              setDesignV2Form((prev: any) => ({
+                ...prev,
+                audioVolume: Number(e.target.value)
+              }))
+            }
+          />
+          <small>{Math.round((designV2Form.audioVolume ?? 0.45) * 100)}%</small>
+        </label>
+
+        <label className="admin-design-v2-check">
+          <input
+            type="checkbox"
+            checked={designV2Form.audioLoop !== false}
+            onChange={(e) =>
+              setDesignV2Form((prev: any) => ({
+                ...prev,
+                audioLoop: e.target.checked
+              }))
+            }
+          />
+          Loop Audio
+        </label>
+
+        <button
+          type="button"
+          className="admin-design-v2-test-audio"
+          onClick={() => {
+            const audio = new Audio(designV2Form.audioUrl || "https://c.termai.cc/a177/TO4G8Sr.mp3");
+            audio.volume = Number(designV2Form.audioVolume ?? 0.45);
+            audio.play().catch((error) => {
+              alert("Audio tidak bisa diputar otomatis/browser memblokir audio.");
+              console.error("TEST AUDIO ERROR:", error);
+            });
+          }}
+          style={{
+            marginTop: '10px',
+            padding: '8px 16px',
+            background: 'var(--theme-accent)',
+            color: '#fff',
+            borderRadius: '6px',
+            border: 'none',
+            cursor: 'pointer',
+            fontSize: '14px'
+          }}
+        >
+          Test Audio
+        </button>
       </section>
     
       <div className="admin-design-v2-actions">

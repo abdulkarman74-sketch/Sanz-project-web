@@ -206,8 +206,98 @@ const DEFAULT_DESIGN_V2 = {
   navProductLabel: "Produk",
   navRatingLabel: "Rating",
   navChatLabel: "Chat",
-  navProfileLabel: "Saya"
+  navProfileLabel: "Saya",
+  audioEnabled: true,
+  audioUrl: "https://c.termai.cc/a177/TO4G8Sr.mp3",
+  audioVolume: 0.45,
+  audioLoop: true
 };
+
+function DesignV2AudioPlayer({ designV2Settings, isShopMode }: any) {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [audioBlocked, setAudioBlocked] = useState(false);
+  const [audioStarted, setAudioStarted] = useState(false);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+
+    if (!audio) return;
+
+    if (!isShopMode || designV2Settings?.audioEnabled === false || !designV2Settings?.audioUrl) {
+      audio.pause();
+      audio.currentTime = 0;
+      setAudioStarted(false);
+      setAudioBlocked(false);
+      return;
+    }
+
+    audio.src = designV2Settings.audioUrl;
+    audio.volume = Number(designV2Settings.audioVolume ?? 0.45);
+    audio.loop = designV2Settings.audioLoop !== false;
+
+    const tryPlay = async () => {
+      try {
+        await audio.play();
+        setAudioStarted(true);
+        setAudioBlocked(false);
+      } catch (error) {
+        console.warn("Autoplay audio diblokir browser:", error);
+        setAudioBlocked(true);
+        setAudioStarted(false);
+      }
+    };
+
+    tryPlay();
+
+    return () => {
+      audio.pause();
+    };
+  }, [
+    isShopMode,
+    designV2Settings?.audioEnabled,
+    designV2Settings?.audioUrl,
+    designV2Settings?.audioVolume,
+    designV2Settings?.audioLoop
+  ]);
+
+  if (!isShopMode || designV2Settings?.audioEnabled === false) {
+    return null;
+  }
+
+  return (
+    <>
+      <audio
+        ref={audioRef}
+        preload="auto"
+        playsInline
+      />
+
+      {audioBlocked && !audioStarted && (
+        <button
+          type="button"
+          className="design-v2-audio-unlock"
+          onClick={async () => {
+             try {
+               const audio = audioRef.current;
+               if (!audio) return;
+
+               audio.volume = Number(designV2Settings.audioVolume ?? 0.45);
+               audio.loop = designV2Settings.audioLoop !== false;
+
+               await audio.play();
+               setAudioStarted(true);
+               setAudioBlocked(false);
+             } catch (error) {
+               console.error("MANUAL AUDIO PLAY ERROR:", error);
+             }
+          }}
+        >
+          🔊 Aktifkan Musik
+        </button>
+      )}
+    </>
+  );
+}
 
 function ShopStyleLayout({
   products = [],
@@ -1339,6 +1429,10 @@ export default function App() {
 
       {(!loading || siteSettings.loading?.enabled === false) && (
         <>
+          <DesignV2AudioPlayer
+            designV2Settings={designV2Settings}
+            isShopMode={siteSettings?.layout?.designMode === 'shop'}
+          />
           {siteSettings?.layout?.designMode === 'shop' ? (
             <ShopStyleLayout 
               products={storeProducts}

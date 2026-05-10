@@ -9235,3 +9235,25 @@ body[data-design-mode="shop"] .shop-bottom-nav {
     font-size: 22px !important;
   }
 }
+
+.design-v2-audio-unlock {
+  position: fixed !important;
+  right: 14px !important;
+  bottom: 82px !important;
+  z-index: 99999 !important;
+  min-height: 38px !important;
+  padding: 0 13px !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(8, 145, 178, 0.24) !important;
+  background: rgba(255, 255, 255, 0.92) !important;
+  color: #0891b2 !important;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.16) !important;
+  backdrop-filter: blur(12px) !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  cursor: pointer !important;
+}
+
+.design-v2-audio-unlock:active {
+  transform: scale(0.96) !important;
+}
